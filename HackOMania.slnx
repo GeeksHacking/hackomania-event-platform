@@ -1,1 +1,3 @@
-<Solution />
+<Solution>
+  <Project Path="HackOMania.AppHost/HackOMania.AppHost.csproj" />
+</Solution>

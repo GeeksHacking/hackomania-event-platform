@@ -8,4 +8,8 @@
     <UserSecretsId>11f68e83-10ec-43ea-b3e1-d2ca8c176b63</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../HackOMania.Api/HackOMania.Api.csproj" />
+  </ItemGroup>
+
 </Project>

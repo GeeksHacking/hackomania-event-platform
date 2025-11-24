@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="HackOMania.Api/HackOMania.Api.csproj" />
   <Project Path="HackOMania.AppHost/HackOMania.AppHost.csproj" />
   <Project Path="HackOMania.ServiceDefaults/HackOMania.ServiceDefaults.csproj" />
 </Solution>

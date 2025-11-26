@@ -3,7 +3,7 @@
 
 <template>
   <UDashboardPanel
-    id="dash-index"
+    id="dashboard"
   >
     <template #header>
       <UDashboardNavbar title="Dashboard">

@@ -1,5 +1,5 @@
 {
-  "name": "HackOMania-WebApp",
+  "name": "@geekshacking/hackomania",
   "type": "module",
   "private": true,
   "scripts": {
@@ -10,15 +10,25 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@microsoft/kiota-abstractions": "1.0.0-preview.99",
+    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-form": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-json": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
     "@nuxt/eslint": "1.10.0",
+    "@nuxt/fonts": "^0.12.1",
     "@nuxt/hints": "1.0.0-alpha.2",
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.0",
     "@nuxt/test-utils": "3.20.1",
     "@nuxt/ui": "4.2.1",
+    "@tanstack/vue-query": "^5.91.2",
+    "@types/node": "^24.10.1",
     "@unhead/vue": "^2.0.19",
     "eslint": "^9.39.1",
     "nuxt": "^4.2.1",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "vue": "^3.5.24",
     "vue-router": "^4.6.3"

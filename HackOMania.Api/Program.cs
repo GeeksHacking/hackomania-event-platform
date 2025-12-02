@@ -2,8 +2,10 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using HackOMania.Api.Options;
+using HackOMania.Api.Workers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using SqlSugar;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,20 @@ builder.AddServiceDefaults();
 
 builder.Services.AddOptions<AppOptions>().Bind(builder.Configuration.GetSection("App"));
 builder.Services.AddOptions<GitHubOptions>().Bind(builder.Configuration.GetSection("GitHub"));
+
+builder.Services.AddSingleton<ISqlSugarClient>(s =>
+{
+    var sqlSugar = new SqlSugarScope(
+        new ConnectionConfig()
+        {
+            DbType = DbType.Sqlite,
+            ConnectionString = "DataSource=app.db",
+            IsAutoCloseConnection = true,
+        },
+        db => { }
+    );
+    return sqlSugar;
+});
 
 builder.Services.AddDbContext<DbContext>(options =>
 {
@@ -20,7 +36,10 @@ builder.Services.AddDbContext<DbContext>(options =>
 
 builder
     .Services.AddOpenIddict()
-    .AddCore(options => { options.UseEntityFrameworkCore().UseDbContext<DbContext>(); })
+    .AddCore(options =>
+    {
+        options.UseEntityFrameworkCore().UseDbContext<DbContext>();
+    })
     .AddClient(options =>
     {
         options.AllowAuthorizationCodeFlow();
@@ -53,9 +72,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Environment.IsDevelopment()
-            ? ["http://localhost:3000"]
-            : ["https://hackomania.geekshacking.org"]);
+        policy.WithOrigins(
+            builder.Environment.IsDevelopment()
+                ? ["http://localhost:3000"]
+                : ["https://hackomania.geekshacking.org"]
+        );
 
         policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
@@ -70,6 +91,8 @@ builder.Services.SwaggerDocument(options =>
         settings.Version = "v1";
     };
 });
+
+builder.Services.AddHostedService<DatabaseInitBackgroundService>();
 
 var app = builder.Build();
 

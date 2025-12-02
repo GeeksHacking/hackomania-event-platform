@@ -64,20 +64,20 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
-      - name: Deploy
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: 22
-          script: |
-            podman stop hackomania-event-platform;
-            podman rm hackomania-event-platform;
-            podman pull ghcr.io/geekshacking/hackomania-event-platform:main;
-            podman run -d --restart=unless-stopped \
-            	--name hackomania-event-platform \
-            	-p 5000:8080 \
-            	-e ASPNETCORE_FORWARDEDHEADERS_ENABLED="true" \
-            	ghcr.io/geekshacking/hackomania-event-platform:main;
+      # - name: Deploy
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     password: ${{ secrets.PASSWORD }}
+      #     port: 22
+      #     script: |
+      #       podman stop hackomania-event-platform;
+      #       podman rm hackomania-event-platform;
+      #       podman pull ghcr.io/geekshacking/hackomania-event-platform:main;
+      #       podman run -d --restart=unless-stopped \
+      #       	--name hackomania-event-platform \
+      #       	-p 5000:8080 \
+      #       	-e ASPNETCORE_FORWARDEDHEADERS_ENABLED="true" \
+      #       	ghcr.io/geekshacking/hackomania-event-platform:main;

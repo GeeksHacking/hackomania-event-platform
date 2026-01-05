@@ -34,4 +34,5 @@ jobs:
         with:
           command: up
           stack-name: production
+          upsert: true
           cloud-url: gs://hackomania-pulumi-state

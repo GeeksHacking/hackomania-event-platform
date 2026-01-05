@@ -53,7 +53,7 @@ public class DefaultStack : Stack
             "hackomania-api-deployer-artifact-registry-writer",
             new ProjectIam.IAMMemberArgs
             {
-                Project = "hackomania-event-platform",
+                Project = "hackomania-event-portal",
                 Role = "roles/artifactregistry.writer",
                 Member = Output.Format($"serviceAccount:{deployerServiceAccount.Email}"),
             }
@@ -63,7 +63,7 @@ public class DefaultStack : Stack
             "hackomania-api-deployer-cloud-run-admin",
             new ProjectIam.IAMMemberArgs
             {
-                Project = "hackomania-event-platform",
+                Project = "hackomania-event-portal",
                 Role = "roles/run.admin",
                 Member = Output.Format($"serviceAccount:{deployerServiceAccount.Email}"),
             }
@@ -73,7 +73,7 @@ public class DefaultStack : Stack
             "hackomania-api-deployer-service-account-user",
             new ProjectIam.IAMMemberArgs
             {
-                Project = "hackomania-event-platform",
+                Project = "hackomania-event-portal",
                 Role = "roles/iam.serviceAccountUser",
                 Member = Output.Format($"serviceAccount:{deployerServiceAccount.Email}"),
             }
@@ -87,7 +87,7 @@ public class DefaultStack : Stack
                 Role = "roles/iam.workloadIdentityUser",
                 Members = new[]
                 {
-                    $"principalSet://iam.googleapis.com/projects/242247218750/locations/global/workloadIdentityPools/github/attribute.repository/GeeksHacking/hackomania-event-platform",
+                    $"principalSet://iam.googleapis.com/projects/242247218750/locations/global/workloadIdentityPools/github/attribute.repository/GeeksHacking/hackomania-event-portal",
                 },
             }
         );

@@ -1,3 +1,4 @@
+using HackOMania.Api.Entities;
 using SqlSugar;
 
 namespace HackOMania.Api.Workers;
@@ -12,19 +13,19 @@ public class DatabaseInitBackgroundService(
         logger.LogInformation("Initializing database...");
 
         sql.DbMaintenance.CreateDatabase();
-        sql.CodeFirst.InitTables<Entities.GitHubOnlineAccount>();
-        sql.CodeFirst.InitTables<Entities.Hackathon>();
-        sql.CodeFirst.InitTables<Entities.Judge>();
-        sql.CodeFirst.InitTables<Entities.OnlineAccount>();
-        sql.CodeFirst.InitTables<Entities.Organizer>();
-        sql.CodeFirst.InitTables<Entities.Participant>();
-        sql.CodeFirst.InitTables<Entities.ParticipantReview>();
-        sql.CodeFirst.InitTables<Entities.Challenge>();
-        sql.CodeFirst.InitTables<Entities.ChallengeSubmission>();
-        sql.CodeFirst.InitTables<Entities.Resource>();
-        sql.CodeFirst.InitTables<Entities.ResourceRedemption>();
-        sql.CodeFirst.InitTables<Entities.Team>();
-        sql.CodeFirst.InitTables<Entities.User>();
+        sql.CodeFirst.InitTables<GitHubOnlineAccount>();
+        sql.CodeFirst.InitTables<Hackathon>();
+        sql.CodeFirst.InitTables<Judge>();
+        sql.CodeFirst.InitTables<OnlineAccount>();
+        sql.CodeFirst.InitTables<Organizer>();
+        sql.CodeFirst.InitTables<Participant>();
+        sql.CodeFirst.InitTables<ParticipantReview>();
+        sql.CodeFirst.InitTables<Challenge>();
+        sql.CodeFirst.InitTables<ChallengeSubmission>();
+        sql.CodeFirst.InitTables<Resource>();
+        sql.CodeFirst.InitTables<ResourceRedemption>();
+        sql.CodeFirst.InitTables<Team>();
+        sql.CodeFirst.InitTables<User>();
 
         return Task.CompletedTask;
     }

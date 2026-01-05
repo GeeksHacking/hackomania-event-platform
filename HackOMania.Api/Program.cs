@@ -22,10 +22,10 @@ builder.Services.AddOptions<AdminOptions>().Bind(builder.Configuration.GetSectio
 builder.Services.AddSingleton<ISqlSugarClient>(s =>
 {
     var sqlSugar = new SqlSugarScope(
-        new ConnectionConfig()
+        new ConnectionConfig
         {
             DbType = DbType.Sqlite,
-            ConnectionString = "DataSource=app.db",
+            ConnectionString = "Data Source=:memory:",
             IsAutoCloseConnection = true,
         },
         db => { }

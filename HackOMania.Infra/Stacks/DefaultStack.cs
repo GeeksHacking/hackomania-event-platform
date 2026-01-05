@@ -92,62 +92,62 @@ public class DefaultStack : Stack
             }
         );
 
-        var cloudRunService = new CloudRun.Service(
-            "hackomania-api",
-            new CloudRun.ServiceArgs
-            {
-                Name = "hackomania-api",
-                Location = "asia-southeast1",
-                Description = "HackOMania API Service",
-                Ingress = "INGRESS_TRAFFIC_ALL",
-                Template = new ServiceTemplateArgs
-                {
-                    ServiceAccount = cloudRunServiceAccount.Email,
-                    MaxInstanceRequestConcurrency = 128,
-                    Scaling = new ServiceTemplateScalingArgs
-                    {
-                        MinInstanceCount = 0,
-                        MaxInstanceCount = 10,
-                    },
-                    Containers = new[]
-                    {
-                        new ServiceTemplateContainerArgs
-                        {
-                            Ports = new ServiceTemplateContainerPortsArgs
-                            {
-                                ContainerPort = 8080,
-                                Name = "http1",
-                            },
-                            Resources = new ServiceTemplateContainerResourcesArgs
-                            {
-                                Limits = { { "cpu", "1" }, { "memory", "512Mi" } },
-                            },
-                            Envs = new[]
-                            {
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "ASPNETCORE_ENVIRONMENT",
-                                    Value = "Production",
-                                },
-                            },
-                        },
-                    },
-                },
-            }
-        );
+        // var cloudRunService = new CloudRun.Service(
+        //     "hackomania-api",
+        //     new CloudRun.ServiceArgs
+        //     {
+        //         Name = "hackomania-api",
+        //         Location = "asia-southeast1",
+        //         Description = "HackOMania API Service",
+        //         Ingress = "INGRESS_TRAFFIC_ALL",
+        //         Template = new ServiceTemplateArgs
+        //         {
+        //             ServiceAccount = cloudRunServiceAccount.Email,
+        //             MaxInstanceRequestConcurrency = 128,
+        //             Scaling = new ServiceTemplateScalingArgs
+        //             {
+        //                 MinInstanceCount = 0,
+        //                 MaxInstanceCount = 10,
+        //             },
+        //             Containers = new[]
+        //             {
+        //                 new ServiceTemplateContainerArgs
+        //                 {
+        //                     Ports = new ServiceTemplateContainerPortsArgs
+        //                     {
+        //                         ContainerPort = 8080,
+        //                         Name = "http1",
+        //                     },
+        //                     Resources = new ServiceTemplateContainerResourcesArgs
+        //                     {
+        //                         Limits = { { "cpu", "1" }, { "memory", "512Mi" } },
+        //                     },
+        //                     Envs = new[]
+        //                     {
+        //                         new ServiceTemplateContainerEnvArgs
+        //                         {
+        //                             Name = "ASPNETCORE_ENVIRONMENT",
+        //                             Value = "Production",
+        //                         },
+        //                     },
+        //                 },
+        //             },
+        //         },
+        //     }
+        // );
 
-        _ = new CloudRun.ServiceIamMember(
-            "hackomania-api-invoker",
-            new CloudRun.ServiceIamMemberArgs
-            {
-                Name = cloudRunService.Name,
-                Location = "asia-southeast1",
-                Role = "roles/run.invoker",
-                Member = "allUsers",
-            }
-        );
-
-        CloudRunServiceUrl = cloudRunService.Uri;
+        // _ = new CloudRun.ServiceIamMember(
+        //     "hackomania-api-invoker",
+        //     new CloudRun.ServiceIamMemberArgs
+        //     {
+        //         Name = cloudRunService.Name,
+        //         Location = "asia-southeast1",
+        //         Role = "roles/run.invoker",
+        //         Member = "allUsers",
+        //     }
+        // );
+        //
+        // CloudRunServiceUrl = cloudRunService.Uri;
         CloudRunServiceAccountEmail = cloudRunServiceAccount.Email;
     }
 }

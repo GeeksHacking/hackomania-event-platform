@@ -9,8 +9,8 @@ namespace HackOMania.Infra.Stacks;
 
 public class DefaultStack : Stack
 {
-    [Output]
-    public Output<string> CloudRunServiceUrl { get; set; }
+    // [Output]
+    // public Output<string> CloudRunServiceUrl { get; set; }
 
     [Output]
     public Output<string> CloudRunServiceAccountEmail { get; set; }

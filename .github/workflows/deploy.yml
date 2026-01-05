@@ -31,6 +31,8 @@ jobs:
           service_account: pulumi-deployer@hackomania-event-portal.iam.gserviceaccount.com
           
       - uses: pulumi/actions@v6
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ""
         with:
           command: up
           stack-name: production

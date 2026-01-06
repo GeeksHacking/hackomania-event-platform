@@ -75,6 +75,18 @@ public class DefaultStack : Stack
             }
         );
 
+        var tidbConnectionString = new SecretManager.Secret(
+            "tidb-connection-string",
+            new SecretManager.SecretArgs
+            {
+                SecretId = "tidb-connection-string",
+                Replication = new SecretManager.Inputs.SecretReplicationArgs
+                {
+                    Auto = new SecretManager.Inputs.SecretReplicationAutoArgs(),
+                },
+            }
+        );
+
         var githubClientIdAccessor = new SecretManager.SecretIamMember(
             "github-client-id-accessor",
             new SecretManager.SecretIamMemberArgs
@@ -90,6 +102,16 @@ public class DefaultStack : Stack
             new SecretManager.SecretIamMemberArgs
             {
                 SecretId = githubClientSecretSecret.SecretId,
+                Role = "roles/secretmanager.secretAccessor",
+                Member = Output.Format($"serviceAccount:{cloudRunServiceAccount.Email}"),
+            }
+        );
+
+        var tidbConnectionStringAccessor = new SecretManager.SecretIamMember(
+            "tidb-connection-string-accessor",
+            new SecretManager.SecretIamMemberArgs
+            {
+                SecretId = tidbConnectionString.SecretId,
                 Role = "roles/secretmanager.secretAccessor",
                 Member = Output.Format($"serviceAccount:{cloudRunServiceAccount.Email}"),
             }
@@ -197,6 +219,19 @@ public class DefaultStack : Stack
                                 new ServiceTemplateContainerEnvArgs
                                 {
                                     Name = "GitHub__ClientSecret",
+                                    ValueSource = new ServiceTemplateContainerEnvValueSourceArgs
+                                    {
+                                        SecretKeyRef =
+                                            new ServiceTemplateContainerEnvValueSourceSecretKeyRefArgs
+                                            {
+                                                Secret = githubClientSecretSecret.SecretId,
+                                                Version = "latest",
+                                            },
+                                    },
+                                },
+                                new ServiceTemplateContainerEnvArgs
+                                {
+                                    Name = "ConnectionStrings__db",
                                     ValueSource = new ServiceTemplateContainerEnvValueSourceArgs
                                     {
                                         SecretKeyRef =

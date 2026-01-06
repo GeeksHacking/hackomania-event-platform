@@ -18,15 +18,6 @@ public class DefaultStack : Stack
 
     public DefaultStack()
     {
-        var allUsers = new CloudRun.ServiceIamBinding(
-            "hackomania-api-public-access",
-            new CloudRun.ServiceIamBindingArgs
-            {
-                Role = "roles/run.invoker",
-                Members = ["allUsers"],
-            }
-        );
-
         var pkg = new Repository(
             "hackomania-api-repo",
             new RepositoryArgs
@@ -217,13 +208,14 @@ public class DefaultStack : Stack
             }
         );
 
-        _ = new CloudRun.ServiceIamPolicy(
-            "hackomania-api-all-users-policy",
-            new CloudRun.ServiceIamPolicyArgs
+        _ = new CloudRun.ServiceIamBinding(
+            "hackomania-api-public-access",
+            new CloudRun.ServiceIamBindingArgs
             {
                 Name = cloudRunService.Name,
                 Location = "asia-southeast1",
-                PolicyData = allUsers.Etag,
+                Role = "roles/run.invoker",
+                Members = new[] { "allUsers" },
             }
         );
 

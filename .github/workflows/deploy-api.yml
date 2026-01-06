@@ -76,9 +76,3 @@ jobs:
           service: hackomania-api
           region: asia-southeast1
           image: asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api:latest
-
-      - name: Show deployed URL
-        run: |
-          echo "🚀 Deployed to: ${{ steps.deploy.outputs.url }}"
-          echo "📦 Image: asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api:latest
-

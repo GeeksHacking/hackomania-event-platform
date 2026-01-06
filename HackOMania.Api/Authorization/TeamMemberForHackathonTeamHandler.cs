@@ -3,7 +3,6 @@ using HackOMania.Api.Extensions;
 using HackOMania.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using SqlSugar;
-using static HackOMania.Api.Extensions.HttpContextRouteExtensions;
 
 namespace HackOMania.Api.Authorization;
 

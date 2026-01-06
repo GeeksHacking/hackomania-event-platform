@@ -1,5 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.Entities;
 using HackOMania.Api.Services;
 using SqlSugar;
 
@@ -29,7 +30,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
             return;
         }
 
-        var resources = await sql.Queryable<Entities.Resource>()
+        var resources = await sql.Queryable<Resource>()
             .Where(r => r.HackathonId == hackathon.Id)
             .Select(r => new Response.ResourceItem
             {

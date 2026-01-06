@@ -1,5 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.Entities;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Teams.List;
@@ -27,7 +28,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var teams = await sql.Queryable<Entities.Team>()
+        var teams = await sql.Queryable<Team>()
             .Where(t => t.HackathonId == hackathon.Id)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync(ct);
@@ -35,10 +36,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var teamIds = teams.Select(t => t.Id).ToList();
 
         // Get member counts
-        var memberCounts = await sql.Queryable<Entities.Participant>()
+        var memberCounts = await sql.Queryable<Participant>()
             .Where(p => p.TeamId != null && teamIds.Contains(p.TeamId.Value))
             .GroupBy(p => p.TeamId)
-            .Select(g => new { TeamId = g.TeamId, Count = SqlFunc.AggregateCount(g.UserId) })
+            .Select(g => new { g.TeamId, Count = SqlFunc.AggregateCount(g.UserId) })
             .ToListAsync(ct);
 
         var memberCountDict = memberCounts.ToDictionary(m => m.TeamId!.Value, m => m.Count);

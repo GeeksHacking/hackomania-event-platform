@@ -1,5 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.Entities;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Challenges.Update;
@@ -22,7 +23,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var challenge = await sql.Queryable<Entities.Challenge>()
+        var challenge = await sql.Queryable<Challenge>()
             .Where(c => c.Id == req.ChallengeId && c.HackathonId == hackathon.Id)
             .FirstAsync(ct);
 

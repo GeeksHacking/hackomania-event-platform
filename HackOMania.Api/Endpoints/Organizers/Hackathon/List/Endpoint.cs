@@ -1,4 +1,5 @@
 using FastEndpoints;
+using HackOMania.Api.Entities;
 using HackOMania.Api.Extensions;
 using HackOMania.Api.Services;
 using SqlSugar;
@@ -34,7 +35,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
         {
             query = query.Where(h =>
                 SqlFunc
-                    .Subqueryable<Entities.Organizer>()
+                    .Subqueryable<Organizer>()
                     .Where(o => o.HackathonId == h.Id && o.UserId == userId)
                     .Any()
             );

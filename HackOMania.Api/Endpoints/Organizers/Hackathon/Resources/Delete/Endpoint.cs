@@ -1,5 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.Entities;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Resources.Delete;
@@ -22,7 +23,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
             return;
         }
 
-        var deleted = await sql.Deleteable<Entities.Resource>()
+        var deleted = await sql.Deleteable<Resource>()
             .Where(r => r.Id.ToString() == req.ResourceId && r.HackathonId == hackathon.Id)
             .ExecuteCommandAsync(ct);
 

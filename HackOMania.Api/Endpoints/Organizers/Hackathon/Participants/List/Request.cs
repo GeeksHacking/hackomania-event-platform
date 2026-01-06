@@ -1,5 +1,3 @@
-using FastEndpoints;
-
 namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Participants.List;
 
 public class Request

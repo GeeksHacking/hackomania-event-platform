@@ -1,5 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.Entities;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Participants.Hackathon.Submissions.Get;
@@ -28,7 +29,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var submission = await sql.Queryable<Entities.ChallengeSubmission>()
+        var submission = await sql.Queryable<ChallengeSubmission>()
             .Where(s => s.HackathonId == hackathon.Id && s.Id == req.SubmissionId)
             .FirstAsync(ct);
 
@@ -38,11 +39,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var team = await sql.Queryable<Entities.Team>()
-            .Where(t => t.Id == submission.TeamId)
-            .FirstAsync(ct);
+        var team = await sql.Queryable<Team>().Where(t => t.Id == submission.TeamId).FirstAsync(ct);
 
-        var challenge = await sql.Queryable<Entities.Challenge>()
+        var challenge = await sql.Queryable<Challenge>()
             .Where(c => c.Id == submission.ChallengeId)
             .FirstAsync(ct);
 

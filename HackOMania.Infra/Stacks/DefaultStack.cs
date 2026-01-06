@@ -178,6 +178,11 @@ public class DefaultStack : Stack
                                 },
                                 new ServiceTemplateContainerEnvArgs
                                 {
+                                    Name = "ASPNETCORE_FORWARDEDHEADERS_ENABLED",
+                                    Value = "true",
+                                },
+                                new ServiceTemplateContainerEnvArgs
+                                {
                                     Name = "GitHub__ClientId",
                                     ValueSource = new ServiceTemplateContainerEnvValueSourceArgs
                                     {

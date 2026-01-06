@@ -149,9 +149,9 @@ builder.Services.AddHostedService<DatabaseInitBackgroundService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseCors();
 
-app.UseForwardedHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();

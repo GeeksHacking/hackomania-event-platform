@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Google.Cloud.Diagnostics.Common;
 using HackOMania.Api.Authorization;
 using HackOMania.Api.Options;
 using HackOMania.Api.Services;
@@ -16,22 +17,39 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+if (builder.Environment.IsProduction())
+{
+    builder.Logging.AddGoogle(new LoggingServiceOptions { ProjectId = "hackomania-event-portal" });
+}
+
 builder.Services.AddOptions<AppOptions>().Bind(builder.Configuration.GetSection("App"));
 builder.Services.AddOptions<GitHubOptions>().Bind(builder.Configuration.GetSection("GitHub"));
 builder.Services.AddOptions<AdminOptions>().Bind(builder.Configuration.GetSection("Admin"));
 
 builder.Services.AddSingleton<ISqlSugarClient>(s =>
 {
-    var sqlSugar = new SqlSugarScope(
+    if (builder.Environment.IsProduction())
+    {
+        return new SqlSugarScope(
+            new ConnectionConfig
+            {
+                DbType = DbType.Tidb,
+                ConnectionString = builder.Configuration.GetConnectionString("db"),
+                IsAutoCloseConnection = true,
+            },
+            _ => { }
+        );
+    }
+
+    return new SqlSugarScope(
         new ConnectionConfig
         {
-            DbType = DbType.Sqlite,
-            ConnectionString = "Data Source=:memory:",
+            DbType = DbType.MySql,
+            ConnectionString = builder.Configuration.GetConnectionString("db"),
             IsAutoCloseConnection = true,
         },
-        db => { }
+        _ => { }
     );
-    return sqlSugar;
 });
 
 builder.Services.AddDbContext<DbContext>(options =>

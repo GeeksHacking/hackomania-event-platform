@@ -37,7 +37,8 @@ builder.Services.AddSingleton<ISqlSugarClient>(s =>
         },
         db =>
         {
-            var logger = s.GetRequiredService<ILogger<ISqlSugarClient>>();
+            var logger = s.CreateScope()
+                .ServiceProvider.GetRequiredService<ILogger<ISqlSugarClient>>();
 
             db.Aop.OnLogExecuting = (stmt, _) =>
             {

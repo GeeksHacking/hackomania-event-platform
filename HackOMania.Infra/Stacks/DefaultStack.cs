@@ -3,6 +3,7 @@ using Pulumi.Gcp.ArtifactRegistry;
 using Pulumi.Gcp.CloudRunV2.Inputs;
 using Pulumi.Gcp.ServiceAccount;
 using CloudRun = Pulumi.Gcp.CloudRunV2;
+using CloudRunV1 = Pulumi.Gcp.CloudRun;
 using ProjectIam = Pulumi.Gcp.Projects;
 using SecretManager = Pulumi.Gcp.SecretManager;
 
@@ -216,6 +217,24 @@ public class DefaultStack : Stack
                 Location = "asia-southeast1",
                 Role = "roles/run.invoker",
                 Members = new[] { "allUsers" },
+            }
+        );
+
+        _ = new CloudRunV1.DomainMapping(
+            "hackomania-api-domain",
+            new CloudRunV1.DomainMappingArgs
+            {
+                Name = "hackomania-api.geekshacking.com",
+                Location = "asia-southeast1",
+                Metadata = new CloudRunV1.Inputs.DomainMappingMetadataArgs
+                {
+                    Namespace = "hackomania-event-portal",
+                },
+                Spec = new CloudRunV1.Inputs.DomainMappingSpecArgs
+                {
+                    RouteName = cloudRunService.Name,
+                    CertificateMode = "AUTOMATIC",
+                },
             }
         );
 

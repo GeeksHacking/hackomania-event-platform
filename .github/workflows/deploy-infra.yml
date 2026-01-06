@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'HackOMania.Infra/**'
+      - '.github/workflows/deploy-infra.yml'
     branches: [ "main" ]
 
 jobs:

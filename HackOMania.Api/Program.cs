@@ -7,6 +7,7 @@ using HackOMania.Api.Services;
 using HackOMania.Api.Workers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using SqlSugar;
@@ -37,6 +38,11 @@ builder.Services.AddDbContext<DbContext>(options =>
 {
     options.UseInMemoryDatabase("Db");
     options.UseOpenIddict();
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
 
 builder
@@ -145,6 +151,7 @@ var app = builder.Build();
 
 app.UseCors();
 
+app.UseForwardedHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();

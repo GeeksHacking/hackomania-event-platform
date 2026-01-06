@@ -36,6 +36,7 @@ builder.Services.AddSingleton<ISqlSugarClient>(s =>
                 DbType = DbType.Tidb,
                 ConnectionString = builder.Configuration.GetConnectionString("db"),
                 IsAutoCloseConnection = true,
+                MoreSettings = new ConnMoreSettings { DisableNvarchar = true },
             },
             _ => { }
         );

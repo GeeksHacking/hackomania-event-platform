@@ -35,7 +35,7 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
         var githubLogin = result.Principal.GetClaim("login");
         var githubId = result.Principal.GetClaim(ClaimTypes.NameIdentifier);
         var email = result.Principal.GetClaim(ClaimTypes.Email);
-        var name = result.Principal.GetClaim(ClaimTypes.Name);
+        var name = result.Principal.GetClaim(ClaimTypes.Name) ?? "Unknown";
 
         if (githubLogin is null)
         {

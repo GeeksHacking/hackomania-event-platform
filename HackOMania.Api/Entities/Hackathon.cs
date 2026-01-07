@@ -55,4 +55,7 @@ public class Hackathon
 
     [Navigate(NavigateType.OneToMany, nameof(Judge.HackathonId))]
     public List<Judge> Judges { get; set; } = null!;
+
+    [Navigate(NavigateType.OneToMany, nameof(RegistrationQuestion.HackathonId))]
+    public List<RegistrationQuestion> RegistrationQuestions { get; set; } = null!;
 }

@@ -3,4 +3,5 @@
   <Project Path="HackOMania.AppHost/HackOMania.AppHost.csproj" />
   <Project Path="HackOMania.Infra/HackOMania.Infra.csproj" />
   <Project Path="HackOMania.ServiceDefaults/HackOMania.ServiceDefaults.csproj" />
+  <Project Path="HackOMania.Tests/HackOMania.Tests.csproj" />
 </Solution>

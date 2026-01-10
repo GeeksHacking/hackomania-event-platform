@@ -71,7 +71,7 @@ builder
                     .Get<GitHubOptions>()!;
 
                 github
-                    .AddScopes("email", "profile")
+                    .AddScopes("user")
                     .SetClientId(githubOptions.ClientId)
                     .SetClientSecret(githubOptions.ClientSecret)
                     .SetRedirectUri("callback/login/github");

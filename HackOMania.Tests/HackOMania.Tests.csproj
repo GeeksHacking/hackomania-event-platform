@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HackOMania.AppHost\HackOMania.AppHost.csproj" />
-    <ProjectReference Include="..\HackOMania.Api\HackOMania.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

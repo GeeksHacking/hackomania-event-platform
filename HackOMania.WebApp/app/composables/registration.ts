@@ -1,5 +1,5 @@
 import { queryOptions, useMutation } from '@tanstack/vue-query'
-import type { MaybeRefOrGetter } from 'vue'
+import { toValue, type MaybeRefOrGetter } from 'vue'
 
 export interface RegistrationSubmission {
   questionId: string

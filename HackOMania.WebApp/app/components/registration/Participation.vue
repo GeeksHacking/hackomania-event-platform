@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useSubmitRegistration } from '~/composables/registration'
 import FormBox from './FormBox.vue'
 import FormField from './FormField.vue'
 

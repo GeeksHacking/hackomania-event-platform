@@ -3,7 +3,6 @@ import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
   label: string
-  modelValue: string
   width?: 'normal' | 'big'
   type?: 'text' | 'email' | 'tel' | 'select'
   options?: Array<{ value: string, label: string }>
@@ -13,9 +12,7 @@ const props = withDefaults(defineProps<{
   type: 'text',
 })
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
+const model = defineModel<string>({ required: true })
 
 const widthClass = computed(() => {
   return props.width === 'big' ? 'w-[502px]' : 'w-[245px]'
@@ -29,12 +26,11 @@ const widthClass = computed(() => {
     </label>
     <select
       v-if="type === 'select'"
-      :value="modelValue"
+      v-model="model"
       :class="[
         widthClass,
         'h-[40px] rounded-[8px] border border-black px-3 font-raleway text-[16px] bg-white text-gray-700'
       ]"
-      @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
     >
       <option
         value=""
@@ -52,13 +48,12 @@ const widthClass = computed(() => {
     </select>
     <input
       v-else
-      :value="modelValue"
+      v-model="model"
       :type="type"
       :class="[
         widthClass,
         'h-[40px] rounded-[8px] border border-black px-3 font-raleway text-[16px] text-gray-700 placeholder:text-gray-500'
       ]"
-      @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     >
   </div>
 </template>

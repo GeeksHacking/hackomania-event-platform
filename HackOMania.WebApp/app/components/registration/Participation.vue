@@ -8,6 +8,8 @@ const router = useRouter()
 
 // Get hackathon ID from route or context
 // TODO: This should come from the registration flow context or route params
+// For example: const route = useRoute(); hackathonId.value = route.params.hackathonId as string
+// Or from a provide/inject context that tracks the registration flow state
 const hackathonId = ref<string | null>(null)
 
 // Outreach fields
@@ -52,8 +54,11 @@ const handleSubmit = async () => {
   }
 
   // TODO: Map form fields to actual question IDs from the backend
-  // For now, using placeholder question IDs that would need to be fetched
-  // from the registration questions endpoint first
+  // The proper implementation would:
+  // 1. Fetch questions using: const { data: questions } = useQuery(registrationQueries.questions(hackathonId))
+  // 2. Map questions by their questionKey to get the actual IDs
+  // 3. Build submissions array using the real question IDs
+  // For now, using placeholder question IDs as an example of the structure
   const submissions = [
     {
       questionId: 'how-did-you-find-out',

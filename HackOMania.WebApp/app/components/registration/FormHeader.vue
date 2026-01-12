@@ -11,12 +11,12 @@ const currentIndex = computed(() => {
 <template>
   <div class="relative h-[145px]">
     <!-- Exit Registration link -->
-    <a
-      href="/"
+    <NuxtLink
+      to="/"
       class="absolute left-[120px] top-[30px] font-raleway text-[16px] font-normal text-black underline cursor-pointer"
     >
       Exit Registration
-    </a>
+    </NuxtLink>
 
     <!-- HackOMania 2026 Logo - centered -->
     <img

@@ -4,6 +4,8 @@
 // @ts-ignore
 import { HackathonsRequestBuilderNavigationMetadata, HackathonsRequestBuilderRequestsMetadata, type HackathonsRequestBuilder } from './hackathons/index.js';
 // @ts-ignore
+import { TeamsRequestBuilderNavigationMetadata, type TeamsRequestBuilder } from './teams/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
 
 /**
@@ -14,6 +16,10 @@ export interface ParticipantsRequestBuilder extends BaseRequestBuilder<Participa
      * The hackathons property
      */
     get hackathons(): HackathonsRequestBuilder;
+    /**
+     * The teams property
+     */
+    get teams(): TeamsRequestBuilder;
 }
 /**
  * Uri template for the request builder.
@@ -26,6 +32,9 @@ export const ParticipantsRequestBuilderNavigationMetadata: Record<Exclude<keyof 
     hackathons: {
         requestsMetadata: HackathonsRequestBuilderRequestsMetadata,
         navigationMetadata: HackathonsRequestBuilderNavigationMetadata,
+    },
+    teams: {
+        navigationMetadata: TeamsRequestBuilderNavigationMetadata,
     },
 };
 /* tslint:enable */

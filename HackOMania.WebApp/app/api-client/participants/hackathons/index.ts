@@ -6,12 +6,18 @@ import { createHackOManiaApiEndpointsParticipantsHackathonListResponseFromDiscri
 // @ts-ignore
 import { HackathonIdOrShortCodeItemRequestBuilderNavigationMetadata, HackathonIdOrShortCodeItemRequestBuilderRequestsMetadata, type HackathonIdOrShortCodeItemRequestBuilder } from './item/index.js';
 // @ts-ignore
+import { JoinRequestBuilderRequestsMetadata, type JoinRequestBuilder } from './join/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
  * Builds and executes requests for operations under /participants/hackathons
  */
 export interface HackathonsRequestBuilder extends BaseRequestBuilder<HackathonsRequestBuilder> {
+    /**
+     * The join property
+     */
+    get join(): JoinRequestBuilder;
     /**
      * Gets an item from the ApiSdk.participants.hackathons.item collection
      * @param hackathonIdOrShortCodeId Unique identifier of the item
@@ -43,6 +49,9 @@ export const HackathonsRequestBuilderNavigationMetadata: Record<Exclude<keyof Ha
         requestsMetadata: HackathonIdOrShortCodeItemRequestBuilderRequestsMetadata,
         navigationMetadata: HackathonIdOrShortCodeItemRequestBuilderNavigationMetadata,
         pathParametersMappings: ["hackathonIdOrShortCode%2Did"],
+    },
+    join: {
+        requestsMetadata: JoinRequestBuilderRequestsMetadata,
     },
 };
 /**

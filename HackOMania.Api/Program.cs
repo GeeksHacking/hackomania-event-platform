@@ -3,6 +3,7 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Google.Cloud.Diagnostics.Common;
+using HackOMania.Api;
 using HackOMania.Api.Authorization;
 using HackOMania.Api.Options;
 using HackOMania.Api.Services;
@@ -116,7 +117,7 @@ builder.Services.AddCors(options =>
         policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
-builder.Services.AddFastEndpoints();
+builder.Services.AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All);
 builder.Services.SwaggerDocument(options =>
 {
     options.EnableJWTBearerAuth = false;

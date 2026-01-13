@@ -77,7 +77,7 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
         if (existingAccount is null)
         {
             var existingUser = !string.IsNullOrEmpty(email)
-                ? await db.Queryable<User>().Where(u => u.Email == email).FirstAsync()
+                ? await db.Queryable<User>().Where(u => u.Email == email).FirstAsync(ct)
                 : null;
 
             if (existingUser is null)

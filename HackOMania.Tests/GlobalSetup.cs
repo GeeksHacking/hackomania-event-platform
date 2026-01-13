@@ -31,7 +31,9 @@ public class GlobalHooks
         Environment.SetEnvironmentVariable("Parameters__app-frontend-url", "http://localhost:3000");
 
         var appHost =
-            await DistributedApplicationTestingBuilder.CreateAsync<Projects.HackOMania_AppHost>();
+            await DistributedApplicationTestingBuilder.CreateAsync<Projects.HackOMania_AppHost>([
+                "UseVolumes=false", // We do not want DB data to be persisted and conflict with local development data
+            ]);
 
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {

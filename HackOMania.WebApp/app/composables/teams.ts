@@ -1,7 +1,14 @@
+import type { QueryClient } from '@tanstack/vue-query'
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { ComputedRef, Ref } from 'vue'
 
 type MaybeRef<T> = Ref<T> | ComputedRef<T>
+
+function invalidateTeamQueries(queryClient: QueryClient, hackathonId: string | null) {
+  if (hackathonId) {
+    queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId, 'teams', 'me'] })
+  }
+}
 
 export const teamQueries = {
   me: (hackathonId: string) =>
@@ -32,11 +39,7 @@ export function useCreateTeam(hackathonId: MaybeRef<string | null>) {
         .$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathonId.value)
         .teams.post({ name: data.name, description: data.description ?? null })
     },
-    onSuccess() {
-      if (hackathonId.value) {
-        queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'teams', 'me'] })
-      }
-    },
+    onSuccess: () => invalidateTeamQueries(queryClient, hackathonId.value),
   })
 }
 
@@ -51,11 +54,7 @@ export function useUpdateTeam(hackathonId: MaybeRef<string | null>, teamId: Mayb
         .teams.byTeamId(teamId.value)
         .patch({ name: data.name ?? null, description: data.description ?? null })
     },
-    onSuccess() {
-      if (hackathonId.value) {
-        queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'teams', 'me'] })
-      }
-    },
+    onSuccess: () => invalidateTeamQueries(queryClient, hackathonId.value),
   })
 }
 
@@ -69,11 +68,7 @@ export function useLeaveTeam(hackathonId: MaybeRef<string | null>) {
         .$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathonId.value)
         .teams.leave.post()
     },
-    onSuccess() {
-      if (hackathonId.value) {
-        queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'teams', 'me'] })
-      }
-    },
+    onSuccess: () => invalidateTeamQueries(queryClient, hackathonId.value),
   })
 }
 
@@ -85,10 +80,6 @@ export function useJoinTeamByCode() {
       return await useNuxtApp()
         .$apiClient.participants.teams.join.post({ joinCode })
     },
-    onSuccess(data) {
-      if (data?.hackathonId) {
-        queryClient.invalidateQueries({ queryKey: ['hackathons', data.hackathonId, 'teams', 'me'] })
-      }
-    },
+    onSuccess: data => invalidateTeamQueries(queryClient, data?.hackathonId ?? null),
   })
 }

@@ -2,9 +2,7 @@
 import { useQuery, useQueries } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 
-// Fetch hackathons and extract the first hackathon's ID
-const { data: hackathonsData } = useQuery(hackathonQueries.list)
-const hackathonId = computed(() => hackathonsData.value?.hackathons?.[0]?.id ?? null)
+const hackathonId = useCurrentHackathonId()
 
 // Fetch challenges list for the hackathon
 const { data: challengesData, isLoading } = useQuery(
@@ -47,7 +45,7 @@ const selectedDescription = computed(() =>
 
     <div
       v-else
-      class="py-16 px-28"
+      class="p-8 lg:py-16 lg:px-28"
     >
       <!-- Challenge cards -->
       <div class="flex gap-4">

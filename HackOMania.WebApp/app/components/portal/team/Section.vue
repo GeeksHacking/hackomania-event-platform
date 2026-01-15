@@ -2,9 +2,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
-// Fetch hackathons and extract the first hackathon's ID
-const { data: hackathonsData } = useQuery(hackathonQueries.list)
-const hackathonId = computed(() => hackathonsData.value?.hackathons?.[0]?.id ?? null)
+const hackathonId = useCurrentHackathonId()
 
 // Fetch current user's team
 const { data: teamData, isLoading } = useQuery(
@@ -26,14 +24,14 @@ const { data: teamData, isLoading } = useQuery(
 
     <div
       v-if="isLoading"
-      class="py-16 px-28"
+      class="p-8 lg:py-16 lg:px-28"
     >
       Loading team info...
     </div>
 
     <div
       v-else
-      class="py-16 px-28"
+      class="p-8 lg:py-16 lg:px-28"
     >
       <PortalTeamView
         :team="teamData"

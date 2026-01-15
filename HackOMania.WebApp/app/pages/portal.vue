@@ -3,6 +3,6 @@
     <AppNavBar />
     <PortalChallengesSection />
     <PortalTeamSection />
-    <NuxtPage />
+    <AppFooter />
   </div>
 </template>

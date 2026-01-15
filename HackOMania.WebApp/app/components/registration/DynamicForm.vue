@@ -2,6 +2,7 @@
 import type { HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListResponse } from '~/api-client/models'
 import { getCategoriesForPage, getPageName } from '~/config/registration-pages'
 import { useQuery } from '@tanstack/vue-query'
+import { useSubmitRegistrationMutation } from '~/composables/question'
 
 const props = defineProps<{
   questions: HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListResponse
@@ -19,6 +20,10 @@ const currentPageIndex = computed(() => {
 })
 
 const currentPageCategories = computed(() => getCategoriesForPage(currentPageIndex.value))
+
+const allQuestions = computed(() =>
+  props.questions.categories?.flatMap(cat => cat.questions ?? []) ?? [],
+)
 
 const formattedPageQuestions = computed(() => {
   if (!props.questions?.categories) return []
@@ -48,6 +53,7 @@ const pageTitle = computed(() => getPageName(currentPageIndex.value))
 const state = reactive<Record<string, string | string[]>>({})
 const isDataReady = ref(false)
 
+// PREFILL github profile if sign up with github
 watch([() => props.questions, userData], ([newVal]) => {
   if (newVal?.categories) {
     newVal.categories.forEach((category) => {
@@ -72,133 +78,40 @@ watch([() => props.questions, userData], ([newVal]) => {
   }
 }, { immediate: true, deep: true })
 
-const isSubmitting = ref(false)
-const submissionError = ref(false)
-const fieldErrors = ref<Record<string, string>>({})
+// Submit mutation with built-in error handling
+const { mutateAsync, isPending: isSubmitting, fieldErrors, submissionError } = useSubmitRegistrationMutation(allQuestions)
 
 const onSubmit = async () => {
-  submissionError.value = false
-  fieldErrors.value = {}
   const nextIndex = currentPageIndex.value + 1
+
   if (nextIndex < 3) {
     router.push({ path: '/registration/form', query: { index: String(nextIndex) } })
+    return
   }
-  else {
-    try {
-      isSubmitting.value = true
 
-      const submissions = Object.entries(state)
-        .filter(([_key, value]) => {
-          if (Array.isArray(value)) {
-            return value.length > 0
-          }
-          return value !== '' && value !== null && value !== undefined
-        })
-        .map(([questionKey, value]) => {
-          const question = props.questions.categories
-            ?.flatMap(cat => cat.questions || [])
-            .find(q => q.questionKey === questionKey)
+  const submissions = Object.entries(state)
+    .filter(([_, value]) => {
+      if (Array.isArray(value)) return value.length > 0
+      return value !== '' && value !== null && value !== undefined
+    })
+    .map(([questionKey, value]) => {
+      const question = allQuestions.value.find(q => q.questionKey === questionKey)
+      if (!question?.id) return null
 
-          if (!question?.id) return null
-
-          return {
-            questionId: question.id,
-            value: Array.isArray(value) ? JSON.stringify(value) : String(value),
-            followUpValue: null,
-          }
-        })
-        .filter((submission): submission is NonNullable<typeof submission> => submission !== null)
-
-      console.log('📤 [SUBMIT] Submitting', submissions.length, 'submissions:', submissions)
-
-      const hackathonId = useHackathonId()
-      if (!hackathonId.value) {
-        throw new Error('Hackathon ID not found')
+      return {
+        questionId: question.id,
+        value: Array.isArray(value) ? JSON.stringify(value) : String(value),
+        followUpValue: null,
       }
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null)
 
-      // Use fetch directly to get error details because i cannot get it from the response body!!
-      const config = useRuntimeConfig()
-      const response = await fetch(`${config.public.api}/participants/hackathons/${hackathonId.value}/registration/submissions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ submissions }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw errorData
-      }
-
-      router.push('/registration/complete')
-    }
-    catch (error: unknown) {
-      submissionError.value = true
-
-      // TRYING TO MATCH THE ERROR WORDS WITH THE QUESTION WORDS SO IK WHICH FIELD TOPUT THE ERROR
-      try {
-        const err = error as Record<string, unknown>
-
-        const errorData = err
-        if (errorData && typeof errorData === 'object') {
-          const errData = errorData as Record<string, unknown>
-
-          if (errData.errors && typeof errData.errors === 'object') {
-            const errors = errData.errors as Record<string, string[]>
-
-            const allQuestions = props.questions.categories?.flatMap(cat => cat.questions || []) || []
-
-            if (errors.generalErrors && Array.isArray(errors.generalErrors)) {
-              for (const errorMessage of errors.generalErrors) {
-                let matched = false
-                for (const question of allQuestions) {
-                  const questionText = question.questionText?.toLowerCase() || ''
-                  const errorLower = errorMessage.toLowerCase()
-
-                  if (questionText && errorLower.includes(`'${questionText}'`)) {
-                    fieldErrors.value[question.questionKey || ''] = errorMessage
-                    matched = true
-                    break
-                  }
-                  else if (questionText && questionText.length > 5 && errorLower.includes(questionText)) {
-                    fieldErrors.value[question.questionKey || ''] = errorMessage
-                    matched = true
-                    break
-                  }
-                }
-
-                if (!matched) {
-                  for (const question of allQuestions) {
-                    const questionKey = question.questionKey?.toLowerCase() || ''
-                    const errorLower = errorMessage.toLowerCase()
-
-                    // idk hwo else to do this but everytime got validation then need to add here
-                    if ((questionKey.includes('phone') && errorLower.includes('phone'))
-                      || (questionKey.includes('telegram') && errorLower.includes('telegram'))
-                      || (questionKey.includes('age') && errorLower.includes('age'))
-                      || (questionKey.includes('experience') && errorLower.includes('experience'))
-                      || (questionKey.includes('email') && errorLower.includes('email'))
-                      || (questionKey.includes('github') && errorLower.includes('github'))) {
-                      fieldErrors.value[question.questionKey || ''] = errorMessage
-                      matched = true
-                      break
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (parseError) {
-        console.error('[DYNAMICFORM] response error:', parseError)
-      }
-    }
-    finally {
-      isSubmitting.value = false
-    }
+  try {
+    await mutateAsync({ submissions })
+    router.push('/registration/complete')
+  }
+  catch {
+    // handle it
   }
 }
 
@@ -213,7 +126,6 @@ const showPreviousButton = computed(() => currentPageIndex.value > 0)
 const isLastPage = computed(() => currentPageIndex.value === 2)
 const submitButtonText = computed(() => isLastPage.value ? 'SUBMIT' : 'NEXT')
 
-// splitting them into the pages based on their categories, cuz i cant just use the displayorder itself in case
 const getCategoryGroupName = (categoryName: string) => {
   if (currentPageIndex.value !== 1) return null
 

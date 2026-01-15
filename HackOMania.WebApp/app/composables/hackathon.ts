@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/vue-query'
+import { queryOptions, useMutation } from '@tanstack/vue-query'
 import type { HackOManiaApiEndpointsOrganizersHackathonCreateRequest } from '~/api-client/models'
 
 export const hackathonQueries = {
@@ -10,14 +10,14 @@ export const hackathonQueries = {
   }),
 }
 
-export const hackathonCreate = {
-  async create(data: HackOManiaApiEndpointsOrganizersHackathonCreateRequest) {
-    return await useNuxtApp().$apiClient.organizers.hackathons.post(data)
-  },
+export function useCreateHackathonMutation() {
+  return useMutation({
+    mutationFn(e: HackOManiaApiEndpointsOrganizersHackathonCreateRequest) { return useNuxtApp().$apiClient.organizers.hackathons.post(e) },
+  })
 }
 
-export const hackathonActions = {
-  async join(hackathonId: string) {
-    return await useNuxtApp().$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathonId).join.post()
-  },
+export function useJoinHackathonMutation() {
+  return useMutation({
+    mutationFn(hackathonId: string) { return useNuxtApp().$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathonId).join.post() },
+  })
 }

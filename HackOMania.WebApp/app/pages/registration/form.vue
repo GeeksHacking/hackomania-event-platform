@@ -23,7 +23,8 @@ onMounted(async () => {
 
 // Fetch registration questions (only after setup is complete)
 const { data: questions, isLoading, error } = useQuery({
-  ...questionQueries.list,
+  queryKey: ['registration', 'questions'],
+  queryFn: fetchQuestions,
   enabled: setupComplete,
 })
 </script>

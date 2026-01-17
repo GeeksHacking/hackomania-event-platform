@@ -9,8 +9,13 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/fonts',
   ],
-  devtools: { enabled: true },
   ssr: false,
+
+  // allows auto-import for constants
+  imports: {
+    dirs: ['composables/constants'],
+  },
+  devtools: { enabled: true },
 
   css: ['~/assets/css/main.css'],
 

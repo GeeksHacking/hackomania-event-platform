@@ -2,14 +2,17 @@ using System.Text.Json.Serialization;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Google.Cloud.Storage.V1;
 using Google.Cloud.Diagnostics.Common;
 using HackOMania.Api;
 using HackOMania.Api.Authorization;
+using HackOMania.Api.DataProtection;
 using HackOMania.Api.Options;
 using HackOMania.Api.Services;
 using HackOMania.Api.Workers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -22,6 +25,24 @@ builder.AddServiceDefaults();
 if (builder.Environment.IsProduction())
 {
     builder.Logging.AddGoogle(new LoggingServiceOptions { ProjectId = "hackomania-event-portal" });
+}
+
+var dataProtectionBuilder = builder.Services.AddDataProtection().SetApplicationName(
+    builder.Environment.ApplicationName
+);
+var dataProtectionBucketName = builder.Configuration["DataProtection:BucketName"];
+if (!string.IsNullOrWhiteSpace(dataProtectionBucketName))
+{
+    var dataProtectionKeyPrefix =
+        builder.Configuration["DataProtection:KeyPrefix"] ?? "data-protection";
+    dataProtectionBuilder.AddKeyManagementOptions(options =>
+    {
+        options.XmlRepository = new GoogleCloudStorageXmlRepository(
+            StorageClient.Create(),
+            dataProtectionBucketName,
+            dataProtectionKeyPrefix
+        );
+    });
 }
 
 builder.Services.AddOptions<AppOptions>().Bind(builder.Configuration.GetSection("App"));

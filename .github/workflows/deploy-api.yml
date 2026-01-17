@@ -43,7 +43,7 @@ jobs:
             **/*.csproj
 
       - name: Tests
-        run: dotnet test HackOMania.Tests/HackOMania.Tests.csproj
+        run: dotnet test 
 
       - name: Authenticate to Google Cloud
         id: auth

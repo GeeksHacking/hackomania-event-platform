@@ -28,6 +28,14 @@ const selectedIndex = ref<number | null>(null)
 const selectedDescription = computed(() =>
   selectedIndex.value !== null ? detailsQueries.value[selectedIndex.value]?.data?.description : null,
 )
+
+// Track card title heights for consistent sizing
+const titleHeights = ref<number[]>([])
+const maxTitleHeight = computed(() => Math.max(...titleHeights.value, 0))
+
+const onTitleMounted = (index: number, height: number) => {
+  titleHeights.value[index] = height
+}
 </script>
 
 <template>
@@ -55,7 +63,9 @@ const selectedDescription = computed(() =>
           :title="challenge.title ?? ''"
           :team-count="0"
           :selected="selectedIndex === index"
+          :title-height="maxTitleHeight > 0 ? maxTitleHeight : undefined"
           @select="selectedIndex = index"
+          @title-mounted="(height) => onTitleMounted(index, height)"
         />
       </div>
 

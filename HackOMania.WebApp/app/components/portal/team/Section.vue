@@ -89,6 +89,13 @@ watch(
         :team="teamData!"
         :hackathon-id="hackathonId"
       />
+
+      <!-- Challenge Statement Section -->
+      <PortalTeamChallengeStatement
+        v-if="hasTeam"
+        :team-name="teamData!.name!"
+        class="mt-12"
+      />
     </div>
   </section>
 </template>

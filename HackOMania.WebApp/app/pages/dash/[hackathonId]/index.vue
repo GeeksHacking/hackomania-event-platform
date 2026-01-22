@@ -1,3 +1,6 @@
+<!-- check if user is organiser or participant -->
+<!-- change UI accordingly -->
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'

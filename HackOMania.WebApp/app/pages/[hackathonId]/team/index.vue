@@ -13,7 +13,7 @@ watch(
   ([userData, authIsLoading, statusData, statusIsLoading]) => {
     if (authIsLoading) return
     if (!userData) {
-      navigateTo(`${config.public.api}/auth/login`, { external: true })
+      navigateTo(`${config.public.api}/auth/login?redirect_uri=${encodeURIComponent(route.fullPath)}`, { external: true })
       return
     }
     if (statusIsLoading) return

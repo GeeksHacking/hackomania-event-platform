@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { ref, computed } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   teamName: string
 }>()
 

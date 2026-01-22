@@ -80,7 +80,10 @@ watch(
         <p class="text-center font-['Raleway'] text-base md:text-xl mb-8 md:mb-8 lg:mb-16">
           You do not have a team yet. Create or join a team below!
         </p>
-        <PortalTeamParticipantWithoutTeam :hackathon-id="hackathonId" :initial-join-code="joinCodeParam" />
+        <PortalTeamParticipantWithoutTeam
+          :hackathon-id="hackathonId"
+          :initial-join-code="joinCodeParam"
+        />
       </template>
 
       <!-- Participant with a team -->

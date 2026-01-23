@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, unref } from 'vue'
+import { unref } from 'vue'
 import { useQuery, useQueries } from '@tanstack/vue-query'
 import { formatParticipantStatus, hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
 import type { HackOManiaApiEndpointsParticipantsHackathonStatusResponse } from '~/api-client/models'
@@ -104,12 +104,20 @@ const goToHackathon = (hackathonId: string) => {
 
               <div class="flex items-center gap-2">
                 <UButton
+                  color="neutral"
                   size="sm"
-                  color="black"
-                  variant="solid"
                   @click="goToHackathon(hackathon.id!)"
                 >
                   {{ statusDataForIndex(index)?.isParticipant ? 'View status' : 'View details' }}
+                </UButton>
+                <UButton
+                  v-if="statusDataForIndex(index)?.isParticipant"
+                  :to="`/${hackathon.id}/team`"
+                  color="neutral"
+                  variant="outline"
+                  size="sm"
+                >
+                  Go to hackathon portal
                 </UButton>
               </div>
             </div>

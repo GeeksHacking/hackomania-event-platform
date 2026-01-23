@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref } from 'vue'
+
+definePageMeta({
+  // Explicitly mark as public route
+  auth: false,
+})
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -34,11 +38,12 @@ watchEffect(() => {
   <!-- Show loading while checking auth -->
   <div
     v-if="isLoading || !showForm"
-    class="bg-white min-h-screen font-raleway flex items-center justify-center px-4"
+    class="bg-white min-h-screen flex flex-col items-center justify-center gap-4 px-4"
   >
-    <p class="text-sm text-muted">
+    <p class="text-sm font-medium text-gray-600 animate-pulse">
       Checking your session...
     </p>
+    <UIcon name="i-lucide-loader-circle" class="w-8 h-8 animate-spin text-primary" />
   </div>
 
   <!-- Show form if authenticated -->

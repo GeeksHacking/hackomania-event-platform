@@ -19,6 +19,31 @@ const { data: participantsData, isLoading: isLoadingParticipants } = useQuery(
 
 const participants = computed(() => participantsData.value?.participants ?? [])
 
+// Filter state
+type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected'
+const activeFilter = ref<FilterStatus>('all')
+
+const filteredParticipants = computed(() => {
+  const all = participants.value
+  switch (activeFilter.value) {
+    case 'pending':
+      return all.filter(p => p.concludedStatus === 0 || p.concludedStatus === null || p.concludedStatus === undefined)
+    case 'approved':
+      return all.filter(p => p.concludedStatus === 1)
+    case 'rejected':
+      return all.filter(p => p.concludedStatus === 2)
+    default:
+      return all
+  }
+})
+
+const filterCounts = computed(() => ({
+  all: participants.value.length,
+  pending: participants.value.filter(p => p.concludedStatus === 0 || p.concludedStatus === null || p.concludedStatus === undefined).length,
+  approved: participants.value.filter(p => p.concludedStatus === 1).length,
+  rejected: participants.value.filter(p => p.concludedStatus === 2).length,
+}))
+
 // Review mutation
 const reviewMutation = useReviewParticipantMutation(props.hackathonId)
 
@@ -27,7 +52,7 @@ const isModalOpen = ref(false)
 const reviewingParticipantId = ref<string | null>(null)
 const reviewingParticipantName = ref<string | null>(null)
 const reviewForm = ref({
-  decision: 'approve',
+  decision: 'accept',
   reason: '',
 })
 
@@ -70,16 +95,46 @@ function getStatusLabel(status: number | null | undefined): string {
   <div>
     <UCard>
       <template #header>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <h3 class="text-sm font-semibold">
             Participants
           </h3>
-          <UBadge
-            variant="subtle"
-            size="sm"
-          >
-            {{ participants.length }} total
-          </UBadge>
+          <div class="flex items-center gap-2">
+            <div class="flex flex-wrap gap-1">
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'all' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'all' ? 'primary' : 'neutral'"
+                @click="activeFilter = 'all'"
+              >
+                All ({{ filterCounts.all }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'pending' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'pending' ? 'warning' : 'neutral'"
+                @click="activeFilter = 'pending'"
+              >
+                Pending ({{ filterCounts.pending }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'approved' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'approved' ? 'success' : 'neutral'"
+                @click="activeFilter = 'approved'"
+              >
+                Approved ({{ filterCounts.approved }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'rejected' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'rejected' ? 'error' : 'neutral'"
+                @click="activeFilter = 'rejected'"
+              >
+                Rejected ({{ filterCounts.rejected }})
+              </UButton>
+            </div>
+          </div>
         </div>
       </template>
 
@@ -98,11 +153,18 @@ function getStatusLabel(status: number | null | undefined): string {
       </div>
 
       <div
+        v-else-if="!filteredParticipants.length"
+        class="text-muted text-sm"
+      >
+        No {{ activeFilter }} participants.
+      </div>
+
+      <div
         v-else
         class="divide-y"
       >
         <div
-          v-for="participant in participants"
+          v-for="participant in filteredParticipants"
           :key="participant.id ?? ''"
           class="py-2 flex items-center justify-between"
         >
@@ -127,7 +189,7 @@ function getStatusLabel(status: number | null | undefined): string {
               variant="ghost"
               color="success"
               icon="i-lucide-check"
-              @click="openReviewModal(participant.id ?? '', participant.teamName, 'approve')"
+              @click="openReviewModal(participant.id ?? '', participant.teamName, 'accept')"
             />
             <UButton
               size="xs"
@@ -141,13 +203,17 @@ function getStatusLabel(status: number | null | undefined): string {
       </div>
     </UCard>
 
-    <UModal v-model:open="isModalOpen">
+    <UModal
+      v-model:open="isModalOpen"
+      :title="reviewForm.decision === 'accept' ? 'Approve Participant' : 'Reject Participant'"
+      description="Review this participant's application"
+    >
       <template #content>
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-base font-semibold">
-                {{ reviewForm.decision === 'approve' ? 'Approve' : 'Reject' }} Participant
+                {{ reviewForm.decision === 'accept' ? 'Approve' : 'Reject' }} Participant
               </h3>
               <UButton
                 variant="ghost"
@@ -163,13 +229,13 @@ function getStatusLabel(status: number | null | undefined): string {
             @submit.prevent="handleReview"
           >
             <p class="text-sm text-muted">
-              {{ reviewForm.decision === 'approve' ? 'Approving' : 'Rejecting' }} participant: <strong>{{ reviewingParticipantId }}</strong>
+              {{ reviewForm.decision === 'accept' ? 'Approving' : 'Rejecting' }} participant: <strong>{{ reviewingParticipantId }}</strong>
             </p>
 
             <UFormField label="Reason (optional)">
               <UTextarea
                 v-model="reviewForm.reason"
-                :placeholder="reviewForm.decision === 'approve' ? 'Add a note for approval...' : 'Provide a reason for rejection...'"
+                :placeholder="reviewForm.decision === 'accept' ? 'Add a note for approval...' : 'Provide a reason for rejection...'"
                 :rows="3"
               />
             </UFormField>
@@ -183,10 +249,10 @@ function getStatusLabel(status: number | null | undefined): string {
               </UButton>
               <UButton
                 type="submit"
-                :color="reviewForm.decision === 'approve' ? 'success' : 'error'"
+                :color="reviewForm.decision === 'accept' ? 'success' : 'error'"
                 :loading="reviewMutation.isPending.value"
               >
-                {{ reviewForm.decision === 'approve' ? 'Approve' : 'Reject' }}
+                {{ reviewForm.decision === 'accept' ? 'Approve' : 'Reject' }}
               </UButton>
             </div>
           </form>

@@ -51,7 +51,7 @@ const isOrganizer = computed(() => {
 const reviewMutation = useReviewParticipantMutation(hackathonId.value ?? '')
 const isReviewModalOpen = ref(false)
 const reviewForm = ref({
-  decision: 'approve',
+  decision: 'accept',
   reason: '',
 })
 
@@ -74,7 +74,7 @@ async function handleReview() {
     isReviewModalOpen.value = false
     toast.add({
       title: 'Review submitted',
-      description: `Participant has been ${reviewForm.value.decision === 'approve' ? 'approved' : 'rejected'}.`,
+      description: `Participant has been ${reviewForm.value.decision === 'accept' ? 'approved' : 'rejected'}.`,
       color: 'success',
     })
   }
@@ -271,7 +271,7 @@ const goToRegistration = () => {
                   color="success"
                   variant="solid"
                   icon="i-lucide-check"
-                  @click="openReviewModal('approve')"
+                  @click="openReviewModal('accept')"
                 >
                   Approve
                 </UButton>
@@ -291,13 +291,17 @@ const goToRegistration = () => {
       </template>
     </UDashboardPanel>
 
-    <UModal v-model:open="isReviewModalOpen">
+    <UModal
+      v-model:open="isReviewModalOpen"
+      :title="reviewForm.decision === 'accept' ? 'Approve Participant' : 'Reject Participant'"
+      description="Review this participant's application"
+    >
       <template #content>
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-base font-semibold">
-                {{ reviewForm.decision === 'approve' ? 'Approve Participant' : 'Reject Participant' }}
+                {{ reviewForm.decision === 'accept' ? 'Approve Participant' : 'Reject Participant' }}
               </h3>
               <UButton
                 variant="ghost"
@@ -315,7 +319,7 @@ const goToRegistration = () => {
             <UFormField label="Reason (optional)">
               <UTextarea
                 v-model="reviewForm.reason"
-                :placeholder="reviewForm.decision === 'approve' ? 'Add a note for approval...' : 'Provide a reason for rejection...'"
+                :placeholder="reviewForm.decision === 'accept' ? 'Add a note for approval...' : 'Provide a reason for rejection...'"
                 :rows="3"
               />
             </UFormField>
@@ -329,10 +333,10 @@ const goToRegistration = () => {
               </UButton>
               <UButton
                 type="submit"
-                :color="reviewForm.decision === 'approve' ? 'success' : 'error'"
+                :color="reviewForm.decision === 'accept' ? 'success' : 'error'"
                 :loading="reviewMutation.isPending.value"
               >
-                {{ reviewForm.decision === 'approve' ? 'Approve' : 'Reject' }}
+                {{ reviewForm.decision === 'accept' ? 'Approve' : 'Reject' }}
               </UButton>
             </div>
           </form>

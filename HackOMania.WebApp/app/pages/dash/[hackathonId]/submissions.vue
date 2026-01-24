@@ -46,21 +46,21 @@ function formatDate(date: Date | null | undefined): string {
 
     <div
       v-if="isLoadingSubmissions"
-      class="text-muted text-sm"
+      class="text-(--ui-text-muted) text-sm"
     >
       Loading submissions...
     </div>
 
     <div
       v-else-if="!submissions.length"
-      class="text-muted text-sm"
+      class="text-(--ui-text-muted) text-sm"
     >
       No submissions yet.
     </div>
 
     <div
       v-else
-      class="divide-y"
+      class="divide-y divide-(--ui-border)"
     >
       <div
         v-for="submission in submissions"
@@ -71,7 +71,7 @@ function formatDate(date: Date | null | undefined): string {
           <p class="text-sm font-medium">
             {{ submission.title }}
           </p>
-          <p class="text-xs text-muted">
+          <p class="text-xs text-(--ui-text-muted)">
             {{ submission.teamName }} - {{ submission.challengeTitle }}
           </p>
         </div>

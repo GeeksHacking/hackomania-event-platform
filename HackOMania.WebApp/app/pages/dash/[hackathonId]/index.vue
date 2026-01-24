@@ -58,7 +58,7 @@ const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
           <UButton
             to="/dash"
             icon="i-lucide-arrow-left"
-            color="gray"
+            color="neutral"
             variant="ghost"
             size="sm"
           >
@@ -72,7 +72,7 @@ const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
       <div class="p-4 space-y-4">
         <div
           v-if="isLoadingOrganizerCheck || isLoadingHackathon"
-          class="text-muted"
+          class="text-(--ui-text-muted)"
         >
           Loading...
         </div>
@@ -82,7 +82,7 @@ const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
             <h2 class="text-lg font-semibold">
               Organizer Dashboard
             </h2>
-            <p class="text-sm text-muted">
+            <p class="text-sm text-(--ui-text-muted)">
               Manage participants, teams, and submissions for {{ hackathon?.name }}.
             </p>
           </div>

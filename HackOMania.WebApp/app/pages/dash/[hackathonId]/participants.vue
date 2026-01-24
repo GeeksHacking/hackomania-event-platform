@@ -56,7 +56,7 @@ const reviewForm = ref({
   reason: '',
 })
 
-function openReviewModal(participantId: string, participantName: string | null, decision: string) {
+function openReviewModal(participantId: string, participantName: string, decision: string) {
   reviewingParticipantId.value = participantId
   reviewingParticipantName.value = participantName
   reviewForm.value = { decision, reason: '' }
@@ -72,7 +72,7 @@ async function handleReview() {
       reason: reviewForm.value.reason || null,
     },
   })
-  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'participants'] })
+  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'participants', 'organizer'] })
   isModalOpen.value = false
   reviewingParticipantId.value = null
   reviewingParticipantName.value = null
@@ -140,28 +140,28 @@ function getStatusLabel(status: number | null | undefined): string {
 
       <div
         v-if="isLoadingParticipants"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         Loading participants...
       </div>
 
       <div
         v-else-if="!participants.length"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         No participants yet.
       </div>
 
       <div
         v-else-if="!filteredParticipants.length"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         No {{ activeFilter }} participants.
       </div>
 
       <div
         v-else
-        class="divide-y"
+        class="divide-y divide-(--ui-border)"
       >
         <div
           v-for="participant in filteredParticipants"
@@ -170,9 +170,9 @@ function getStatusLabel(status: number | null | undefined): string {
         >
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium">
-              {{ participant.id }}
+              {{ participant.name ?? participant.id }}
             </p>
-            <p class="text-xs text-muted">
+            <p class="text-xs text-(--ui-text-muted)">
               Team: {{ participant.teamName ?? 'No team' }}
             </p>
           </div>
@@ -189,14 +189,14 @@ function getStatusLabel(status: number | null | undefined): string {
               variant="ghost"
               color="success"
               icon="i-lucide-check"
-              @click="openReviewModal(participant.id ?? '', participant.teamName, 'accept')"
+              @click="openReviewModal(participant.id ?? '', participant.name ?? participant.id ?? '', 'accept')"
             />
             <UButton
               size="xs"
               variant="ghost"
               color="error"
               icon="i-lucide-x"
-              @click="openReviewModal(participant.id ?? '', participant.teamName, 'reject')"
+              @click="openReviewModal(participant.id ?? '', participant.name ?? participant.id ?? '', 'reject')"
             />
           </div>
         </div>
@@ -228,8 +228,8 @@ function getStatusLabel(status: number | null | undefined): string {
             class="space-y-4"
             @submit.prevent="handleReview"
           >
-            <p class="text-sm text-muted">
-              {{ reviewForm.decision === 'accept' ? 'Approving' : 'Rejecting' }} participant: <strong>{{ reviewingParticipantId }}</strong>
+            <p class="text-sm text-(--ui-text-muted)">
+              {{ reviewForm.decision === 'accept' ? 'Approving' : 'Rejecting' }} participant: <strong>{{ reviewingParticipantName }}</strong>
             </p>
 
             <UFormField label="Reason (optional)">

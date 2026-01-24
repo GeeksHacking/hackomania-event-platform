@@ -111,21 +111,21 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 
       <div
         v-if="isLoadingJudges"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         Loading judges...
       </div>
 
       <div
         v-else-if="!judges.length"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         No judges yet.
       </div>
 
       <div
         v-else
-        class="divide-y"
+        class="divide-y divide-(--ui-border)"
       >
         <div
           v-for="judge in judges"
@@ -136,7 +136,7 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
             <p class="text-sm font-medium">
               {{ judge.name }}
             </p>
-            <p class="text-xs text-muted truncate">
+            <p class="text-xs text-(--ui-text-muted) truncate">
               Secret: {{ judge.secret }}
             </p>
           </div>

@@ -154,21 +154,21 @@ const joinHackathon = async () => {
         <div class="p-4 space-y-4">
           <div
             v-if="isLoadingHackathon || isLoadingStatus"
-            class="text-muted"
+            class="text-(--ui-text-muted)"
           >
             Loading hackathon details...
           </div>
 
           <div
             v-else-if="hackathonError || statusError"
-            class="text-red-600"
+            class="text-red-500 dark:text-red-400"
           >
             Unable to load hackathon details. Please try again.
           </div>
 
           <div
             v-else-if="!hackathon"
-            class="text-muted"
+            class="text-(--ui-text-muted)"
           >
             Hackathon not found.
           </div>
@@ -184,7 +184,7 @@ const joinHackathon = async () => {
                     <h2 class="text-lg font-semibold">
                       {{ hackathon.name }}
                     </h2>
-                    <p class="text-xs text-muted">
+                    <p class="text-xs text-(--ui-text-muted)">
                       {{ hackathon.venue ?? 'Venue TBC' }}
                     </p>
                   </div>
@@ -199,11 +199,11 @@ const joinHackathon = async () => {
                 </div>
               </template>
 
-              <p class="text-sm text-muted">
+              <p class="text-sm text-(--ui-text-muted)">
                 {{ hackathon.description ?? 'Details coming soon.' }}
               </p>
 
-              <div class="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+              <div class="mt-3 flex flex-wrap gap-2 text-xs text-(--ui-text-muted)">
                 <span>
                   Starts: {{ hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toLocaleDateString() : 'TBC' }}
                 </span>
@@ -238,7 +238,7 @@ const joinHackathon = async () => {
 
             <UCard
               v-if="statusData?.isParticipant"
-              class="bg-gray-50"
+              class="bg-gray-50 dark:bg-gray-900"
             >
               <template #header>
                 <h3 class="text-sm font-semibold">
@@ -246,7 +246,7 @@ const joinHackathon = async () => {
                 </h3>
               </template>
               <template v-if="!isRegistrationComplete">
-                <p class="text-sm text-muted">
+                <p class="text-sm text-(--ui-text-muted)">
                   {{ statusDisplay.label }}
                 </p>
                 <div class="mt-3">
@@ -261,7 +261,7 @@ const joinHackathon = async () => {
                 </div>
               </template>
               <template v-else>
-                <p class="text-sm text-muted">
+                <p class="text-sm text-(--ui-text-muted)">
                   {{ statusDisplay.label }}
                   <span v-if="statusData?.reviewedAt">
                     • Reviewed {{ new Date(statusData.reviewedAt).toLocaleDateString() }}
@@ -278,14 +278,14 @@ const joinHackathon = async () => {
 
             <UCard
               v-if="isOrganizer && participantUserId"
-              class="border-blue-200"
+              class="border-blue-200 dark:border-blue-800"
             >
               <template #header>
                 <h3 class="text-sm font-semibold">
                   Organizer Actions
                 </h3>
               </template>
-              <p class="text-sm text-muted mb-4">
+              <p class="text-sm text-(--ui-text-muted) mb-4">
                 Review this participant's application.
               </p>
               <div class="flex gap-2">

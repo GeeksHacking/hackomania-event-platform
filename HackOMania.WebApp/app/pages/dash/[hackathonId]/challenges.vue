@@ -75,14 +75,14 @@ async function handleSubmit() {
   else {
     await createMutation.mutateAsync(form.value)
   }
-  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'challenges'] })
+  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'challenges', 'organizer'] })
   isModalOpen.value = false
   resetForm()
 }
 
 async function handleDelete(challengeId: string) {
   await deleteMutation.mutateAsync(challengeId)
-  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'challenges'] })
+  await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'challenges', 'organizer'] })
 }
 
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
@@ -116,21 +116,21 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 
       <div
         v-if="isLoadingChallenges"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         Loading challenges...
       </div>
 
       <div
         v-else-if="!challenges.length"
-        class="text-muted text-sm"
+        class="text-(--ui-text-muted) text-sm"
       >
         No challenges yet.
       </div>
 
       <div
         v-else
-        class="divide-y"
+        class="divide-y divide-(--ui-border)"
       >
         <div
           v-for="challenge in challenges"
@@ -141,7 +141,7 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
             <p class="text-sm font-medium">
               {{ challenge.title }}
             </p>
-            <p class="text-xs text-muted truncate">
+            <p class="text-xs text-(--ui-text-muted) truncate">
               {{ challenge.description ?? 'No description' }}
             </p>
           </div>

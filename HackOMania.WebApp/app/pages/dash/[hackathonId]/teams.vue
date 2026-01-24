@@ -36,21 +36,21 @@ const teams = computed(() => teamsData.value?.teams ?? [])
 
     <div
       v-if="isLoadingTeams"
-      class="text-muted text-sm"
+      class="text-(--ui-text-muted) text-sm"
     >
       Loading teams...
     </div>
 
     <div
       v-else-if="!teams.length"
-      class="text-muted text-sm"
+      class="text-(--ui-text-muted) text-sm"
     >
       No teams yet.
     </div>
 
     <div
       v-else
-      class="divide-y"
+      class="divide-y divide-(--ui-border)"
     >
       <div
         v-for="team in teams"
@@ -61,7 +61,7 @@ const teams = computed(() => teamsData.value?.teams ?? [])
           <p class="text-sm font-medium">
             {{ team.name }}
           </p>
-          <p class="text-xs text-muted">
+          <p class="text-xs text-(--ui-text-muted)">
             {{ team.description ?? 'No description' }}
           </p>
         </div>

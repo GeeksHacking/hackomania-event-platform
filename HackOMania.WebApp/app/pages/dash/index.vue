@@ -90,16 +90,16 @@ const joinHackathon = async (hackathonId: string) => {
           <h2 class="text-lg font-semibold">
             Hackathons
           </h2>
-          <p class="text-sm text-muted">
+          <p class="text-sm text-(--ui-text-muted)">
             Join a hackathon, complete your registration, and track your application status.
           </p>
         </div>
 
-        <div v-if="isLoadingHackathons" class="text-muted">
+        <div v-if="isLoadingHackathons" class="text-(--ui-text-muted)">
           Loading hackathons...
         </div>
 
-        <div v-else-if="!hackathons.length" class="text-muted">
+        <div v-else-if="!hackathons.length" class="text-(--ui-text-muted)">
           No hackathons available.
         </div>
 
@@ -111,7 +111,7 @@ const joinHackathon = async (hackathonId: string) => {
                   <h3 class="font-semibold leading-tight">
                     {{ hackathon.name }}
                   </h3>
-                  <p class="text-xs text-muted leading-tight">
+                  <p class="text-xs text-(--ui-text-muted) leading-tight">
                     {{ hackathon.venue }}
                   </p>
                 </div>
@@ -134,12 +134,12 @@ const joinHackathon = async (hackathonId: string) => {
               </div>
             </template>
 
-            <p class="text-sm text-muted min-h-14">
+            <p class="text-sm text-(--ui-text-muted) min-h-14">
               {{ hackathon.description }}
             </p>
 
             <div class="mt-3 flex flex-col gap-2">
-              <div class="flex items-center gap-2 text-xs text-muted">
+              <div class="flex items-center gap-2 text-xs text-(--ui-text-muted)">
                 <span>
                   Starts: {{ hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toLocaleDateString() : 'TBC' }}
                 </span>
@@ -151,7 +151,7 @@ const joinHackathon = async (hackathonId: string) => {
 
               <div
                 v-if="statusDataForIndex(index)?.status === 2 && statusDataForIndex(index)?.reviewReason"
-                class="text-xs text-red-600"
+                class="text-xs text-red-500 dark:text-red-400"
               >
                 Reason: {{ statusDataForIndex(index)?.reviewReason }}
               </div>

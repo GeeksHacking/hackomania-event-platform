@@ -37,6 +37,9 @@ public class ChallengeSelectionJintTests
             "/organizers/hackathons",
             hackathonRequest
         );
+
+        await Assert.That(hackathonResponse.IsSuccessStatusCode).IsTrue();
+
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
@@ -94,6 +97,9 @@ public class ChallengeSelectionJintTests
             "/organizers/hackathons",
             hackathonRequest
         );
+
+        await Assert.That(hackathonResponse.IsSuccessStatusCode).IsTrue();
+
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Create challenge with max 1 team
@@ -173,6 +179,9 @@ public class ChallengeSelectionJintTests
             "/organizers/hackathons",
             hackathonRequest
         );
+
+        await Assert.That(hackathonResponse.IsSuccessStatusCode).IsTrue();
+
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon

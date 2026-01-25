@@ -36,17 +36,67 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        if (team.SelectedChallengeId is null)
-        {
-            AddError("Your team must select a challenge before submitting.");
-            await Send.ErrorsAsync(400, ct);
-            return;
-        }
-
         var userId = User.GetUserId();
         if (userId is null)
         {
             throw new ArgumentNullException(nameof(userId));
+        }
+
+        var challenge = await sql.Queryable<Challenge>()
+            .Where(c => c.Id == req.ChallengeId && c.HackathonId == hackathon.Id && c.IsPublished)
+            .FirstAsync(ct);
+
+        if (challenge is null)
+        {
+            AddError(r => r.ChallengeId, "Challenge not found for this hackathon.");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
+        }
+
+        // Get all submissions for this challenge
+        var challengeSubmissions = await sql.Queryable<ChallengeSubmission>()
+            .Where(s => s.ChallengeId == challenge.Id)
+            .Includes(s => s.TeamId)
+            .ToListAsync(ct);
+
+        // Get team information with members
+        var teamWithMembers = await sql.Queryable<Team>()
+            .Where(t => t.Id == team.Id)
+            .Includes(t => t.Members)
+            .FirstAsync(ct);
+
+        var teamSize = teamWithMembers?.Members?.Count ?? 0;
+        var currentTeamsInChallenge = challengeSubmissions.Select(s => s.TeamId).Distinct().Count();
+
+        // Get total participants in hackathon
+        var totalParticipants = await sql.Queryable<Participant>()
+            .Where(p => p.HackathonId == hackathon.Id)
+            .CountAsync(ct);
+
+        // Evaluate SelectionCriteriaStmt using Jint
+        using var engine = new Engine(options =>
+        {
+            options.LimitMemory(4_000_000);
+            options.TimeoutInterval(TimeSpan.FromSeconds(5));
+            options.CancellationToken(ct);
+        });
+
+        // Note: totalSubmissions is kept for backward compatibility in Jint scripts, 
+        // but it effectively means teams selecting it now.
+        var allowed = engine
+            .SetValue("challenge", challenge)
+            .SetValue("teamSize", teamSize)
+            .SetValue("currentTeamsInChallenge", currentTeamsInChallenge)
+            .SetValue("totalParticipants", totalParticipants)
+            .SetValue("totalSubmissions", currentTeamsInChallenge) 
+            .Evaluate(challenge.SelectionCriteriaStmt)
+            .ToObject();
+
+        if (allowed is not bool boolAllowed || !boolAllowed)
+        {
+            AddError("Team does not meet the challenge selection criteria.");
+            await Send.ErrorsAsync(400, ct);
+            return;
         }
 
         var submission = new ChallengeSubmission
@@ -54,7 +104,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             Id = Guid.NewGuid(),
             HackathonId = hackathon.Id,
             TeamId = team.Id,
-            ChallengeId = team.SelectedChallengeId.Value,
+            ChallengeId = req.ChallengeId,
             SubmittedByUserId = userId.Value,
             Title = req.Title,
             Description = req.Summary ?? string.Empty,

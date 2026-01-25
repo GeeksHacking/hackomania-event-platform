@@ -33,8 +33,6 @@ public class Hackathon
 
     public DateTimeOffset SubmissionsEndDate { get; set; }
 
-    public DateTimeOffset ChallengeSelectionEndDate { get; set; }
-
     public DateTimeOffset JudgingStartDate { get; set; }
 
     public DateTimeOffset JudgingEndDate { get; set; }

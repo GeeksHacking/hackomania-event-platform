@@ -29,29 +29,30 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var participant = await sql.Queryable<Participant>()
-            .Includes(p => p.ParticipantReviews)
-            .Where(p => p.HackathonId == hackathon.Id && p.UserId == req.UserId)
+        var participantData = await sql.Queryable<Participant>()
+            .LeftJoin<User>((p, u) => p.UserId == u.Id)
+            .LeftJoin<Team>((p, u, t) => p.TeamId == t.Id)
+            .Where((p, u, t) => p.HackathonId == hackathon.Id && p.UserId == req.UserId)
+            .Select(
+                (p, u, t) =>
+                    new ParticipantDetails
+                    {
+                        Participant = p,
+                        UserName = u.Name,
+                        TeamName = t.Name,
+                    }
+            )
             .FirstAsync(ct);
 
-        if (participant is null)
+        if (participantData is null)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        var user = await sql.Queryable<User>().InSingleAsync(participant.UserId);
-        
-        string? teamName = null;
-        if (participant.TeamId.HasValue)
-        {
-            var team = await sql.Queryable<Team>().InSingleAsync(participant.TeamId.Value);
-            teamName = team?.Name;
-        }
-
-        var submissions = await sql.Queryable<ParticipantRegistrationSubmission>()
-            .Includes(s => s.Question)
-            .Where(s => s.ParticipantId == participant.Id)
+        var participant = participantData.Participant;
+        var participantReviews = await sql.Queryable<ParticipantReview>()
+            .Where(r => r.ParticipantId == participant.Id)
             .ToListAsync(ct);
 
         var concludedStatus = participant.ConcludedStatus switch
@@ -67,13 +68,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = participant.UserId,
-                Name = user?.Name ?? "Unknown",
+                Name = participantData.UserName ?? "Unknown",
                 TeamId = participant.TeamId,
-                TeamName = teamName,
+                TeamName = participantData.TeamName,
                 ConcludedStatus = concludedStatus,
                 Reviews =
                 [
-                    .. participant.ParticipantReviews.Select(r => new ParticipantReviewItem
+                    .. participantReviews.Select(r => new ParticipantReviewItem
                     {
                         Id = r.Id,
                         Status = r.Status switch
@@ -88,15 +89,31 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                         CreatedAt = r.CreatedAt,
                     }),
                 ],
-                RegistrationSubmissions = submissions.Select(s => new RegistrationSubmissionItem
-                {
-                    QuestionId = s.QuestionId,
-                    QuestionText = s.Question.QuestionText,
-                    Value = s.Value,
-                    FollowUpValue = s.FollowUpValue,
-                }).ToList(),
+                RegistrationSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
+                    .LeftJoin<RegistrationQuestion>(
+                        (s, q) => s.QuestionId == q.Id
+                    )
+                    .Where((s, q) => s.ParticipantId == participant.Id)
+                    .Select(
+                        (s, q) =>
+                            new RegistrationSubmissionItem
+                            {
+                                QuestionId = s.QuestionId,
+                                QuestionText = q.QuestionText,
+                                Value = s.Value,
+                                FollowUpValue = s.FollowUpValue,
+                            }
+                    )
+                    .ToListAsync(ct),
             },
             ct
         );
+    }
+
+    private sealed record ParticipantDetails
+    {
+        public required Participant Participant { get; init; }
+        public string? UserName { get; init; }
+        public string? TeamName { get; init; }
     }
 }

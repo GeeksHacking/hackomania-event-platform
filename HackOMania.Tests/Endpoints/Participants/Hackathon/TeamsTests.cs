@@ -154,7 +154,10 @@ public class TeamsTests
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result).IsNotNull();
         await Assert.That(result!.Name).IsEqualTo(createRequest.Name);
+        await Assert.That(result.Description).IsEqualTo(createRequest.Description);
+        await Assert.That(result.ChallengeId).IsNull();
         await Assert.That(result.Members).IsNotNull();
+        await Assert.That(result.Members).IsNotEmpty();
     }
 
     [Test]

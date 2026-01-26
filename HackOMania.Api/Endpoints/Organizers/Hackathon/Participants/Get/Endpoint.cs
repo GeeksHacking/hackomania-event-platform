@@ -72,23 +72,20 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 TeamId = participant.TeamId,
                 TeamName = participantData.TeamName,
                 ConcludedStatus = concludedStatus,
-                Reviews =
-                [
-                    .. participantReviews.Select(r => new ParticipantReviewItem
+                Reviews = participant.ParticipantReviews.Select(r => new ParticipantReviewItem
+                {
+                    Id = r.Id,
+                    Status = r.Status switch
                     {
-                        Id = r.Id,
-                        Status = r.Status switch
-                        {
-                            ParticipantReview.ParticipantReviewStatus.Accepted =>
-                                ParticipantReviewItem.ParticipantReviewStatus.Accepted,
-                            ParticipantReview.ParticipantReviewStatus.Rejected =>
-                                ParticipantReviewItem.ParticipantReviewStatus.Rejected,
-                            _ => throw new ArgumentOutOfRangeException(),
-                        },
-                        Reason = r.Reason,
-                        CreatedAt = r.CreatedAt,
-                    }),
-                ],
+                        ParticipantReview.ParticipantReviewStatus.Accepted =>
+                            ParticipantReviewItem.ParticipantReviewStatus.Accepted,
+                        ParticipantReview.ParticipantReviewStatus.Rejected =>
+                            ParticipantReviewItem.ParticipantReviewStatus.Rejected,
+                        _ => throw new ArgumentOutOfRangeException(),
+                    },
+                    Reason = r.Reason,
+                    CreatedAt = r.CreatedAt,
+                }).ToList(),
                 RegistrationSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
                     .LeftJoin<RegistrationQuestion>(
                         (s, q) => s.QuestionId == q.Id

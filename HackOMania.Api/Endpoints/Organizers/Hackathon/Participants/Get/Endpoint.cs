@@ -29,7 +29,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var participantData = await sql.Queryable<Participant>()
+       var participantData = await sql.Queryable<Participant>()
             .LeftJoin<User>((p, u) => p.UserId == u.Id)
             .LeftJoin<Team>((p, u, t) => p.TeamId == t.Id)
             .Where((p, u, t) => p.HackathonId == hackathon.Id && p.UserId == req.UserId)

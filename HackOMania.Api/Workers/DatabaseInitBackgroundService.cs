@@ -110,7 +110,9 @@ public class DatabaseInitBackgroundService(
             var testUser = new User
             {
                 Id = testUserId,
-                Name = "gunnicorn",
+                FirstName = "gunnicorn",
+                LastName = "",
+                LegacyName = "gunnicorn",
                 Email = "anggunq@hotmail.com",
             };
             await sql.Insertable(testUser).ExecuteCommandAsync(stoppingToken);

@@ -12,8 +12,6 @@ public class DatabaseInitBackgroundService(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Initializing database...");
-
         try
         {
              // CodeFirst might not drop existing non-nullable columns when the property is removed from the class.

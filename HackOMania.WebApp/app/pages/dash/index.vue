@@ -187,325 +187,348 @@ const joinHackathon = async (hackathonId: string) => {
 </script>
 
 <template>
-  <UDashboardPanel id="dashboard">
-    <template #header>
-      <UDashboardNavbar title="Dashboard">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <div>
+    <UDashboardPanel id="dashboard">
+      <template #header>
+        <UDashboardNavbar title="Dashboard">
+          <template #leading>
+            <UDashboardSidebarCollapse />
+          </template>
+        </UDashboardNavbar>
+      </template>
 
-    <template #body>
-      <div class="p-4 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-          <div class="flex flex-col gap-1">
-            <h2 class="text-lg font-semibold">
-              Hackathons
-            </h2>
-            <p class="text-sm text-(--ui-text-muted)">
-              Join a hackathon, complete your registration, and track your application status.
-            </p>
+      <template #body>
+        <div class="p-4 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div class="flex flex-col gap-1">
+              <h2 class="text-lg font-semibold">
+                Hackathons
+              </h2>
+              <p class="text-sm text-(--ui-text-muted)">
+                Join a hackathon, complete your registration, and track your application status.
+              </p>
+            </div>
+            <UButton
+              v-if="user?.isRoot"
+              icon="i-lucide-plus"
+              size="sm"
+              class="self-start"
+              @click="openCreateHackathonModal"
+            >
+              Add Hackathon
+            </UButton>
           </div>
-          <UButton
-            v-if="user?.isRoot"
-            icon="i-lucide-plus"
-            size="sm"
-            class="self-start"
-            @click="openCreateHackathonModal"
+
+          <div
+            v-if="isLoadingHackathons"
+            class="text-(--ui-text-muted)"
           >
-            Add Hackathon
-          </UButton>
-        </div>
+            Loading hackathons...
+          </div>
 
-        <div v-if="isLoadingHackathons" class="text-(--ui-text-muted)">
-          Loading hackathons...
-        </div>
+          <div
+            v-else-if="!hackathons.length"
+            class="text-(--ui-text-muted)"
+          >
+            No hackathons available.
+          </div>
 
-        <div v-else-if="!hackathons.length" class="text-(--ui-text-muted)">
-          No hackathons available.
-        </div>
-
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <UCard v-for="(hackathon, index) in hackathons" :key="hackathon.id!">
-            <template #header>
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <h3 class="font-semibold leading-tight">
-                    {{ hackathon.name }}
-                  </h3>
-                  <p class="text-xs text-(--ui-text-muted) leading-tight">
-                    {{ hackathon.venue }}
-                  </p>
-                </div>
-                <div v-if="user?.isRoot" class="flex items-center gap-2">
-                  <UButton
-                    size="xs"
-                    variant="ghost"
-                    icon="i-lucide-pencil"
-                    @click.stop="openEditHackathonModal(hackathon)"
-                  />
+          <div
+            v-else
+            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          >
+            <UCard
+              v-for="(hackathon, index) in hackathons"
+              :key="hackathon.id!"
+            >
+              <template #header>
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 class="font-semibold leading-tight">
+                      {{ hackathon.name }}
+                    </h3>
+                    <p class="text-xs text-(--ui-text-muted) leading-tight">
+                      {{ hackathon.venue }}
+                    </p>
+                  </div>
+                  <div
+                    v-if="user?.isRoot"
+                    class="flex items-center gap-2"
+                  >
+                    <UButton
+                      size="xs"
+                      variant="ghost"
+                      icon="i-lucide-pencil"
+                      @click.stop="openEditHackathonModal(hackathon)"
+                    />
+                    <UBadge
+                      color="warning"
+                      variant="subtle"
+                      size="sm"
+                    >
+                      Admin
+                    </UBadge>
+                  </div>
                   <UBadge
-                    color="warning"
+                    v-else-if="statusDataForIndex(index)?.isOrganizer"
+                    color="info"
                     variant="subtle"
                     size="sm"
                   >
-                    Admin
+                    Organizer
+                  </UBadge>
+                  <UBadge
+                    v-else-if="statusDataForIndex(index)"
+                    :color="formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).color"
+                    variant="subtle"
+                    size="sm"
+                  >
+                    {{ formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).label }}
                   </UBadge>
                 </div>
-                <UBadge
-                  v-else-if="statusDataForIndex(index)?.isOrganizer"
-                  color="info"
-                  variant="subtle"
-                  size="sm"
+              </template>
+
+              <p class="text-sm text-(--ui-text-muted) min-h-14">
+                {{ hackathon.description }}
+              </p>
+
+              <div class="mt-3 flex flex-col gap-2">
+                <div class="flex items-center gap-2 text-xs text-(--ui-text-muted)">
+                  <span>
+                    Starts: {{ hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toLocaleDateString() : 'TBC' }}
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Ends: {{ hackathon.eventEndDate ? new Date(hackathon.eventEndDate).toLocaleDateString() : 'TBC' }}
+                  </span>
+                </div>
+
+                <div
+                  v-if="statusDataForIndex(index)?.status === 2 && statusDataForIndex(index)?.reviewReason"
+                  class="text-xs text-red-500 dark:text-red-400"
                 >
-                  Organizer
-                </UBadge>
-                <UBadge
-                  v-else-if="statusDataForIndex(index)"
-                  :color="formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).color"
-                  variant="subtle"
-                  size="sm"
-                >
-                  {{ formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).label }}
-                </UBadge>
+                  Reason: {{ statusDataForIndex(index)?.reviewReason }}
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <!-- Root user: View only -->
+                  <template v-if="user?.isRoot">
+                    <UButton
+                      :to="`/dash/${hackathon.id}`"
+                      color="neutral"
+                      size="sm"
+                    >
+                      View
+                    </UButton>
+                  </template>
+
+                  <!-- Organizer: Manage + Portal -->
+                  <template v-else-if="statusDataForIndex(index)?.isOrganizer">
+                    <UButton
+                      :to="`/dash/${hackathon.id}`"
+                      color="neutral"
+                      size="sm"
+                    >
+                      Manage
+                    </UButton>
+                    <UButton
+                      :to="`/${hackathon.id}/team`"
+                      color="neutral"
+                      variant="outline"
+                      size="sm"
+                    >
+                      Go to hackathon portal
+                    </UButton>
+                  </template>
+
+                  <!-- Not joined: Join event -->
+                  <template v-else-if="!statusDataForIndex(index)?.isParticipant">
+                    <UButton
+                      color="neutral"
+                      size="sm"
+                      :loading="joinMutation.isPending.value"
+                      @click="joinHackathon(hackathon.id!)"
+                    >
+                      Join event
+                    </UButton>
+                  </template>
+
+                  <!-- Joined but registration incomplete: Continue registration -->
+                  <template v-else-if="!isRegistrationComplete(index)">
+                    <UButton
+                      :to="`/${hackathon.id}/registration`"
+                      color="neutral"
+                      size="sm"
+                    >
+                      Continue registration
+                    </UButton>
+                  </template>
+
+                  <!-- Registration complete but not approved: View registration status -->
+                  <template v-else-if="statusDataForIndex(index)?.status !== 1">
+                    <UButton
+                      :to="`/dash/${hackathon.id}/participant`"
+                      color="neutral"
+                      size="sm"
+                    >
+                      View registration status
+                    </UButton>
+                  </template>
+
+                  <!-- Approved participant: Portal -->
+                  <template v-else>
+                    <UButton
+                      :to="`/${hackathon.id}/team`"
+                      color="neutral"
+                      size="sm"
+                    >
+                      Go to hackathon portal
+                    </UButton>
+                  </template>
+                </div>
               </div>
-            </template>
-
-            <p class="text-sm text-(--ui-text-muted) min-h-14">
-              {{ hackathon.description }}
-            </p>
-
-            <div class="mt-3 flex flex-col gap-2">
-              <div class="flex items-center gap-2 text-xs text-(--ui-text-muted)">
-                <span>
-                  Starts: {{ hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toLocaleDateString() : 'TBC' }}
-                </span>
-                <span>•</span>
-                <span>
-                  Ends: {{ hackathon.eventEndDate ? new Date(hackathon.eventEndDate).toLocaleDateString() : 'TBC' }}
-                </span>
-              </div>
-
-              <div
-                v-if="statusDataForIndex(index)?.status === 2 && statusDataForIndex(index)?.reviewReason"
-                class="text-xs text-red-500 dark:text-red-400"
-              >
-                Reason: {{ statusDataForIndex(index)?.reviewReason }}
-              </div>
-
-              <div class="flex items-center gap-2">
-                <!-- Root user: View only -->
-                <template v-if="user?.isRoot">
-                  <UButton
-                    :to="`/dash/${hackathon.id}`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    View
-                  </UButton>
-                </template>
-
-                <!-- Organizer: Manage + Portal -->
-                <template v-else-if="statusDataForIndex(index)?.isOrganizer">
-                  <UButton
-                    :to="`/dash/${hackathon.id}`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    Manage
-                  </UButton>
-                  <UButton
-                    :to="`/${hackathon.id}/team`"
-                    color="neutral"
-                    variant="outline"
-                    size="sm"
-                  >
-                    Go to hackathon portal
-                  </UButton>
-                </template>
-
-                <!-- Not joined: Join event -->
-                <template v-else-if="!statusDataForIndex(index)?.isParticipant">
-                  <UButton
-                    color="neutral"
-                    size="sm"
-                    :loading="joinMutation.isPending.value"
-                    @click="joinHackathon(hackathon.id!)"
-                  >
-                    Join event
-                  </UButton>
-                </template>
-
-                <!-- Joined but registration incomplete: Continue registration -->
-                <template v-else-if="!isRegistrationComplete(index)">
-                  <UButton
-                    :to="`/${hackathon.id}/registration`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    Continue registration
-                  </UButton>
-                </template>
-
-                <!-- Registration complete but not approved: View registration status -->
-                <template v-else-if="statusDataForIndex(index)?.status !== 1">
-                  <UButton
-                    :to="`/dash/${hackathon.id}/participant`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    View registration status
-                  </UButton>
-                </template>
-
-                <!-- Approved participant: Portal -->
-                <template v-else>
-                  <UButton
-                    :to="`/${hackathon.id}/team`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    Go to hackathon portal
-                  </UButton>
-                </template>
-              </div>
-            </div>
-          </UCard>
+            </UCard>
+          </div>
         </div>
-      </div>
-    </template>
-  </UDashboardPanel>
+      </template>
+    </UDashboardPanel>
 
-  <!-- Hackathon Create/Edit Modal -->
-  <UModal v-model:open="isHackathonModalOpen">
-    <template #content>
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-semibold">
-              {{ isEditingHackathon ? 'Edit Hackathon' : 'Create Hackathon' }}
-            </h3>
-            <UButton
-              variant="ghost"
-              icon="i-lucide-x"
-              size="xs"
-              @click="isHackathonModalOpen = false"
-            />
-          </div>
-        </template>
-
-        <form
-          class="space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1"
-          @submit.prevent="handleHackathonSubmit"
-        >
-          <UFormField label="Name" required>
-            <UInput
-              v-model="hackathonForm.name"
-              placeholder="Hackathon name"
-            />
-          </UFormField>
-
-          <UFormField label="Short Code">
-            <UInput
-              v-model="hackathonForm.shortCode"
-              placeholder="e.g., hackathon-2025"
-            />
-          </UFormField>
-
-          <UFormField label="Description">
-            <UTextarea
-              v-model="hackathonForm.description"
-              placeholder="Hackathon description"
-              :rows="3"
-            />
-          </UFormField>
-
-          <UFormField label="Venue">
-            <UInput
-              v-model="hackathonForm.venue"
-              placeholder="Event venue"
-            />
-          </UFormField>
-
-          <UFormField label="Homepage URL">
-            <UInput
-              v-model="hackathonForm.homepageUri"
-              placeholder="https://..."
-            />
-          </UFormField>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <UFormField label="Event Start">
-              <UInput
-                v-model="hackathonForm.eventStartDate"
-                type="datetime-local"
+    <!-- Hackathon Create/Edit Modal (Admin only) -->
+    <UModal
+      v-if="user?.isRoot"
+      v-model:open="isHackathonModalOpen"
+    >
+      <template #content>
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-semibold">
+                {{ isEditingHackathon ? 'Edit Hackathon' : 'Create Hackathon' }}
+              </h3>
+              <UButton
+                variant="ghost"
+                icon="i-lucide-x"
+                size="xs"
+                @click="isHackathonModalOpen = false"
               />
-            </UFormField>
+            </div>
+          </template>
 
-            <UFormField label="Event End">
-              <UInput
-                v-model="hackathonForm.eventEndDate"
-                type="datetime-local"
-              />
-            </UFormField>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <UFormField label="Submissions Start">
-              <UInput
-                v-model="hackathonForm.submissionsStartDate"
-                type="datetime-local"
-              />
-            </UFormField>
-
-            <UFormField label="Submissions End">
-              <UInput
-                v-model="hackathonForm.submissionsEndDate"
-                type="datetime-local"
-              />
-            </UFormField>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <UFormField label="Judging Start">
-              <UInput
-                v-model="hackathonForm.judgingStartDate"
-                type="datetime-local"
-              />
-            </UFormField>
-
-            <UFormField label="Judging End">
-              <UInput
-                v-model="hackathonForm.judgingEndDate"
-                type="datetime-local"
-              />
-            </UFormField>
-          </div>
-
-          <UCheckbox
-            v-model="hackathonForm.isPublished"
-            label="Published"
-          />
-
-          <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
-            <UButton
-              variant="ghost"
-              class="w-full sm:w-auto"
-              @click="isHackathonModalOpen = false"
+          <form
+            class="space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1"
+            @submit.prevent="handleHackathonSubmit"
+          >
+            <UFormField
+              label="Name"
+              required
             >
-              Cancel
-            </UButton>
-            <UButton
-              type="submit"
-              class="w-full sm:w-auto"
-              :loading="isHackathonSubmitting"
-            >
-              {{ isEditingHackathon ? 'Update' : 'Create' }}
-            </UButton>
-          </div>
-        </form>
-      </UCard>
-    </template>
-  </UModal>
+              <UInput
+                v-model="hackathonForm.name"
+                placeholder="Hackathon name"
+              />
+            </UFormField>
+
+            <UFormField label="Short Code">
+              <UInput
+                v-model="hackathonForm.shortCode"
+                placeholder="e.g., hackathon-2025"
+              />
+            </UFormField>
+
+            <UFormField label="Description">
+              <UTextarea
+                v-model="hackathonForm.description"
+                placeholder="Hackathon description"
+                :rows="3"
+              />
+            </UFormField>
+
+            <UFormField label="Venue">
+              <UInput
+                v-model="hackathonForm.venue"
+                placeholder="Event venue"
+              />
+            </UFormField>
+
+            <UFormField label="Homepage URL">
+              <UInput
+                v-model="hackathonForm.homepageUri"
+                placeholder="https://..."
+              />
+            </UFormField>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <UFormField label="Event Start">
+                <UInput
+                  v-model="hackathonForm.eventStartDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+
+              <UFormField label="Event End">
+                <UInput
+                  v-model="hackathonForm.eventEndDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <UFormField label="Submissions Start">
+                <UInput
+                  v-model="hackathonForm.submissionsStartDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+
+              <UFormField label="Submissions End">
+                <UInput
+                  v-model="hackathonForm.submissionsEndDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <UFormField label="Judging Start">
+                <UInput
+                  v-model="hackathonForm.judgingStartDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+
+              <UFormField label="Judging End">
+                <UInput
+                  v-model="hackathonForm.judgingEndDate"
+                  type="datetime-local"
+                />
+              </UFormField>
+            </div>
+
+            <UCheckbox
+              v-model="hackathonForm.isPublished"
+              label="Published"
+            />
+
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
+              <UButton
+                variant="ghost"
+                class="w-full sm:w-auto"
+                @click="isHackathonModalOpen = false"
+              >
+                Cancel
+              </UButton>
+              <UButton
+                type="submit"
+                class="w-full sm:w-auto"
+                :loading="isHackathonSubmitting"
+              >
+                {{ isEditingHackathon ? 'Update' : 'Create' }}
+              </UButton>
+            </div>
+          </form>
+        </UCard>
+      </template>
+    </UModal>
+  </div>
 </template>

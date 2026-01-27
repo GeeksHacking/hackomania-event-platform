@@ -4,6 +4,8 @@
 // @ts-ignore
 import { createHackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponseFromDiscriminatorValue, serializeHackOManiaApiEndpointsParticipantsHackathonTeamsUpdateRequest, serializeHackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse, type HackOManiaApiEndpointsParticipantsHackathonTeamsUpdateRequest, type HackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse } from '../../../../../models/index.js';
 // @ts-ignore
+import { ChallengeRequestBuilderRequestsMetadata, type ChallengeRequestBuilder } from './challenge/index.js';
+// @ts-ignore
 import { JoinRequestBuilderRequestsMetadata, type JoinRequestBuilder } from './join/index.js';
 // @ts-ignore
 import { SubmissionsRequestBuilderRequestsMetadata, type SubmissionsRequestBuilder } from './submissions/index.js';
@@ -14,6 +16,10 @@ import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type 
  * Builds and executes requests for operations under /participants/hackathons/{hackathonIdOrShortCode-id}/teams/{teamId}
  */
 export interface WithTeamItemRequestBuilder extends BaseRequestBuilder<WithTeamItemRequestBuilder> {
+    /**
+     * The challenge property
+     */
+    get challenge(): ChallengeRequestBuilder;
     /**
      * The join property
      */
@@ -45,6 +51,9 @@ export const WithTeamItemRequestBuilderUriTemplate = "{+baseurl}/participants/ha
  * Metadata for all the navigation properties in the request builder.
  */
 export const WithTeamItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithTeamItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+    challenge: {
+        requestsMetadata: ChallengeRequestBuilderRequestsMetadata,
+    },
     join: {
         requestsMetadata: JoinRequestBuilderRequestsMetadata,
     },

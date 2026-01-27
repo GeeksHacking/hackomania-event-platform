@@ -4,7 +4,7 @@
 // @ts-ignore
 import { createHackOManiaApiEndpointsOrganizersHackathonParticipantsListResponseFromDiscriminatorValue, type HackOManiaApiEndpointsOrganizersHackathonParticipantsListResponse } from '../../../../models/index.js';
 // @ts-ignore
-import { type WithParticipantUserItemRequestBuilder, WithParticipantUserItemRequestBuilderNavigationMetadata } from './item/index.js';
+import { ParticipantUserItemRequestBuilderNavigationMetadata, ParticipantUserItemRequestBuilderRequestsMetadata, type ParticipantUserItemRequestBuilder } from './item/index.js';
 // @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
@@ -15,9 +15,9 @@ export interface ParticipantsRequestBuilder extends BaseRequestBuilder<Participa
     /**
      * Gets an item from the ApiSdk.organizers.hackathons.item.participants.item collection
      * @param participantUserId Unique identifier of the item
-     * @returns {WithParticipantUserItemRequestBuilder}
+     * @returns {ParticipantUserItemRequestBuilder}
      */
-     byParticipantUserId(participantUserId: string) : WithParticipantUserItemRequestBuilder;
+     byParticipantUserId(participantUserId: string) : ParticipantUserItemRequestBuilder;
     /**
      * Retrieves all participants for a hackathon with their review status.
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
@@ -40,8 +40,9 @@ export const ParticipantsRequestBuilderUriTemplate = "{+baseurl}/organizers/hack
  */
 export const ParticipantsRequestBuilderNavigationMetadata: Record<Exclude<keyof ParticipantsRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     byParticipantUserId: {
-        navigationMetadata: WithParticipantUserItemRequestBuilderNavigationMetadata,
-        pathParametersMappings: ["participantUserId"],
+        requestsMetadata: ParticipantUserItemRequestBuilderRequestsMetadata,
+        navigationMetadata: ParticipantUserItemRequestBuilderNavigationMetadata,
+        pathParametersMappings: ["participantUser%2Did"],
     },
 };
 /**

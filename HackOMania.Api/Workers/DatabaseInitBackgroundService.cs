@@ -14,6 +14,19 @@ public class DatabaseInitBackgroundService(
     {
         logger.LogInformation("Initializing database...");
 
+        try
+        {
+             // CodeFirst might not drop existing non-nullable columns when the property is removed from the class.
+             // This causes Insert to fail if the column remains with NOT NULL constraint.
+             // We attempt to drop it manually.
+             await sql.Ado.ExecuteCommandAsync("ALTER TABLE `User` DROP COLUMN `Name`;");
+        }
+        catch (Exception ex)
+        {
+             // It might fail if column doesn't exist, which is fine.
+             logger.LogWarning(ex, "Failed to drop Name column from User table (it might not exist).");
+        }
+
         sql.CodeFirst.InitTables<GitHubOnlineAccount>();
         sql.CodeFirst.InitTables<Hackathon>();
         sql.CodeFirst.InitTables<Judge>();
@@ -112,7 +125,6 @@ public class DatabaseInitBackgroundService(
                 Id = testUserId,
                 FirstName = "gunnicorn",
                 LastName = "",
-                LegacyName = "gunnicorn",
                 Email = "anggunq@hotmail.com",
             };
             await sql.Insertable(testUser).ExecuteCommandAsync(stoppingToken);

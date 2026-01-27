@@ -10,9 +10,6 @@ public class User
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
 
-    [SugarColumn(ColumnName = "Name")]
-    public string LegacyName { get; set; } = null!;
-
     [SugarColumn(IsIgnore = true)]
     public string Name => $"{FirstName} {LastName}".Trim();
 

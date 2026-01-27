@@ -86,7 +86,7 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
                 var firstName = (nameParts.Length > 0 ? nameParts[0] : name).Trim();
                 var lastName = (nameParts.Length > 1 ? nameParts[1] : "").Trim();
 
-                accountUser = new User { FirstName = firstName, LastName = lastName, LegacyName = name, Email = email };
+                accountUser = new User { FirstName = firstName, LastName = lastName, Email = email };
                 var newAccount = new GitHubOnlineAccount
                 {
                     GitHubLogin = githubLogin,

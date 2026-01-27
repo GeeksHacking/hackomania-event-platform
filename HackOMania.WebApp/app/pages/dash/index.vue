@@ -233,52 +233,52 @@ const joinHackathon = async (hackathonId: string) => {
             No hackathons available.
           </div>
 
-              <div class="flex items-center gap-2">
-                <!-- Admin or Organizer: Manage + Portal -->
-                <template v-if="user?.isRoot || statusDataForIndex(index)?.isOrganizer">
-                  <UButton
-                    :to="`/dash/${hackathon.id}`"
-                    color="neutral"
-                    size="sm"
-                  >
-                    Manage
-                  </UButton>
-                  <UButton
-                    :to="`/${hackathon.id}/team`"
-                    color="neutral"
-                    variant="outline"
-                    size="sm"
-                  >
+          <div
+            v-else
+            class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            <UCard
+              v-for="(hackathon, index) in hackathons"
+              :key="hackathon.id ?? index"
+            >
+              <template #header>
+                <div class="flex items-center justify-between gap-2">
+                  <h3 class="text-base font-semibold truncate">
+                    {{ hackathon.name }}
+                  </h3>
+                  <div class="flex items-center gap-2 shrink-0">
                     <UButton
+                      v-if="user?.isRoot"
                       size="xs"
                       variant="ghost"
                       icon="i-lucide-pencil"
                       @click.stop="openEditHackathonModal(hackathon)"
                     />
                     <UBadge
+                      v-if="user?.isRoot"
                       color="warning"
                       variant="subtle"
                       size="sm"
                     >
                       Admin
                     </UBadge>
+                    <UBadge
+                      v-else-if="statusDataForIndex(index)?.isOrganizer"
+                      color="info"
+                      variant="subtle"
+                      size="sm"
+                    >
+                      Organizer
+                    </UBadge>
+                    <UBadge
+                      v-else-if="statusDataForIndex(index)"
+                      :color="formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).color"
+                      variant="subtle"
+                      size="sm"
+                    >
+                      {{ formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).label }}
+                    </UBadge>
                   </div>
-                  <UBadge
-                    v-else-if="statusDataForIndex(index)?.isOrganizer"
-                    color="info"
-                    variant="subtle"
-                    size="sm"
-                  >
-                    Organizer
-                  </UBadge>
-                  <UBadge
-                    v-else-if="statusDataForIndex(index)"
-                    :color="formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).color"
-                    variant="subtle"
-                    size="sm"
-                  >
-                    {{ formatParticipantStatus(statusDataForIndex(index)?.status ?? null, statusDataForIndex(index)?.isParticipant).label }}
-                  </UBadge>
                 </div>
               </template>
 
@@ -305,14 +305,14 @@ const joinHackathon = async (hackathonId: string) => {
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <!-- Root user: View only -->
+                  <!-- Root user: View + Manage -->
                   <template v-if="user?.isRoot">
                     <UButton
                       :to="`/dash/${hackathon.id}`"
                       color="neutral"
                       size="sm"
                     >
-                      View
+                      Manage
                     </UButton>
                   </template>
 

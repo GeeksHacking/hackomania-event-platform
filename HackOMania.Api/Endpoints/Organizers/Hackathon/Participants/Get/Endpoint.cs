@@ -30,32 +30,21 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var participantData = await sql.Queryable<Participant>()
+        var participant = await sql.Queryable<Participant>()
             .Includes(p => p.ParticipantReviews)
-            .LeftJoin<User>((p, u) => p.UserId == u.Id)
-            .LeftJoin<Team>((p, u, t) => p.TeamId == t.Id)
-            .Where((p, u, t) => p.HackathonId == hackathon.Id && p.UserId == req.UserId)
-            .Select(
-                (p, u, t) =>
-                    new ParticipantDetails
-                    {
-                        Participant = p,
-                        UserName = u.FirstName + " " + u.LastName,
-                        TeamName = t.Name,
-                    }
-            )
+            .Includes(p => p.Team)
+            .Where(p => p.HackathonId == hackathon.Id && p.UserId == req.UserId)
             .FirstAsync(ct);
 
-        if (participantData is null)
+        if (participant is null)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        var participant = participantData.Participant;
-        var participantReviews = await sql.Queryable<ParticipantReview>()
-            .Where(r => r.ParticipantId == participant.Id)
-            .ToListAsync(ct);
+        var user = await sql.Queryable<User>().InSingleAsync(participant.UserId);
+        var participantReviews = participant.ParticipantReviews ?? [];
+        var userName = user is null ? "Unknown" : $"{user.FirstName} {user.LastName}";
 
         var concludedStatus = participant.ConcludedStatus switch
         {
@@ -70,9 +59,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = participant.UserId,
-                Name = participantData.UserName ?? "Unknown",
+                Name = userName,
                 TeamId = participant.TeamId,
-                TeamName = participantData.TeamName,
+                TeamName = participant.Team?.Name,
                 ConcludedStatus = concludedStatus,
                 Reviews =
                 [
@@ -110,10 +99,4 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         );
     }
 
-    private sealed record ParticipantDetails
-    {
-        public required Participant Participant { get; init; }
-        public string? UserName { get; init; }
-        public string? TeamName { get; init; }
-    }
 }

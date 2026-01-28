@@ -13,7 +13,7 @@ public class Participant : HackathonUser
     public Team Team { get; set; } = null!;
 
     [Navigate(NavigateType.OneToMany, nameof(ParticipantReview.ParticipantId))]
-    public List<ParticipantReview> ParticipantReviews { get; set; } = null!;
+    public List<ParticipantReview> ParticipantReviews { get; set; } = [];
 
     /// <summary>
     /// Registration submissions for dynamic questions

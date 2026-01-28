@@ -87,6 +87,7 @@ const { data: questions, isLoading, error } = useQuery(computed(() => ({
   queryFn: () => fetchQuestions(hackathonId.value ?? ''),
   enabled: setupComplete.value && !!hackathonId.value,
 })))
+
 </script>
 
 <template>
@@ -160,7 +161,11 @@ const { data: questions, isLoading, error } = useQuery(computed(() => ({
 
     <!-- Render Form with Questions -->
     <div v-else-if="questions">
-      <RegistrationDynamicForm :questions="questions" :hackathon-id="hackathonId!" />
+      <RegistrationDynamicForm
+        :questions="questions"
+        :hackathon-id="hackathonId!"
+        @section-change="onSectionChange"
+      />
     </div>
   </div>
 </template>

@@ -122,13 +122,45 @@ async function handleHackathonSubmit() {
 
 const isHackathonSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-const { data: user } = useQuery(authQueries.whoAmI)
+const { data: user, isLoading: isLoadingUser } = useQuery(authQueries.whoAmI)
 
-const { data: hackathonsData, isLoading: isLoadingHackathons } = useQuery(
+// Fetch participant hackathons (published ones, for everyone)
+const { data: participantHackathonsData, isLoading: isLoadingParticipantHackathons } = useQuery(
   participantHackathonQueries.list,
 )
 
-const hackathons = computed(() => hackathonsData.value?.hackathons ?? [])
+// Fetch organizer hackathons (ones user can manage, only for authenticated users)
+const { data: organizerHackathonsData, isLoading: isLoadingOrganizerHackathons } = useQuery(
+  computed(() => ({
+    ...participantHackathonQueries.organizerList,
+    enabled: !!user.value?.id,
+  })),
+)
+
+const isLoadingHackathons = computed(() =>
+  isLoadingUser.value || isLoadingParticipantHackathons.value || (!!user.value?.id && isLoadingOrganizerHackathons.value),
+)
+
+// Merge and dedupe hackathons from both endpoints
+const hackathons = computed(() => {
+  const participantList = participantHackathonsData.value?.hackathons ?? []
+  const organizerList = organizerHackathonsData.value?.hackathons ?? []
+
+  // Create a map to dedupe by ID
+  const hackathonMap = new Map<string, typeof participantList[number]>()
+
+  // Add organizer hackathons first (they may include unpublished ones)
+  for (const h of organizerList) {
+    if (h.id) hackathonMap.set(h.id, h)
+  }
+
+  // Add participant hackathons (won't overwrite if already present)
+  for (const h of participantList) {
+    if (h.id && !hackathonMap.has(h.id)) hackathonMap.set(h.id, h)
+  }
+
+  return Array.from(hackathonMap.values())
+})
 
 // Fetch participation status per hackathon
 const statusQueries = useQueries({
@@ -198,7 +230,7 @@ const joinHackathon = async (hackathonId: string) => {
       </template>
 
       <template #body>
-        <div class="p-4 space-y-4">
+        <div class="p-4 space-y-4 overflow-y-auto">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div class="flex flex-col gap-1">
               <h2 class="text-lg font-semibold">

@@ -9,7 +9,8 @@ definePageMeta({
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathonId = computed(() => (route.params.hackathonId as string | undefined) ?? null)
+const hackathon = useRouteHackathon()
+const resolvedHackathonId = useResolvedHackathonId()
 
 // Track if we should show the form
 const showForm = ref(false)
@@ -25,19 +26,19 @@ const { data: user, isLoading: isLoadingUser, isError } = useQuery({
 // Check participation status
 const { data: statusData, isLoading: isLoadingStatus } = useQuery(
   computed(() => ({
-    ...participantHackathonQueries.status(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value && !!user.value,
+    ...participantHackathonQueries.status(resolvedHackathonId.value ?? ''),
+    enabled: !!resolvedHackathonId.value && !!user.value,
   })),
 )
 
 // Check registration submissions
 const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery(
   computed(() => ({
-    queryKey: ['hackathons', hackathonId.value, 'registration', 'submissions'],
+    queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'],
     queryFn: () => useNuxtApp().$apiClient.participants.hackathons
-      .byHackathonIdOrShortCodeId(hackathonId.value ?? '')
+      .byHackathonIdOrShortCodeId(resolvedHackathonId.value ?? '')
       .registration.submissions.get(),
-    enabled: !!hackathonId.value && statusData.value?.isParticipant === true,
+    enabled: !!resolvedHackathonId.value && statusData.value?.isParticipant === true,
   })),
 )
 
@@ -45,11 +46,11 @@ const isLoading = computed(() => isLoadingUser.value || isLoadingStatus.value ||
 
 // Handle auth and registration state
 watchEffect(() => {
-  if (isLoading.value) return
+  if (isLoading.value || !hackathon.value) return
 
   // Not authenticated - redirect to login
   if (!user.value || isError.value) {
-    if (hackathonId.value) {
+    if (resolvedHackathonId.value) {
       navigateTo(`${config.public.api}/auth/login?redirect_uri=${encodeURIComponent(route.fullPath)}`, { external: true })
     }
     return
@@ -58,7 +59,7 @@ watchEffect(() => {
   // Registration already complete - redirect to team page if joinCode present, otherwise dashboard
   if (submissionsData.value?.requiredQuestionsRemaining === 0) {
     if (route.query.joinCode) {
-      navigateTo({ path: `/${hackathonId.value}/team`, query: route.query }, { replace: true })
+      navigateTo({ path: `/${hackathon.value.shortCode}/team`, query: route.query }, { replace: true })
     } else {
       navigateTo('/dash', { replace: true })
     }
@@ -85,6 +86,6 @@ watchEffect(() => {
   <!-- Show form if authenticated -->
   <RegistrationFormPage
     v-else
-    :hackathon-id="hackathonId"
+    :hackathon-id="resolvedHackathonId"
   />
 </template>

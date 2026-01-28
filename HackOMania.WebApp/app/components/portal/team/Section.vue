@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch, nextTick } from 'vue'
 
 const route = useRoute()
-const hackathonId = useRouteHackathonId()
 const hackathon = useRouteHackathon()
+const hackathonId = useResolvedHackathonId()
 
 // Get joinCode from URL query param
 const joinCodeParam = computed(() => {

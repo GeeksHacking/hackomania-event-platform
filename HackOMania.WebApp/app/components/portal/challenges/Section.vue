@@ -3,7 +3,7 @@ import { useQuery, useQueries } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 import sponsorsData from '~/data/sponsors.json'
 
-const hackathonId = useRouteHackathonId()
+const hackathonId = useResolvedHackathonId()
 
 // Fetch challenges list for the hackathon
 const { data: challengesData, isLoading } = useQuery(

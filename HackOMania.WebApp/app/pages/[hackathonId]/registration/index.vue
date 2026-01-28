@@ -8,7 +8,7 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const route = useRoute()
-const hackathonId = computed(() => route.params.hackathonId as string)
+const hackathon = useRouteHackathon()
 
 useHead({
   titleTemplate: title => (title ? `${title} - HackOMania` : 'HackOMania'),
@@ -24,8 +24,8 @@ const { data: user, isLoading, isSuccess } = useQuery({
 
 // Only redirect to form if query succeeded and we have user data
 watchEffect(() => {
-  if (isSuccess.value && user.value) {
-    navigateTo({ path: `/${hackathonId.value}/registration/form`, query: route.query }, { replace: true })
+  if (isSuccess.value && user.value && hackathon.value) {
+    navigateTo({ path: `/${hackathon.value.shortCode}/registration/form`, query: route.query }, { replace: true })
   }
 })
 </script>

@@ -12,8 +12,9 @@ const props = defineProps<{
 
 const router = useRouter()
 const route = useRoute()
+const hackathon = useRouteHackathon()
 
-const registrationPath = computed(() => `/${props.hackathonId}/registration`)
+const registrationPath = computed(() => hackathon.value ? `/${hackathon.value.shortCode}/registration` : `/${props.hackathonId}/registration`)
 
 // Get authenticated user data for prefilling
 const { data: userData } = useQuery(authQueries.whoAmI)

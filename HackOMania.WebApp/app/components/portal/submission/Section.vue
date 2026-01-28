@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { ref, computed, watch } from 'vue'
 
-const hackathonId = useRouteHackathonId()
+const hackathonId = useResolvedHackathonId()
 const hackathon = useRouteHackathon()
 const toast = useToast()
 

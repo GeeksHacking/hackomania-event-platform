@@ -10,6 +10,7 @@ const props = defineProps<{
 }>()
 
 const hackathonIdRef = computed(() => props.hackathonId)
+const hackathon = useRouteHackathon()
 
 // State
 const isCopied = ref(false)
@@ -34,8 +35,8 @@ function handleLeaveTeam() {
 }
 
 function copyInviteUrl() {
-  if (props.team.joinCode && props.hackathonId) {
-    const url = new URL(`/${props.hackathonId}/team/`, window.location.origin)
+  if (props.team.joinCode && hackathon.value) {
+    const url = new URL(`/${hackathon.value.shortCode}/team/`, window.location.origin)
     url.searchParams.set('joinCode', props.team.joinCode)
     navigator.clipboard.writeText(url.toString())
     isCopied.value = true

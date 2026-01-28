@@ -12,7 +12,8 @@ useHead({
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathonId = computed(() => route.params.hackathonId as string)
+const hackathon = useRouteHackathon()
+const resolvedHackathonId = useResolvedHackathonId()
 
 // Track if we should show the page
 const showPage = ref(false)
@@ -31,7 +32,7 @@ watchEffect(() => {
     if (user.value && !isError.value) {
       showPage.value = true
     }
-    else if (hackathonId.value) {
+    else if (resolvedHackathonId.value) {
       navigateTo(`${config.public.api}/auth/login?redirect_uri=${encodeURIComponent(route.fullPath)}`, { external: true })
     }
   }
@@ -83,7 +84,7 @@ watchEffect(() => {
 
         <div class="flex flex-col gap-3 mt-8 w-full max-w-sm">
           <UButton
-            :to="route.query.joinCode ? { path: `/${hackathonId}/team`, query: { joinCode: route.query.joinCode } } : '/dash'"
+            :to="route.query.joinCode && hackathon ? { path: `/${hackathon.shortCode}/team`, query: { joinCode: route.query.joinCode } } : '/dash'"
             size="xl"
             color="neutral"
             class="w-full justify-center"

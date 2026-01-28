@@ -12,7 +12,17 @@ import Judges from './judges.vue'
 
 const route = useRoute()
 
-const hackathonId = computed(() => (route.params.hackathonId as string | undefined) ?? null)
+const hackathonIdOrShortCode = computed(() => (route.params.hackathonId as string | undefined) ?? null)
+
+// Fetch hackathon first to get the actual ID
+const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
+  computed(() => ({
+    ...participantHackathonQueries.detail(hackathonIdOrShortCode.value ?? ''),
+    enabled: !!hackathonIdOrShortCode.value,
+  })),
+)
+
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? null)
 
 // Fetch current user
 const { data: user, isLoading: isLoadingUser } = useQuery(authQueries.whoAmI)
@@ -20,8 +30,8 @@ const { data: user, isLoading: isLoadingUser } = useQuery(authQueries.whoAmI)
 // Fetch organizers list
 const { data: organizersData, isLoading: isLoadingOrganizers } = useQuery(
   computed(() => ({
-    ...organizerQueries.list(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
+    ...organizerQueries.list(resolvedHackathonId.value ?? ''),
+    enabled: !!resolvedHackathonId.value,
   })),
 )
 
@@ -43,16 +53,9 @@ const isLoadingOrganizerCheck = computed(() => isLoadingUser.value || isLoadingO
 // Redirect to participant view if not an organizer
 watch([isOrganizer, isLoadingOrganizerCheck], ([org, loading]) => {
   if (!loading && !org) {
-    navigateTo(`/dash/${hackathonId.value}/participant`)
+    navigateTo(`/dash/${hackathonIdOrShortCode.value}/participant`)
   }
 })
-
-const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.detail(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
-  })),
-)
 </script>
 
 <template>

@@ -11,31 +11,33 @@ const route = useRoute()
 const toast = useToast()
 const queryClient = useQueryClient()
 
-const hackathonId = computed(() => (route.params.hackathonId as string | undefined) ?? null)
+const hackathonIdOrShortCode = computed(() => (route.params.hackathonId as string | undefined) ?? null)
 const participantUserId = computed(() => route.query.userId as string | undefined)
 
 const { data: hackathon, isLoading: isLoadingHackathon, error: hackathonError } = useQuery(
   computed(() => ({
-    ...participantHackathonQueries.detail(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
+    ...participantHackathonQueries.detail(hackathonIdOrShortCode.value ?? ''),
+    enabled: !!hackathonIdOrShortCode.value,
   })),
 )
 
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? null)
+
 const { data: statusData, isLoading: isLoadingStatus, error: statusError } = useQuery(
   computed(() => ({
-    ...participantHackathonQueries.status(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
+    ...participantHackathonQueries.status(resolvedHackathonId.value ?? ''),
+    enabled: !!resolvedHackathonId.value,
   })),
 )
 
 // Fetch registration submissions to check completion status
 const { data: submissionsData } = useQuery(
   computed(() => ({
-    queryKey: ['hackathons', hackathonId.value, 'registration', 'submissions'],
+    queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'],
     queryFn: () => useNuxtApp().$apiClient.participants.hackathons
-      .byHackathonIdOrShortCodeId(hackathonId.value ?? '')
+      .byHackathonIdOrShortCodeId(resolvedHackathonId.value ?? '')
       .registration.submissions.get(),
-    enabled: !!hackathonId.value && statusData.value?.isParticipant === true,
+    enabled: !!resolvedHackathonId.value && statusData.value?.isParticipant === true,
   })),
 )
 
@@ -48,8 +50,8 @@ const { data: user } = useQuery(authQueries.whoAmI)
 
 const { data: organizersData } = useQuery(
   computed(() => ({
-    ...organizerQueries.list(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
+    ...organizerQueries.list(resolvedHackathonId.value ?? ''),
+    enabled: !!resolvedHackathonId.value,
   })),
 )
 
@@ -66,7 +68,7 @@ const isOrganizer = computed(() => {
 })
 
 // Review functionality
-const reviewMutation = useReviewParticipantMutation(hackathonId.value ?? '')
+const reviewMutation = useReviewParticipantMutation(resolvedHackathonId.value ?? '')
 const isReviewModalOpen = ref(false)
 const reviewForm = ref({
   decision: 'accept',
@@ -88,7 +90,7 @@ async function handleReview() {
         reason: reviewForm.value.reason || null,
       },
     })
-    await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'participants'] })
+    await queryClient.invalidateQueries({ queryKey: ['hackathons', resolvedHackathonId.value, 'participants'] })
     isReviewModalOpen.value = false
     toast.add({
       title: 'Review submitted',
@@ -117,12 +119,12 @@ const statusDisplay = computed(() => {
 const isParticipant = computed(() => statusData.value?.isParticipant === true)
 
 const joinHackathon = async () => {
-  if (!hackathonId.value) return
+  if (!resolvedHackathonId.value || !hackathon.value) return
   try {
-    await joinMutation.mutateAsync(hackathonId.value)
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(hackathonId.value).queryKey })
+    await joinMutation.mutateAsync(resolvedHackathonId.value)
+    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(resolvedHackathonId.value).queryKey })
     await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
-    await navigateTo(`/${hackathonId.value}/registration`)
+    await navigateTo(`/${hackathon.value.shortCode}/registration`)
   }
   catch (error) {
     console.error('[DASH] Failed to join hackathon', error)
@@ -255,7 +257,7 @@ const joinHackathon = async () => {
                 </p>
                 <div class="mt-3">
                   <UButton
-                    :to="`/${hackathonId}/registration`"
+                    :to="hackathon ? `/${hackathon.shortCode}/registration` : undefined"
                     size="sm"
                     color="neutral"
                     variant="solid"

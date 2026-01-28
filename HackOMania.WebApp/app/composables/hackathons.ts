@@ -5,7 +5,7 @@ export const hackathonQueries = {
   list: queryOptions({
     queryKey: ['hackathons'],
     async queryFn() {
-      return await useNuxtApp().$apiClient.participants.hackathons.get()
+      return await useNuxtApp().$apiClient.organizers.hackathons.get()
     },
   }),
   status: (hackathonId: string) =>

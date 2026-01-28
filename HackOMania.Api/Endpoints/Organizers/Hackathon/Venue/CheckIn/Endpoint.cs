@@ -1,33 +1,35 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
-using HackOMania.Api.Constants;
 using HackOMania.Api.Entities;
-using HackOMania.Api.Extensions;
 using SqlSugar;
 
-namespace HackOMania.Api.Endpoints.Participants.Hackathon.Venue.CheckIn;
+namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Venue.CheckIn;
 
 public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Post("participants/hackathons/{HackathonId:guid}/venue/check-in");
-        Policies(PolicyNames.ParticipantForHackathon);
-        Description(b => b.WithTags("Participants", "Venue"));
+        Post(
+            "organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId:guid}/venue/check-in"
+        );
+        Policies(PolicyNames.OrganizerForHackathon);
+        Description(b => b.WithTags("Organizers", "Venue"));
         Summary(s =>
         {
-            s.Summary = "Check in to venue";
-            s.Description = "Check in to the hackathon venue.";
+            s.Summary = "Check in a participant to the venue";
+            s.Description = "Checks a participant into the hackathon venue.";
         });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var userId = User.GetUserId();
         var hackathonId = req.HackathonId;
 
         var participant = await sql.Queryable<Participant>()
-            .FirstAsync(p => p.UserId == userId && p.HackathonId == hackathonId, ct);
+            .FirstAsync(
+                p => p.UserId == req.ParticipantUserId && p.HackathonId == hackathonId,
+                ct
+            );
 
         if (participant is null)
         {

@@ -1,4 +1,4 @@
-namespace HackOMania.Api.Endpoints.Participants.Hackathon.Resources.Redeem;
+namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Resources.Redeem;
 
 public class Response
 {

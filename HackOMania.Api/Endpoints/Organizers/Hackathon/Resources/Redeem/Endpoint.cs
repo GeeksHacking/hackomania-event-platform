@@ -1,36 +1,30 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
 using HackOMania.Api.Entities;
-using HackOMania.Api.Extensions;
-using HackOMania.Api.Services;
 using Jint;
 using SqlSugar;
 
-namespace HackOMania.Api.Endpoints.Participants.Hackathon.Resources.Redeem;
+namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Resources.Redeem;
 
-public class Endpoint(ISqlSugarClient sql, MembershipService membership)
-    : Endpoint<Request, Response>
+public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Post("participants/hackathons/{HackathonId:guid}/resources/{ResourceId}/redemptions");
-        Policies(PolicyNames.ParticipantForHackathon);
-        Description(b => b.WithTags("Participants", "Resources").Accepts<Request>());
+        Post(
+            "organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId:guid}/resources/{ResourceId}/redemptions"
+        );
+        Policies(PolicyNames.OrganizerForHackathon);
+        Description(b => b.WithTags("Organizers", "Resources").Accepts<Request>());
         Summary(s =>
         {
-            s.Summary = "Redeem a resource";
-            s.Description = "Creates a redemption record for a resource in the hackathon.";
+            s.Summary = "Redeem a resource for a participant";
+            s.Description =
+                "Creates a redemption record for a resource in the hackathon on behalf of a participant.";
         });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var userId = User.GetUserId();
-        if (userId is null)
-        {
-            throw new ArgumentNullException(nameof(userId));
-        }
-
         var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
         if (hackathon is null || !hackathon.IsPublished)
         {
@@ -52,7 +46,10 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
         // Get participant and team information
         var participant = await sql.Queryable<Participant>()
             .Includes(p => p.Team, t => t.Members)
-            .FirstAsync(p => p.UserId == userId && p.HackathonId == hackathon.Id, ct);
+            .FirstAsync(
+                p => p.UserId == req.ParticipantUserId && p.HackathonId == hackathon.Id,
+                ct
+            );
 
         if (participant is null)
         {
@@ -62,7 +59,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
 
         // Count redemptions by this participant
         var participantRedemptions =
-            resource.Redemptions?.Count(r => r.RedeemerId == userId.Value) ?? 0;
+            resource.Redemptions?.Count(r => r.RedeemerId == req.ParticipantUserId) ?? 0;
 
         // Count redemptions by this participant's team (if they have one)
         int teamRedemptions = 0;
@@ -110,7 +107,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
             Id = Guid.NewGuid(),
             ResourceId = resource.Id,
             HackathonId = hackathon.Id,
-            RedeemerId = userId.Value,
+            RedeemerId = req.ParticipantUserId,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 

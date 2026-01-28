@@ -57,6 +57,12 @@ public class ResourcesTests
         return (hackathon.Id, resource!.Id);
     }
 
+    private static async Task<Guid> GetCurrentUserIdAsync(HttpClient httpClient)
+    {
+        var whoami = await httpClient.GetFromJsonAsync<WhoAmIResponse>("/auth/whoami");
+        return whoami!.Id;
+    }
+
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task ListResources_AsParticipant_ReturnsOk(AuthenticatedHttpClientDataClass client)
@@ -111,10 +117,11 @@ public class ResourcesTests
     {
         // Arrange
         var (hackathonId, resourceId) = await CreateHackathonWithResourceAsync(client);
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
 
         // Act
         var response = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathonId}/resources/{resourceId}/redemptions",
+            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/resources/{resourceId}/redemptions",
             null
         );
         var result = await response.Content.ReadFromJsonAsync<ResourceRedemptionResponse>();
@@ -140,10 +147,11 @@ public class ResourcesTests
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
 
         // Act
         var response = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathon.Id}/resources/{Guid.NewGuid()}/redemptions",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{Guid.NewGuid()}/redemptions",
             null
         );
 
@@ -174,7 +182,7 @@ public class ResourcesTests
     {
         // Act
         var response = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{Guid.NewGuid()}/resources/{Guid.NewGuid()}/redemptions",
+            $"/organizers/hackathons/{Guid.NewGuid()}/participants/{Guid.NewGuid()}/resources/{Guid.NewGuid()}/redemptions",
             null
         );
 

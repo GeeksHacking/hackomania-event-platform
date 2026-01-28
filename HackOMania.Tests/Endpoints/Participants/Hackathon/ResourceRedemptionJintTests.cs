@@ -26,6 +26,12 @@ public class ResourceRedemptionJintTests
         };
     }
 
+    private static async Task<Guid> GetCurrentUserIdAsync(HttpClient httpClient)
+    {
+        var whoami = await httpClient.GetFromJsonAsync<WhoAmIResponse>("/auth/whoami");
+        return whoami!.Id;
+    }
+
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task RedeemResource_WithParticipantRedemptionLimit_ShouldEnforce(
@@ -41,6 +47,8 @@ public class ResourceRedemptionJintTests
 
         // Join hackathon
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
 
         // Create resource with redemption limit of 2 per participant
         var resourceRequest = new
@@ -58,21 +66,21 @@ public class ResourceRedemptionJintTests
 
         // First redemption - should succeed
         var redemption1 = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathon.Id}/resources/{resource!.Id}/redemptions",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource!.Id}/redemptions",
             null
         );
         await Assert.That(redemption1.IsSuccessStatusCode).IsTrue();
 
         // Second redemption - should succeed
         var redemption2 = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathon.Id}/resources/{resource.Id}/redemptions",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
         await Assert.That(redemption2.IsSuccessStatusCode).IsTrue();
 
         // Third redemption - should fail
         var redemption3 = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathon.Id}/resources/{resource.Id}/redemptions",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
         await Assert.That(redemption3.IsSuccessStatusCode).IsFalse();
@@ -94,6 +102,8 @@ public class ResourceRedemptionJintTests
         // Join hackathon
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+
         // Create resource that requires team size >= 3
         var resourceRequest = new
         {
@@ -110,7 +120,7 @@ public class ResourceRedemptionJintTests
 
         // Try to redeem without team - should fail
         var redemption = await client.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathon.Id}/resources/{resource!.Id}/redemptions",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource!.Id}/redemptions",
             null
         );
         await Assert.That(redemption.IsSuccessStatusCode).IsFalse();

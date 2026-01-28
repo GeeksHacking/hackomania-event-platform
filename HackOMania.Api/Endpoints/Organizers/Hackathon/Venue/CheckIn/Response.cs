@@ -1,4 +1,4 @@
-namespace HackOMania.Api.Endpoints.Participants.Hackathon.Venue.CheckIn;
+namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Venue.CheckIn;
 
 public class Response
 {

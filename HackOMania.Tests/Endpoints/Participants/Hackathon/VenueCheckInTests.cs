@@ -26,6 +26,12 @@ public class VenueCheckInTests
         };
     }
 
+    private static async Task<Guid> GetCurrentUserIdAsync(HttpClient httpClient)
+    {
+        var whoami = await httpClient.GetFromJsonAsync<WhoAmIResponse>("/auth/whoami");
+        return whoami!.Id;
+    }
+
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task CheckIn_ShouldSucceed(AuthenticatedHttpClientDataClass client)
@@ -40,9 +46,11 @@ public class VenueCheckInTests
         // Join hackathon as participant
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+
         // Check in
         var checkInResponse = await client.HttpClient.PostAsJsonAsync(
-            $"/participants/hackathons/{hackathon.Id}/venue/check-in",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 
@@ -66,9 +74,11 @@ public class VenueCheckInTests
         // Join hackathon
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+
         // Check in first
         await client.HttpClient.PostAsJsonAsync(
-            $"/participants/hackathons/{hackathon.Id}/venue/check-in",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 
@@ -123,9 +133,11 @@ public class VenueCheckInTests
         // Join hackathon
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
+        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+
         // Check in
         await client.HttpClient.PostAsJsonAsync(
-            $"/participants/hackathons/{hackathon.Id}/venue/check-in",
+            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 

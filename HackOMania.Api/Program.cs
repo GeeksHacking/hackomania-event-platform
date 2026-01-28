@@ -148,11 +148,17 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(
-            builder.Environment.IsDevelopment()
-                ? ["http://localhost:3000", "https://localhost:3000"]
-                : ["https://portal.geekshacking.com"]
-        );
+        policy
+            .WithOrigins(
+                builder.Environment.IsDevelopment()
+                    ? ["http://localhost:3000", "https://localhost:3000"]
+                    :
+                    [
+                        "https://portal.geekshacking.com",
+                        "https://*.hackomania-event-platform.pages.dev",
+                    ]
+            )
+            .SetIsOriginAllowedToAllowWildcardSubdomains();
 
         policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });

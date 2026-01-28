@@ -179,6 +179,7 @@ builder.Services.SwaggerDocument(options =>
     options.TagDescriptions = t =>
     {
         t["Auth"] = "Authentication and user identity endpoints";
+        t["Users"] = "User profile management";
         t["Hackathons"] = "Hackathon event management";
         t["Challenges"] = "Challenge/track management within hackathons";
         t["Teams"] = "Team creation and management";

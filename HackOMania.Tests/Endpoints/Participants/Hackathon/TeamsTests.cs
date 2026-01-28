@@ -485,7 +485,9 @@ public class TeamsTests
     )
     {
         // Arrange
-        var (hackathonId, challengeId, teamId) = await CreateHackathonWithChallengeAndTeamAsync(client);
+        var (hackathonId, challengeId, teamId) = await CreateHackathonWithChallengeAndTeamAsync(
+            client
+        );
 
         // Act
         var response = await client.HttpClient.PutAsJsonAsync(
@@ -544,7 +546,10 @@ public class TeamsTests
             JudgingEndDate = now.AddDays(-5).AddHours(-2),
             IsPublished = true,
         };
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync("/organizers/hackathons", hackathonRequest);
+        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+            "/organizers/hackathons",
+            hackathonRequest
+        );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Create a published challenge
@@ -563,7 +568,11 @@ public class TeamsTests
 
         // Join as participant and create team
         await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
-        var teamRequest = new { Name = "Past Deadline Team", Description = "Team for deadline test" };
+        var teamRequest = new
+        {
+            Name = "Past Deadline Team",
+            Description = "Team for deadline test",
+        };
         var teamResponse = await client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest
@@ -604,7 +613,10 @@ public class TeamsTests
     {
         // Arrange - Create hackathon with two challenges
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client1.HttpClient.PostAsJsonAsync("/organizers/hackathons", hackathonRequest);
+        var hackathonResponse = await client1.HttpClient.PostAsJsonAsync(
+            "/organizers/hackathons",
+            hackathonRequest
+        );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Create two published challenges
@@ -648,8 +660,14 @@ public class TeamsTests
         try
         {
             // Both users join hackathon as participants
-            await client1.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
-            await client2.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+            await client1.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathon.Id}/join",
+                null
+            );
+            await client2.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathon.Id}/join",
+                null
+            );
 
             // Create two teams (one per user)
             var teamRequest1 = new { Name = "Team 1", Description = "First team" };
@@ -670,7 +688,8 @@ public class TeamsTests
             var challengesResponse = await client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
-            var challenges = await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
+            var challenges =
+                await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
             await Assert.That(challengesResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
             await Assert.That(challenges!.Challenges).IsNotNull();
 
@@ -692,7 +711,8 @@ public class TeamsTests
             challengesResponse = await client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
-            challenges = await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
+            challenges =
+                await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
             challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
             challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
             await Assert.That(challenge1Item).IsNotNull();
@@ -718,7 +738,8 @@ public class TeamsTests
             challengesResponse = await client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
-            challenges = await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
+            challenges =
+                await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
             challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
             challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
             await Assert.That(challenge1Item).IsNotNull();
@@ -744,7 +765,8 @@ public class TeamsTests
             challengesResponse = await client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
-            challenges = await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
+            challenges =
+                await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
             challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
             challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
             await Assert.That(challenge1Item).IsNotNull();

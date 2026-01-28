@@ -34,7 +34,12 @@ public class Endpoint(IWebHostEnvironment env, ISqlSugarClient db) : Endpoint<Re
 
         if (existingAccount is null)
         {
-            accountUser = new User { FirstName = req.FirstName, LastName = req.LastName, Email = req.Email };
+            accountUser = new User
+            {
+                FirstName = req.FirstName,
+                LastName = req.LastName,
+                Email = req.Email,
+            };
             var newAccount = new GitHubOnlineAccount
             {
                 GitHubLogin = req.GitHubLogin,

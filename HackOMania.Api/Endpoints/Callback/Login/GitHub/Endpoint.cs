@@ -86,7 +86,12 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
                 var firstName = (nameParts.Length > 0 ? nameParts[0] : name).Trim();
                 var lastName = (nameParts.Length > 1 ? nameParts[1] : "").Trim();
 
-                accountUser = new User { FirstName = firstName, LastName = lastName, Email = email };
+                accountUser = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                };
                 var newAccount = new GitHubOnlineAccount
                 {
                     GitHubLogin = githubLogin,
@@ -126,18 +131,22 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
         var redirectPath = "/dash";
 
         // First try to get from authentication properties (state parameter)
-        if (result.Properties?.Items.TryGetValue("redirect_uri", out var storedRedirectUri) == true &&
-            !string.IsNullOrEmpty(storedRedirectUri) &&
-            storedRedirectUri.StartsWith('/') &&
-            !storedRedirectUri.Contains("://"))
+        if (
+            result.Properties?.Items.TryGetValue("redirect_uri", out var storedRedirectUri) == true
+            && !string.IsNullOrEmpty(storedRedirectUri)
+            && storedRedirectUri.StartsWith('/')
+            && !storedRedirectUri.Contains("://")
+        )
         {
             redirectPath = storedRedirectUri;
         }
         // Fallback to cookie if state didn't preserve the redirect_uri
-        else if (HttpContext.Request.Cookies.TryGetValue("auth_redirect_uri", out var cookieRedirectUri) &&
-            !string.IsNullOrEmpty(cookieRedirectUri) &&
-            cookieRedirectUri.StartsWith('/') &&
-            !cookieRedirectUri.Contains("://"))
+        else if (
+            HttpContext.Request.Cookies.TryGetValue("auth_redirect_uri", out var cookieRedirectUri)
+            && !string.IsNullOrEmpty(cookieRedirectUri)
+            && cookieRedirectUri.StartsWith('/')
+            && !cookieRedirectUri.Contains("://")
+        )
         {
             redirectPath = cookieRedirectUri;
         }
@@ -145,6 +154,9 @@ public class Endpoint(IOptions<AppOptions> options, ISqlSugarClient db) : Endpoi
         // Clear the redirect cookie
         HttpContext.Response.Cookies.Delete("auth_redirect_uri");
 
-        await Send.RedirectAsync($"{options.Value.FrontendUrl}{redirectPath}", allowRemoteRedirects: true);
+        await Send.RedirectAsync(
+            $"{options.Value.FrontendUrl}{redirectPath}",
+            allowRemoteRedirects: true
+        );
     }
 }

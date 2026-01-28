@@ -105,7 +105,7 @@ public class DatabaseInitBackgroundService(
 
             await sql.Insertable(resources).ExecuteCommandAsync(stoppingToken);
 
-            // testing with myself (anggun) as organizer 
+            // testing with myself (anggun) as organizer
             var testUserId = Guid.NewGuid();
             var testUser = new User
             {
@@ -132,7 +132,7 @@ public class DatabaseInitBackgroundService(
                 UserId = testUserId,
                 Type = OrganizerType.Admin,
             };
-            
+
             // IF THIS DOES NOT WORK - unfortunately you have to call this api manually in scalar for your local testing lol
             await sql.Insertable(testOrganizer).ExecuteCommandAsync(stoppingToken);
         }

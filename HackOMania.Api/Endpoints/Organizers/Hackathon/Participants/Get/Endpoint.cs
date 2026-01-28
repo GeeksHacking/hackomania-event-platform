@@ -98,5 +98,4 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             ct
         );
     }
-
 }

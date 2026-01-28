@@ -57,18 +57,20 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Includes(s => s.Question)
             .Where(s => participantIds.Contains(s.ParticipantId))
             .ToListAsync(ct);
-        
+
         var submissionsByParticipant = submissionList
             .GroupBy(s => s.ParticipantId)
             .ToDictionary(
-                g => g.Key, 
-                g => g.Select(s => new RegistrationSubmissionItem
-                {
-                    QuestionId = s.QuestionId,
-                    QuestionText = s.Question.QuestionText,
-                    Value = s.Value,
-                    FollowUpValue = s.FollowUpValue,
-                }).ToList()
+                g => g.Key,
+                g =>
+                    g.Select(s => new RegistrationSubmissionItem
+                        {
+                            QuestionId = s.QuestionId,
+                            QuestionText = s.Question.QuestionText,
+                            Value = s.Value,
+                            FollowUpValue = s.FollowUpValue,
+                        })
+                        .ToList()
             );
 
         var participantResponses = participants
@@ -107,7 +109,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                             CreatedAt = r.CreatedAt,
                         }),
                     ],
-                    RegistrationSubmissions = submissionsByParticipant.GetValueOrDefault(p.Id) ?? [],
+                    RegistrationSubmissions =
+                        submissionsByParticipant.GetValueOrDefault(p.Id) ?? [],
                 };
             })
             .ToList();

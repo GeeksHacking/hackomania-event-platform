@@ -81,14 +81,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             options.CancellationToken(ct);
         });
 
-        // Note: totalSubmissions is kept for backward compatibility in Jint scripts, 
+        // Note: totalSubmissions is kept for backward compatibility in Jint scripts,
         // but it effectively means teams selecting it now.
         var allowed = engine
             .SetValue("challenge", challenge)
             .SetValue("teamSize", teamSize)
             .SetValue("currentTeamsInChallenge", currentTeamsInChallenge)
             .SetValue("totalParticipants", totalParticipants)
-            .SetValue("totalSubmissions", currentTeamsInChallenge) 
+            .SetValue("totalSubmissions", currentTeamsInChallenge)
             .Evaluate(challenge.SelectionCriteriaStmt)
             .ToObject();
 

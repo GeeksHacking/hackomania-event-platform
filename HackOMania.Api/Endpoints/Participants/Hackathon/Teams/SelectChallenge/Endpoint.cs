@@ -57,15 +57,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         team.ChallengeId = challenge.Id;
-        await sql.Updateable(team).UpdateColumns(t => new { t.ChallengeId }).ExecuteCommandAsync(ct);
+        await sql.Updateable(team)
+            .UpdateColumns(t => new { t.ChallengeId })
+            .ExecuteCommandAsync(ct);
 
-        await Send.OkAsync(
-            new Response
-            {
-                TeamId = team.Id,
-                ChallengeId = team.ChallengeId,
-            },
-            ct
-        );
+        await Send.OkAsync(new Response { TeamId = team.Id, ChallengeId = team.ChallengeId }, ct);
     }
 }

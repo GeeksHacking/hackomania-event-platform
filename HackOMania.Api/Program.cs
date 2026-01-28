@@ -115,6 +115,7 @@ builder
             if (builder.Environment.IsProduction())
             {
                 options.Cookie.Domain = ".geekshacking.com";
+                options.Cookie.SameSite = SameSiteMode.Lax;
             }
             else
             {

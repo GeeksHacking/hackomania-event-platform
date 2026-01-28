@@ -5,6 +5,12 @@ export const hackathonQueries = {
   list: queryOptions({
     queryKey: ['hackathons'],
     async queryFn() {
+      return await useNuxtApp().$apiClient.participants.hackathons.get()
+    },
+  }),
+  organizerList: queryOptions({
+    queryKey: ['hackathons', 'organizer'],
+    async queryFn() {
       return await useNuxtApp().$apiClient.organizers.hackathons.get()
     },
   }),

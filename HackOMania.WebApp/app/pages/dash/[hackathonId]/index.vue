@@ -74,7 +74,7 @@ const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
     </template>
 
     <template #body>
-      <div class="p-4 space-y-4">
+      <div class="p-4 space-y-4 overflow-y-auto">
         <div
           v-if="isLoadingOrganizerCheck || isLoadingHackathon"
           class="text-(--ui-text-muted)"

@@ -133,7 +133,6 @@ const joinHackathon = async () => {
     })
   }
 }
-
 </script>
 
 <template>
@@ -156,7 +155,7 @@ const joinHackathon = async () => {
       </template>
 
       <template #body>
-        <div class="p-4 space-y-4">
+        <div class="p-4 space-y-4 overflow-y-auto">
           <div
             v-if="isLoadingHackathon || isLoadingStatus"
             class="text-(--ui-text-muted)"

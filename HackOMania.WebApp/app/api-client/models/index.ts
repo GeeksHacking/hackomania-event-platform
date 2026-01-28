@@ -1022,6 +1022,33 @@ export function createHackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponseF
     return deserializeIntoHackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse;
 }
 /**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsUsersProfileGetResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsUsersProfileGetResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsUsersProfileGetResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsUsersProfileUpdateRequest}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsUsersProfileUpdateRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsUsersProfileUpdateRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsUsersProfileUpdateResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsUsersProfileUpdateResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsUsersProfileUpdateResponse;
+}
+/**
  * The deserialization information for the current model
  * @param FastEndpointsErrorResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
@@ -2709,6 +2736,46 @@ export function deserializeIntoHackOManiaApiEndpointsParticipantsTeamsJoinByCode
         "autoJoinedHackathon": n => { hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.autoJoinedHackathon = n.getBooleanValue(); },
         "hackathonId": n => { hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.hackathonId = n.getStringValue(); },
         "teamId": n => { hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.teamId = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsUsersProfileGetResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsUsersProfileGetResponse(hackOManiaApiEndpointsUsersProfileGetResponse: Partial<HackOManiaApiEndpointsUsersProfileGetResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "firstName": n => { hackOManiaApiEndpointsUsersProfileGetResponse.firstName = n.getStringValue(); },
+        "id": n => { hackOManiaApiEndpointsUsersProfileGetResponse.id = n.getStringValue(); },
+        "lastName": n => { hackOManiaApiEndpointsUsersProfileGetResponse.lastName = n.getStringValue(); },
+        "name": n => { hackOManiaApiEndpointsUsersProfileGetResponse.name = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsUsersProfileUpdateRequest The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsUsersProfileUpdateRequest(hackOManiaApiEndpointsUsersProfileUpdateRequest: Partial<HackOManiaApiEndpointsUsersProfileUpdateRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "firstName": n => { hackOManiaApiEndpointsUsersProfileUpdateRequest.firstName = n.getStringValue(); },
+        "lastName": n => { hackOManiaApiEndpointsUsersProfileUpdateRequest.lastName = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsUsersProfileUpdateResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsUsersProfileUpdateResponse(hackOManiaApiEndpointsUsersProfileUpdateResponse: Partial<HackOManiaApiEndpointsUsersProfileUpdateResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "firstName": n => { hackOManiaApiEndpointsUsersProfileUpdateResponse.firstName = n.getStringValue(); },
+        "id": n => { hackOManiaApiEndpointsUsersProfileUpdateResponse.id = n.getStringValue(); },
+        "lastName": n => { hackOManiaApiEndpointsUsersProfileUpdateResponse.lastName = n.getStringValue(); },
+        "name": n => { hackOManiaApiEndpointsUsersProfileUpdateResponse.name = n.getStringValue(); },
     }
 }
 export interface FastEndpointsErrorResponse extends ApiError, Parsable {
@@ -5173,6 +5240,52 @@ export interface HackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse exten
      */
     teamId?: string | null;
 }
+export interface HackOManiaApiEndpointsUsersProfileGetResponse extends Parsable {
+    /**
+     * The firstName property
+     */
+    firstName?: string | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The lastName property
+     */
+    lastName?: string | null;
+    /**
+     * The name property
+     */
+    name?: string | null;
+}
+export interface HackOManiaApiEndpointsUsersProfileUpdateRequest extends Parsable {
+    /**
+     * The firstName property
+     */
+    firstName?: string | null;
+    /**
+     * The lastName property
+     */
+    lastName?: string | null;
+}
+export interface HackOManiaApiEndpointsUsersProfileUpdateResponse extends Parsable {
+    /**
+     * The firstName property
+     */
+    firstName?: string | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The lastName property
+     */
+    lastName?: string | null;
+    /**
+     * The name property
+     */
+    name?: string | null;
+}
 /**
  * Serializes information the current object
  * @param FastEndpointsErrorResponse The instance to serialize from.
@@ -6864,6 +6977,46 @@ export function serializeHackOManiaApiEndpointsParticipantsTeamsJoinByCodeRespon
     writer.writeBooleanValue("autoJoinedHackathon", hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.autoJoinedHackathon);
     writer.writeStringValue("hackathonId", hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.hackathonId);
     writer.writeStringValue("teamId", hackOManiaApiEndpointsParticipantsTeamsJoinByCodeResponse.teamId);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsUsersProfileGetResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsUsersProfileGetResponse(writer: SerializationWriter, hackOManiaApiEndpointsUsersProfileGetResponse: Partial<HackOManiaApiEndpointsUsersProfileGetResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsUsersProfileGetResponse || isSerializingDerivedType) { return; }
+    writer.writeStringValue("firstName", hackOManiaApiEndpointsUsersProfileGetResponse.firstName);
+    writer.writeStringValue("id", hackOManiaApiEndpointsUsersProfileGetResponse.id);
+    writer.writeStringValue("lastName", hackOManiaApiEndpointsUsersProfileGetResponse.lastName);
+    writer.writeStringValue("name", hackOManiaApiEndpointsUsersProfileGetResponse.name);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsUsersProfileUpdateRequest The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsUsersProfileUpdateRequest(writer: SerializationWriter, hackOManiaApiEndpointsUsersProfileUpdateRequest: Partial<HackOManiaApiEndpointsUsersProfileUpdateRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsUsersProfileUpdateRequest || isSerializingDerivedType) { return; }
+    writer.writeStringValue("firstName", hackOManiaApiEndpointsUsersProfileUpdateRequest.firstName);
+    writer.writeStringValue("lastName", hackOManiaApiEndpointsUsersProfileUpdateRequest.lastName);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsUsersProfileUpdateResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsUsersProfileUpdateResponse(writer: SerializationWriter, hackOManiaApiEndpointsUsersProfileUpdateResponse: Partial<HackOManiaApiEndpointsUsersProfileUpdateResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsUsersProfileUpdateResponse || isSerializingDerivedType) { return; }
+    writer.writeStringValue("firstName", hackOManiaApiEndpointsUsersProfileUpdateResponse.firstName);
+    writer.writeStringValue("id", hackOManiaApiEndpointsUsersProfileUpdateResponse.id);
+    writer.writeStringValue("lastName", hackOManiaApiEndpointsUsersProfileUpdateResponse.lastName);
+    writer.writeStringValue("name", hackOManiaApiEndpointsUsersProfileUpdateResponse.name);
 }
 /* tslint:enable */
 /* eslint-enable */

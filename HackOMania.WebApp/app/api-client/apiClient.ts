@@ -8,6 +8,8 @@ import { OrganizersRequestBuilderNavigationMetadata, type OrganizersRequestBuild
 // @ts-ignore
 import { ParticipantsRequestBuilderNavigationMetadata, type ParticipantsRequestBuilder } from './participants/index.js';
 // @ts-ignore
+import { type UsersRequestBuilder, UsersRequestBuilderNavigationMetadata } from './users/index.js';
+// @ts-ignore
 import { apiClientProxifier, ParseNodeFactoryRegistry, SerializationWriterFactoryRegistry, type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type RequestAdapter } from '@microsoft/kiota-abstractions';
 // @ts-ignore
 import { FormParseNodeFactory, FormSerializationWriterFactory } from '@microsoft/kiota-serialization-form';
@@ -34,6 +36,10 @@ export interface ApiClient extends BaseRequestBuilder<ApiClient> {
      * The participants property
      */
     get participants(): ParticipantsRequestBuilder;
+    /**
+     * The users property
+     */
+    get users(): UsersRequestBuilder;
 }
 /**
  * Instantiates a new {@link ApiClient} and sets the default values.
@@ -85,6 +91,9 @@ export const ApiClientNavigationMetadata: Record<Exclude<keyof ApiClient, KeysTo
     },
     participants: {
         navigationMetadata: ParticipantsRequestBuilderNavigationMetadata,
+    },
+    users: {
+        navigationMetadata: UsersRequestBuilderNavigationMetadata,
     },
 };
 /* tslint:enable */

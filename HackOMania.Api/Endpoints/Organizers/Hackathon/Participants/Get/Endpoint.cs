@@ -74,8 +74,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 TeamId = participant.TeamId,
                 TeamName = participantData.TeamName,
                 ConcludedStatus = concludedStatus,
-                Reviews = participant
-                    .ParticipantReviews.Select(r => new ParticipantReviewItem
+                Reviews =
+                [
+                    .. participantReviews.Select(r => new ParticipantReviewItem
                     {
                         Id = r.Id,
                         Status = r.Status switch
@@ -88,8 +89,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                         },
                         Reason = r.Reason,
                         CreatedAt = r.CreatedAt,
-                    })
-                    .ToList(),
+                    }),
+                ],
                 RegistrationSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
                     .LeftJoin<RegistrationQuestion>((s, q) => s.QuestionId == q.Id)
                     .Where((s, q) => s.ParticipantId == participant.Id)

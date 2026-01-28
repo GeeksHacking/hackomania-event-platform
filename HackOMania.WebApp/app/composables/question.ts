@@ -5,6 +5,8 @@ import type {
   HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
 } from '~/api-client/models'
 
+
+
 export async function fetchQuestions(hackathonId: string) {
   return await useNuxtApp().$apiClient.participants.hackathons
     .byHackathonIdOrShortCodeId(hackathonId)
@@ -51,41 +53,20 @@ export function useSubmitRegistrationMutation(hackathonId: MaybeRef<string>, que
   }
 }
 
-// reduce time complexity of looping through everytime there's an error (thx copilot)
-function buildQuestionMaps(questions: Question[]) {
-  const keywords = ['phone', 'telegram', 'age', 'experience', 'email', 'github']
-  const questionsByText = new Map<string, Question>()
-  const keywordToQuestion = new Map<string, Question>()
-
-  for (const question of questions) {
-    const questionText = question.questionText?.toLowerCase() ?? ''
-    const questionKey = question.questionKey?.toLowerCase() ?? ''
-
-    if (questionText.length > 5) {
-      questionsByText.set(questionText, question)
-    }
-
-    for (const keyword of keywords) {
-      if (questionKey.includes(keyword)) {
-        keywordToQuestion.set(keyword, question)
-      }
-    }
-  }
-
-  return { questionsByText, keywordToQuestion, keywords }
-}
-
-// make the error go according to the question field, instead of showing all errors at once
+// Map Kiota FastEndpoints errors to field errors by question ID
 function parseErrorsToFields(
   error: unknown,
   questions: Question[],
   fieldErrors: Record<string, string>,
 ) {
   try {
-    // Error is thrown directly from response.json(), so structure is { errors: { generalErrors: [...] } }
-    const err = error as { errors?: Record<string, string[] | string> }
-    const errorBag = err?.errors ?? {}
-    const generalErrors = (errorBag.generalErrors as string[] | undefined) ?? []
+    // Kiota wraps FastEndpoints errors: { errors: { additionalData: { fieldId: [...] } } }
+    const err = error as {
+      errors?: {
+        additionalData?: Record<string, string[] | string>
+      }
+    }
+    const errorBag = err?.errors?.additionalData ?? {}
 
     const questionById = new Map(
       questions
@@ -93,48 +74,12 @@ function parseErrorsToFields(
         .map(question => [question.id as string, question]),
     )
 
-    let hasFieldErrors = false
     for (const [fieldId, messages] of Object.entries(errorBag)) {
-      if (fieldId === 'generalErrors') continue
       const question = questionById.get(fieldId)
       if (!question?.questionKey) continue
       const message = Array.isArray(messages) ? messages[0] : String(messages)
       if (message) {
         fieldErrors[question.questionKey] = message
-        hasFieldErrors = true
-      }
-    }
-
-    if (hasFieldErrors) return
-    if (generalErrors.length === 0) return
-
-    // Build maps once - O(m)
-    const { questionsByText, keywordToQuestion, keywords } = buildQuestionMaps(questions)
-
-    for (const errorMessage of generalErrors) {
-      const errorLower = errorMessage.toLowerCase()
-      let matched = false
-
-      // Match by question text
-      for (const [questionText, question] of questionsByText) {
-        if (errorLower.includes(`'${questionText}'`) || errorLower.includes(questionText)) {
-          fieldErrors[question.questionKey ?? ''] = errorMessage
-          matched = true
-          break
-        }
-      }
-
-      // match by keywords
-      if (!matched) {
-        for (const keyword of keywords) {
-          if (errorLower.includes(keyword)) {
-            const question = keywordToQuestion.get(keyword)
-            if (question) {
-              fieldErrors[question.questionKey ?? ''] = errorMessage
-              break
-            }
-          }
-        }
       }
     }
   }

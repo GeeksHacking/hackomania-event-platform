@@ -91,3 +91,53 @@ jobs:
           service: hackomania-api
           region: asia-southeast1
           image: asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api:latest
+          no_traffic: true
+          revision_suffix: ${{ github.sha }}
+          tag: candidate
+
+      - name: Wait for health checks
+        run: |
+          echo "Waiting for new revision to be ready..."
+          sleep 30
+          
+          # Get the new revision name
+          NEW_REVISION=$(gcloud run revisions list \
+            --service=hackomania-api \
+            --region=asia-southeast1 \
+            --format='value(name)' \
+            --filter="metadata.labels.commit-sha=${{ github.sha }}" \
+            --limit=1)
+          
+          echo "New revision: $NEW_REVISION"
+          
+          # Check if revision is ready
+          STATUS=$(gcloud run revisions describe $NEW_REVISION \
+            --region=asia-southeast1 \
+            --format='value(status.conditions[0].status)')
+          
+          if [ "$STATUS" != "True" ]; then
+            echo "Revision is not ready. Status: $STATUS"
+            exit 1
+          fi
+          
+          echo "Revision is ready and health checks passed!"
+
+      - name: Migrate traffic to new revision
+        run: |
+          echo "Migrating 100% traffic to new revision..."
+          gcloud run services update-traffic hackomania-api \
+            --region=asia-southeast1 \
+            --to-revisions=LATEST=100
+
+      - name: Cleanup old revisions
+        run: |
+          echo "Cleaning up old revisions (keeping last 3)..."
+          gcloud run revisions list \
+            --service=hackomania-api \
+            --region=asia-southeast1 \
+            --format='value(name)' \
+            --sort-by=~metadata.creationTimestamp \
+            | tail -n +4 \
+            | xargs -r -I {} gcloud run revisions delete {} \
+              --region=asia-southeast1 \
+              --quiet || true

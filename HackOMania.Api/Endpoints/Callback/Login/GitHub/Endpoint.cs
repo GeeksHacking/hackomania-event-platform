@@ -14,8 +14,12 @@ using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationCons
 
 namespace HackOMania.Api.Endpoints.Callback.Login.GitHub;
 
-public class Endpoint(ILogger<Endpoint> logger, IOptions<AppOptions> options, ISqlSugarClient db)
-    : EndpointWithoutRequest
+public class Endpoint(
+    ILogger<Endpoint> logger,
+    IOptions<AppOptions> options,
+    ISqlSugarClient db,
+    IHttpClientFactory httpClientFactory
+) : EndpointWithoutRequest
 {
     public override void Configure()
     {
@@ -52,6 +56,15 @@ public class Endpoint(ILogger<Endpoint> logger, IOptions<AppOptions> options, IS
             AddError("GitHub ID not found in claims.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
+        }
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            var accessToken = result.Properties?.GetTokenValue("access_token");
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                email = await GetPrivateEmailAsync(accessToken, ct);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(email))
@@ -162,4 +175,60 @@ public class Endpoint(ILogger<Endpoint> logger, IOptions<AppOptions> options, IS
             allowRemoteRedirects: true
         );
     }
+
+    private async Task<string?> GetPrivateEmailAsync(string accessToken, CancellationToken ct)
+    {
+        using var request = new HttpRequestMessage(
+            System.Net.Http.HttpMethod.Get,
+            "https://api.github.com/user/emails"
+        );
+        request.Headers.Authorization = new("Bearer", accessToken);
+        request.Headers.Accept.ParseAdd("application/vnd.github+json");
+        request.Headers.UserAgent.ParseAdd("HackOMania.Api");
+        request.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
+
+        using var client = httpClientFactory.CreateClient();
+        using var response = await client.SendAsync(request, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning(
+                "GitHub email lookup failed with status {StatusCode}",
+                response.StatusCode
+            );
+            return null;
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct);
+        var emails = await JsonSerializer.DeserializeAsync<List<GitHubEmail>>(
+            stream,
+            GitHubEmailJsonOptions,
+            ct
+        );
+
+        var primaryVerified = emails?.FirstOrDefault(e => e.Primary && e.Verified);
+        if (!string.IsNullOrWhiteSpace(primaryVerified?.Email))
+        {
+            return primaryVerified.Email;
+        }
+
+        var verified = emails?.FirstOrDefault(e => e.Verified);
+        if (!string.IsNullOrWhiteSpace(verified?.Email))
+        {
+            return verified.Email;
+        }
+
+        return emails?.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Email))?.Email;
+    }
+
+    private sealed record GitHubEmail(
+        [property: JsonPropertyName("email")] string Email,
+        [property: JsonPropertyName("primary")] bool Primary,
+        [property: JsonPropertyName("verified")] bool Verified
+    );
+
+    private static readonly JsonSerializerOptions GitHubEmailJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
 }

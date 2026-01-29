@@ -56,7 +56,7 @@ public class RegistrationQuestion
     public string? Category { get; set; }
 
     /// <summary>
-    /// Validation rules, see <see cref="HackOMania.Api.Services.RegistrationValidationService.ValidationRules"/>
+    /// Validation rules, see <see cref="Services.RegistrationValidationService.ValidationRules"/>
     /// </summary>
     [SugarColumn(IsNullable = true, ColumnDataType = "longtext")]
     public string? ValidationRules { get; set; }

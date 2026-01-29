@@ -842,7 +842,7 @@ public class RegistrationQuestionTemplateService
             Type = QuestionType.SingleChoice,
             DisplayOrder = order++,
             IsRequired = true,
-            Category = "Disclaimer",
+            Category = "Communication Preferences",
         };
         var disclaimerOptions = new List<RegistrationQuestionOption>
         {

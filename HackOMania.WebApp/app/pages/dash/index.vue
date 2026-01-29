@@ -200,12 +200,12 @@ const isRegistrationComplete = (index: number): boolean => {
   return submissions?.requiredQuestionsRemaining === 0
 }
 
-const joinHackathon = async (hackathonId: string) => {
+const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
   try {
-    await joinMutation.mutateAsync(hackathonId)
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(hackathonId).queryKey })
+    await joinMutation.mutateAsync(hackathon.id)
+    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(hackathon.id).queryKey })
     await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
-    navigateTo(`/${hackathonId}/registration`)
+    navigateTo(`/${hackathon.shortCode}/registration`)
   }
   catch (error) {
     console.error('[DASH] Failed to join hackathon', error)
@@ -358,7 +358,7 @@ const joinHackathon = async (hackathonId: string) => {
                       Manage
                     </UButton>
                     <UButton
-                      :to="`/${hackathon.id}/team`"
+                      :to="`/${hackathon.shortCode}/team`"
                       color="neutral"
                       variant="outline"
                       size="sm"
@@ -373,7 +373,7 @@ const joinHackathon = async (hackathonId: string) => {
                       color="neutral"
                       size="sm"
                       :loading="joinMutation.isPending.value"
-                      @click="joinHackathon(hackathon.id!)"
+                      @click="joinHackathon({ id: hackathon.id!, shortCode: hackathon.shortCode! })"
                     >
                       Join event
                     </UButton>
@@ -382,7 +382,7 @@ const joinHackathon = async (hackathonId: string) => {
                   <!-- Joined but registration incomplete: Continue registration -->
                   <template v-else-if="!isRegistrationComplete(index)">
                     <UButton
-                      :to="`/${hackathon.id}/registration`"
+                      :to="`/${hackathon.shortCode}/registration`"
                       color="neutral"
                       size="sm"
                     >
@@ -404,7 +404,7 @@ const joinHackathon = async (hackathonId: string) => {
                   <!-- Approved participant: Portal -->
                   <template v-else>
                     <UButton
-                      :to="`/${hackathon.id}/team`"
+                      :to="`/${hackathon.shortCode}/team`"
                       color="neutral"
                       size="sm"
                     >

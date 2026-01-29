@@ -12,7 +12,8 @@ useHead({
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathonId = computed(() => route.params.hackathonId as string)
+const hackathon = useRouteHackathon()
+const resolvedHackathonId = useResolvedHackathonId()
 
 // Track if we should show the page
 const showPage = ref(false)
@@ -25,13 +26,23 @@ const { data: user, isLoading, isError } = useQuery({
   gcTime: 0,
 })
 
+// Compute status page path with joinCode if present
+const statusPagePath = computed(() => {
+  if (!hackathon.value) return null
+  const basePath = `/${hackathon.value.shortCode}/registration/status`
+  if (route.query.joinCode) {
+    return { path: basePath, query: { joinCode: route.query.joinCode } }
+  }
+  return basePath
+})
+
 // Handle auth state changes
 watchEffect(() => {
   if (!isLoading.value) {
     if (user.value && !isError.value) {
       showPage.value = true
     }
-    else if (hackathonId.value) {
+    else if (resolvedHackathonId.value) {
       navigateTo(`${config.public.api}/auth/login?redirect_uri=${encodeURIComponent(route.fullPath)}`, { external: true })
     }
   }
@@ -69,26 +80,31 @@ watchEffect(() => {
           </h1>
 
           <div class="font-raleway text-base md:text-lg font-normal text-black text-center max-w-lg space-y-4">
-            <p>Thank you for registering for HackOMania 2026!</p>
-
             <p>Our team will review your details and notify you once your registration is verified.</p>
 
-            <p>You will be able to form or join a team after verification.</p>
-
-            <p>You can check your application status and any review notes anytime from your dashboard.</p>
-
-            <p>Please check your spam folder for the event registration email.</p>
+            <p>You may check your application status below or return to HackOMania2026 website.</p>
           </div>
         </div>
 
         <div class="flex flex-col gap-3 mt-8 w-full max-w-sm">
           <UButton
-            :to="route.query.joinCode ? { path: `/${hackathonId}/team`, query: { joinCode: route.query.joinCode } } : '/dash'"
+            :to="statusPagePath"
             size="xl"
             color="neutral"
             class="w-full justify-center"
           >
-            {{ route.query.joinCode ? 'Go to Team' : 'Go to Dashboard' }}
+            Check Registration Status
+          </UButton>
+
+          <UButton
+            to="https://hackomania.geekshacking.com/"
+            external
+            size="xl"
+            color="neutral"
+            variant="outline"
+            class="w-full justify-center"
+          >
+            Return to HackOMania Website
           </UButton>
         </div>
       </div>

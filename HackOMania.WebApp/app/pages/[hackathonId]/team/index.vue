@@ -3,22 +3,30 @@ import { useQuery } from '@tanstack/vue-query'
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathonId = route.params.hackathonId as string
+const hackathon = useRouteHackathon()
+const resolvedHackathonId = useResolvedHackathonId()
 
 const { data: user, isLoading: authLoading } = useQuery(authQueries.whoAmI)
-const { data: status, isLoading: statusLoading } = useQuery(hackathonQueries.status(hackathonId))
+const { data: status, isLoading: statusLoading } = useQuery(
+  computed(() => ({
+    ...hackathonQueries.status(resolvedHackathonId.value ?? ''),
+    enabled: !!resolvedHackathonId.value,
+  })),
+)
 
 watch(
-  [() => user.value, authLoading, () => status.value, statusLoading],
-  ([userData, authIsLoading, statusData, statusIsLoading]) => {
+  [() => user.value, authLoading, () => status.value, statusLoading, hackathon],
+  ([userData, authIsLoading, statusData, statusIsLoading, hackathonData]) => {
     if (authIsLoading) return
     if (!userData) {
       navigateTo(`${config.public.api}/auth/login?redirect_uri=${encodeURIComponent(route.fullPath)}`, { external: true })
       return
     }
-    if (statusIsLoading) return
+    if (statusIsLoading || !hackathonData) return
     if (!statusData?.isParticipant) {
-      navigateTo({ path: `/${hackathonId}/registration`, query: route.query }, { replace: true })
+      navigateTo({ path: `/${hackathonData.shortCode}/registration`, query: route.query }, { replace: true })
+    } else if (statusData.status !== 1) {
+      navigateTo({ path: `/${hackathonData.shortCode}/registration/status`, query: route.query }, { replace: true })
     }
   },
   { immediate: true },

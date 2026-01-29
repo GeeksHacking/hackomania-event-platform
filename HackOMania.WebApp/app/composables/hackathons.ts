@@ -57,7 +57,7 @@ export function useCurrentHackathon() {
   return computed(() => hackathonsData.value?.hackathons?.[0] ?? null)
 }
 
-// Get hackathonId from route params
+// Get hackathonId from route params (could be ID or shortcode)
 export function useRouteHackathonId() {
   const route = useRoute()
   return computed(() => (route.params.hackathonId as string) ?? null)
@@ -73,4 +73,11 @@ export function useRouteHackathon() {
     })),
   )
   return computed(() => data.value ?? null)
+}
+
+// Get the resolved hackathon ID (UUID) from the route param (which could be shortcode or ID)
+// Use this for API calls that need the actual ID
+export function useResolvedHackathonId() {
+  const hackathon = useRouteHackathon()
+  return computed(() => hackathon.value?.id ?? null)
 }

@@ -40,37 +40,28 @@ public class Endpoint(ILogger<Endpoint> logger, IOptions<AppOptions> options, IS
         var email = result.Principal.GetClaim("email");
         var name = result.Principal.GetClaim(ClaimTypes.Name);
 
-        logger.LogCritical(
-            "User info {Email} {Info}",
-            email,
-            JsonSerializer.Serialize(
-                result.Principal.Claims,
-                new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve }
-            )
-        );
-
-        if (githubLogin is null)
+        if (string.IsNullOrWhiteSpace(githubLogin))
         {
             AddError("GitHub login not found in claims.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
 
-        if (githubId is null)
+        if (string.IsNullOrWhiteSpace(githubId))
         {
             AddError("GitHub ID not found in claims.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
 
-        if (email is null)
+        if (string.IsNullOrWhiteSpace(email))
         {
             AddError("Please add your email on GitHub, then register again.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
 
-        if (name is null)
+        if (string.IsNullOrWhiteSpace(name))
         {
             AddError("Please add a name on GitHub, then register again.");
             await Send.ErrorsAsync(cancellation: ct);

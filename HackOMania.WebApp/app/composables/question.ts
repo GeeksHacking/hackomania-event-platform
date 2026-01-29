@@ -6,8 +6,6 @@ import type {
   HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateRequest,
 } from '~/api-client/models'
 
-
-
 export async function fetchQuestions(hackathonId: string) {
   return await useNuxtApp().$apiClient.participants.hackathons
     .byHackathonIdOrShortCodeId(hackathonId)

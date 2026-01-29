@@ -254,7 +254,7 @@ function getTypeName(type: number | null | undefined): string {
             <UInput
               v-model="editForm.conditionalLogic"
               size="sm"
-              placeholder='e.g. {"questionKey": "value"}'
+              placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
             />
           </UFormField>
 

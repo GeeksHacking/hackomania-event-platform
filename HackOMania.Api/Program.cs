@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using SqlSugar;
 
@@ -75,9 +76,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddDbContext<DbContext>(options =>
+{
+    options.UseInMemoryDatabase("openiddict");
+    options.UseOpenIddict();
+});
+
 builder
     .Services.AddOpenIddict()
-    .AddCore(options => { })
+    .AddCore(options =>
+    {
+        options.UseEntityFrameworkCore().UseDbContext<DbContext>();
+    })
     .AddClient(options =>
     {
         options.AllowAuthorizationCodeFlow();

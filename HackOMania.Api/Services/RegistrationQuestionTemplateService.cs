@@ -552,7 +552,7 @@ public class RegistrationQuestionTemplateService
                     QuestionKey = "education_level",
                     Type = QuestionType.Text,
                     DisplayOrder = order++,
-                    IsRequired = true,
+                    IsRequired = false,
                     Category = "Educational Background",
                     ConditionalLogic = "{\"employment_status\": \"working\"}",
                 },

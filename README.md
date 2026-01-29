@@ -22,7 +22,7 @@ And visit the dashboard link with everything setup!
 
 ## Deployment
 
-The HackOMania API is deployed to Google Cloud Run using a **blue-green deployment strategy** for zero-downtime updates.
+The HackOMania API is deployed to Google Cloud Run with **zero-downtime updates** using health probes.
 
 ### Deployment Process
 
@@ -30,13 +30,11 @@ The HackOMania API is deployed to Google Cloud Run using a **blue-green deployme
    - `HackOMania.Api/**`
    - `.github/workflows/deploy-api.yml`
 
-2. **Blue-Green Strategy**:
-   - A new revision is deployed with no traffic (`no_traffic: true`)
-   - Health checks are validated via Cloud Run probes:
-     - **Startup Probe**: `/health` endpoint (30s timeout)
-     - **Liveness Probe**: `/alive` endpoint (ongoing monitoring)
-   - Traffic is migrated to the new revision only after health checks pass
-   - Old revisions are automatically cleaned up (keeping last 3)
+2. **Cloud Run Health Probes**:
+   - **Startup Probe**: `/health` endpoint validates container readiness before accepting traffic (30s timeout)
+   - **Liveness Probe**: `/alive` endpoint continuously monitors container health (10s intervals)
+   - Cloud Run automatically handles traffic migration only after health checks pass
+   - Failed deployments are automatically rejected without affecting production traffic
 
 3. **Health Check Endpoints**:
    - `/health` - Full readiness check (all registered health checks must pass)

@@ -24,7 +24,7 @@ export function useUpdateQuestionMutation(hackathonId: string) {
       return useNuxtApp().$apiClient.organizers.hackathons
         .byHackathonId(hackathonId)
         .registration.questions.byQuestionId(questionId)
-        .patch(data)
+        .patch(data, undefined)
     },
   })
 }

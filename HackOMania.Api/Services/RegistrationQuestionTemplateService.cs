@@ -888,7 +888,7 @@ public class RegistrationQuestionTemplateService
             QuestionText =
                 "Submitting this form does not guarantee you a spot at Hackomania 2026. Registrants will receive an email regarding confirmation or rejection of their registration. Please check your spam folder for this email.",
             QuestionKey = "mailing_list_consent",
-            Type = QuestionType.Boolean,
+            Type = QuestionType.SingleChoice,
             DisplayOrder = order++,
             IsRequired = true,
             Category = "Communication Preferences",

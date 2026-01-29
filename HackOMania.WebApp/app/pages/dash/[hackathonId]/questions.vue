@@ -36,11 +36,12 @@ const editForm = ref({
   category: '',
   conditionalLogic: '',
   validationRules: '',
-  options: [] as OptionForm[],
+  optionsJson: '',
 })
 
 const typesWithOptions = [3, 4, 10] // SingleChoice, MultipleChoice, Dropdown
 const showOptions = computed(() => typesWithOptions.includes(editForm.value.type))
+const optionsJsonError = ref('')
 
 const questionTypes = [
   { value: 0, label: 'Text' },
@@ -73,6 +74,14 @@ async function initializeQuestions() {
 
 function startEditing(question: Question) {
   editingId.value = question.id ?? null
+  optionsJsonError.value = ''
+  const options = (question.options ?? []).map((o, i) => ({
+    optionText: o.optionText ?? '',
+    optionValue: o.optionValue ?? '',
+    displayOrder: o.displayOrder ?? i,
+    hasFollowUpText: o.hasFollowUpText ?? false,
+    followUpPlaceholder: o.followUpPlaceholder ?? null,
+  }))
   editForm.value = {
     questionText: question.questionText ?? '',
     helpText: question.helpText ?? '',
@@ -82,14 +91,7 @@ function startEditing(question: Question) {
     category: question.category ?? '',
     conditionalLogic: question.conditionalLogic ?? '',
     validationRules: question.validationRules ?? '',
-    options: (question.options ?? []).map((o, i) => ({
-      id: o.id,
-      optionText: o.optionText ?? '',
-      optionValue: o.optionValue ?? '',
-      displayOrder: o.displayOrder ?? i,
-      hasFollowUpText: o.hasFollowUpText ?? false,
-      followUpPlaceholder: o.followUpPlaceholder ?? null,
-    })),
+    optionsJson: options.length ? JSON.stringify(options, null, 2) : '[]',
   }
 }
 
@@ -112,9 +114,29 @@ function cancelEditing() {
   editingId.value = null
 }
 
+function parseOptionsJson(): Record<string, unknown>[] | null {
+  const hasOptions = typesWithOptions.includes(editForm.value.type)
+  if (!hasOptions) return null
+  const raw = editForm.value.optionsJson.trim()
+  if (!raw || raw === '[]') return []
+  const parsed = JSON.parse(raw)
+  if (!Array.isArray(parsed)) throw new Error('Options must be an array')
+  return parsed
+}
+
 async function saveQuestion() {
   if (!editingId.value) return
-  const hasOptions = typesWithOptions.includes(editForm.value.type)
+  optionsJsonError.value = ''
+
+  let options: Record<string, unknown>[] | null
+  try {
+    options = parseOptionsJson()
+  }
+  catch (e) {
+    optionsJsonError.value = e instanceof Error ? e.message : 'Invalid JSON'
+    return
+  }
+
   await updateMutation.mutateAsync({
     questionId: editingId.value,
     data: {
@@ -126,16 +148,7 @@ async function saveQuestion() {
       category: editForm.value.category || null,
       conditionalLogic: editForm.value.conditionalLogic || null,
       validationRules: editForm.value.validationRules || null,
-      options: hasOptions
-        ? editForm.value.options.map(o => ({
-            id: o.id,
-            optionText: o.optionText,
-            optionValue: o.optionValue,
-            displayOrder: o.displayOrder,
-            hasFollowUpText: o.hasFollowUpText,
-            followUpPlaceholder: o.followUpPlaceholder,
-          }))
-        : null,
+      options: options as typeof options & HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
     },
   })
   editingId.value = null
@@ -277,9 +290,11 @@ function getTypeName(type: number | null | undefined): string {
           @submit.prevent="saveQuestion"
         >
           <UFormField label="Question Text">
-            <UInput
+            <UTextarea
               v-model="editForm.questionText"
               size="sm"
+              autoresize
+              class="w-full"
             />
           </UFormField>
 
@@ -293,75 +308,20 @@ function getTypeName(type: number | null | undefined): string {
             />
           </UFormField>
 
-          <!-- Options editor for choice-based types -->
-          <div
+          <!-- Options JSON editor for choice-based types -->
+          <UFormField
             v-if="showOptions"
-            class="space-y-2"
+            label="Options (JSON)"
+            :error="optionsJsonError"
           >
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium">Options</span>
-              <UButton
-                size="xs"
-                variant="soft"
-                icon="i-lucide-plus"
-                @click="addOption"
-              >
-                Add Option
-              </UButton>
-            </div>
-            <div
-              v-for="(option, idx) in editForm.options"
-              :key="idx"
-              class="flex items-start gap-2 p-2 rounded border border-(--ui-border)"
-            >
-              <div class="flex-1 space-y-2">
-                <div class="flex gap-2">
-                  <UInput
-                    v-model="option.optionText"
-                    size="sm"
-                    placeholder="Display text"
-                    class="flex-1"
-                  />
-                  <UInput
-                    v-model="option.optionValue"
-                    size="sm"
-                    placeholder="Value"
-                    class="flex-1"
-                  />
-                </div>
-                <div class="flex items-center gap-3">
-                  <label class="flex items-center gap-1 text-xs">
-                    <UCheckbox
-                      :model-value="option.hasFollowUpText ?? false"
-                      size="xs"
-                      @update:model-value="option.hasFollowUpText = Boolean($event)"
-                    />
-                    Follow-up text
-                  </label>
-                  <UInput
-                    v-if="option.hasFollowUpText"
-                    v-model="option.followUpPlaceholder"
-                    size="sm"
-                    placeholder="Follow-up placeholder"
-                    class="flex-1"
-                  />
-                </div>
-              </div>
-              <UButton
-                size="xs"
-                variant="ghost"
-                color="error"
-                icon="i-lucide-trash-2"
-                @click="removeOption(idx)"
-              />
-            </div>
-            <p
-              v-if="!editForm.options.length"
-              class="text-xs text-(--ui-text-muted)"
-            >
-              No options yet. Add at least one option.
-            </p>
-          </div>
+            <UTextarea
+              v-model="editForm.optionsJson"
+              size="sm"
+              :rows="6"
+              placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
+              class="w-full font-mono text-xs"
+            />
+          </UFormField>
 
           <UFormField label="Help Text">
             <UInput

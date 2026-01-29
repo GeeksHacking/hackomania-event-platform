@@ -25,6 +25,8 @@ watch(
     if (statusIsLoading || !hackathonData) return
     if (!statusData?.isParticipant) {
       navigateTo({ path: `/${hackathonData.shortCode}/registration`, query: route.query }, { replace: true })
+    } else if (statusData.status !== 1) {
+      navigateTo({ path: `/${hackathonData.shortCode}/registration/status`, query: route.query }, { replace: true })
     }
   },
   { immediate: true },

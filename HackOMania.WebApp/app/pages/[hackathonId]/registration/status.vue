@@ -177,11 +177,23 @@ watchEffect(() => {
           <div class="font-raleway text-base md:text-lg font-normal text-black text-center max-w-lg space-y-4">
             <p>{{ stateContent.description }}</p>
 
-            <!-- Show review reason for rejected status -->
-            <p v-if="registrationState === 'rejected' && statusData?.reviewReason" class="text-gray-600 italic">
-              Reason: {{ statusData.reviewReason }}
-            </p>
           </div>
+        </div>
+
+        <!-- Show message from approved/rejected status -->
+        <div
+          v-if="(registrationState === 'approved' || registrationState === 'rejected') && statusData?.reviewReason"
+          class="w-full max-w-lg"
+        >
+          <label class="block font-raleway text-sm font-medium text-gray-700 mb-1">
+            Message
+          </label>
+          <UTextarea
+            :model-value="statusData.reviewReason"
+            readonly
+            :rows="3"
+            class="w-full"
+          />
         </div>
 
         <div class="flex flex-col gap-3 mt-8 w-full max-w-sm">

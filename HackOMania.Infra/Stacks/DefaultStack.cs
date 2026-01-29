@@ -391,6 +391,12 @@ public class DefaultStack : Stack
                     RouteName = cloudRunService.Name,
                     CertificateMode = "AUTOMATIC",
                 },
+            },
+            new CustomResourceOptions
+            {
+                DeleteBeforeReplace = true,
+                IgnoreChanges = ["metadata"],
+                ReplaceOnChanges = ["spec", "name", "location"],
             }
         );
 

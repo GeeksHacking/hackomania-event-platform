@@ -17,7 +17,6 @@ public class Participant : HackathonUser
 
     /// <summary>
     /// Registration submissions for dynamic questions
-    /// Note: Manual navigation because SqlSugar doesn't handle composite keys well
     /// </summary>
     [Navigate(NavigateType.OneToMany, nameof(ParticipantRegistrationSubmission.Id))]
     public List<ParticipantRegistrationSubmission> RegistrationSubmissions { get; set; } = null!;

@@ -27,6 +27,8 @@ export function useUpdateQuestionMutation(hackathonId: string) {
         .patch(data)
     },
   })
+}
+
 export const registrationQuestionQueries = {
   list: (hackathonId: string) =>
     queryOptions({

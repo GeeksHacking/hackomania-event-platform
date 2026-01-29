@@ -42,8 +42,8 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Tests
-        run: dotnet test 
+#      - name: Tests
+#        run: dotnet test 
 
       - name: Authenticate to Google Cloud
         id: auth

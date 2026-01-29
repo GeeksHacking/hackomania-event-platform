@@ -81,8 +81,6 @@ builder
     {
         options.AllowAuthorizationCodeFlow();
         options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
-        options.DisableTokenStorage();
-
         var aspNetOptions = options.UseAspNetCore().EnableRedirectionEndpointPassthrough();
 
         if (builder.Environment.IsDevelopment())

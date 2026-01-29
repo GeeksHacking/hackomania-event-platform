@@ -92,35 +92,58 @@ jobs:
           region: asia-southeast1
           image: asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api:latest
           no_traffic: true
-          revision_suffix: ${{ github.sha }}
           tag: candidate
 
       - name: Wait for health checks
         run: |
           echo "Waiting for new revision to be ready..."
-          sleep 30
           
-          # Get the new revision name
-          NEW_REVISION=$(gcloud run revisions list \
-            --service=hackomania-api \
-            --region=asia-southeast1 \
-            --format='value(name)' \
-            --filter="metadata.labels.commit-sha=${{ github.sha }}" \
-            --limit=1)
+          # Get the deployed revision name from the previous step's output
+          NEW_REVISION="${{ steps.deploy.outputs.revision }}"
           
-          echo "New revision: $NEW_REVISION"
-          
-          # Check if revision is ready
-          STATUS=$(gcloud run revisions describe $NEW_REVISION \
-            --region=asia-southeast1 \
-            --format='value(status.conditions[0].status)')
-          
-          if [ "$STATUS" != "True" ]; then
-            echo "Revision is not ready. Status: $STATUS"
+          if [ -z "$NEW_REVISION" ]; then
+            echo "Error: Could not determine new revision name"
             exit 1
           fi
           
-          echo "Revision is ready and health checks passed!"
+          echo "New revision: $NEW_REVISION"
+          
+          # Poll for revision readiness with retry logic
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            echo "Checking revision status (attempt $((ATTEMPT+1))/$MAX_ATTEMPTS)..."
+            
+            # Check if the Ready condition is True
+            READY_STATUS=$(gcloud run revisions describe $NEW_REVISION \
+              --region=asia-southeast1 \
+              --format='value(status.conditions.filter(type:Ready).firstof(status))' 2>/dev/null || echo "")
+            
+            if [ "$READY_STATUS" = "True" ]; then
+              echo "✓ Revision is ready and health checks passed!"
+              break
+            elif [ "$READY_STATUS" = "False" ]; then
+              REASON=$(gcloud run revisions describe $NEW_REVISION \
+                --region=asia-southeast1 \
+                --format='value(status.conditions.filter(type:Ready).firstof(reason))' 2>/dev/null || echo "Unknown")
+              MESSAGE=$(gcloud run revisions describe $NEW_REVISION \
+                --region=asia-southeast1 \
+                --format='value(status.conditions.filter(type:Ready).firstof(message))' 2>/dev/null || echo "")
+              echo "✗ Revision failed: $REASON - $MESSAGE"
+              exit 1
+            else
+              echo "  Status: $READY_STATUS (waiting...)"
+            fi
+            
+            ATTEMPT=$((ATTEMPT+1))
+            sleep 10
+          done
+          
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "✗ Timeout waiting for revision to become ready"
+            exit 1
+          fi
 
       - name: Migrate traffic to new revision
         run: |
@@ -130,6 +153,7 @@ jobs:
             --to-revisions=LATEST=100
 
       - name: Cleanup old revisions
+        if: success()
         run: |
           echo "Cleaning up old revisions (keeping last 3)..."
           gcloud run revisions list \

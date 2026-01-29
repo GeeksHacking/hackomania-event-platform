@@ -891,14 +891,14 @@ public class RegistrationQuestionTemplateService
             Type = QuestionType.SingleChoice,
             DisplayOrder = order++,
             IsRequired = true,
-            Category = "Communication Preferences",
+            Category = "Disclaimer",
         };
         var disclaimerOptions = new List<RegistrationQuestionOption>
         {
             new()
             {
                 Id = Guid.NewGuid(),
-                QuestionId = mailingListQuestion.Id,
+                QuestionId = disclaimer.Id,
                 OptionText = "Yes, I have read and understood the disclaimer",
                 OptionValue = "yes",
                 DisplayOrder = 0,

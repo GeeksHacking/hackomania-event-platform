@@ -1,2 +1,9 @@
 packages:
-- HackOMania.WebApp
+  - HackOMania.WebApp
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - sharp
+  - unrs-resolver
+  - vue-demi

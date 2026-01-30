@@ -4,6 +4,7 @@ import type {
   HackOManiaApiEndpointsParticipantsHackathonRegistrationSubmissionsSubmitRequest,
   HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
   HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateRequest,
+  HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsCreateRequest,
 } from '~/api-client/models'
 
 export async function fetchQuestions(hackathonId: string) {
@@ -25,6 +26,27 @@ export function useUpdateQuestionMutation(hackathonId: string) {
         .byHackathonId(hackathonId)
         .registration.questions.byQuestionId(questionId)
         .patch(data, undefined)
+    },
+  })
+}
+
+export function useCreateQuestionMutation(hackathonId: string) {
+  return useMutation({
+    mutationFn(data: HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsCreateRequest) {
+      return useNuxtApp().$apiClient.organizers.hackathons
+        .byHackathonId(hackathonId)
+        .registration.questions.post(data)
+    },
+  })
+}
+
+export function useDeleteQuestionMutation(hackathonId: string) {
+  return useMutation({
+    mutationFn(questionId: string) {
+      return useNuxtApp().$apiClient.organizers.hackathons
+        .byHackathonId(hackathonId)
+        .registration.questions.byQuestionId(questionId)
+        .delete()
     },
   })
 }

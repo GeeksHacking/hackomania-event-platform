@@ -62,6 +62,7 @@ const formattedSections = computed(() => {
 const state = reactive<Record<string, string | string[]>>({})
 const followUpState = reactive<Record<string, string>>({}) // key: "questionKey:optionValue" -> follow-up text
 const isDataReady = ref(false)
+const isTshirtImageModalOpen = ref(false)
 
 // Get selected options that have follow-up text for a question
 type FormattedItem = { label: string, value: string, hasFollowUpText: boolean, followUpPlaceholder: string }
@@ -353,7 +354,10 @@ const isFormValid = computed(() => {
                 v-if="section.sectionIndex === 0"
                 class="grid grid-cols-1 md:grid-cols-2 gap-6"
               >
-                <UFormField name="first_name" class="col-span-1">
+                <UFormField
+                  name="first_name"
+                  class="col-span-1"
+                >
                   <template #label>
                     <span class="font-raleway text-base font-normal text-gray-900 dark:text-gray-100">
                       First Name
@@ -369,7 +373,10 @@ const isFormValid = computed(() => {
                   />
                 </UFormField>
 
-                <UFormField name="last_name" class="col-span-1">
+                <UFormField
+                  name="last_name"
+                  class="col-span-1"
+                >
                   <template #label>
                     <span class="font-raleway text-base font-normal text-gray-900 dark:text-gray-100">
                       Last Name
@@ -436,6 +443,29 @@ const isFormValid = computed(() => {
                         :ui="{
                           base: 'bg-white dark:bg-gray-800 rounded-lg min-h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
                         }"
+                        :ui-menu="{
+                          option: {
+                            base: 'whitespace-normal break-words py-2',
+                          },
+                        }"
+                      >
+                        <template #option="{ option }">
+                          <span class="block whitespace-normal break-words">{{ option.label }}</span>
+                        </template>
+                      </USelectMenu>
+
+                      <!-- Single checkbox for single-option questions -->
+                      <UCheckbox
+                        v-else-if="question.hasOptions && question.items.length === 1"
+                        :model-value="state[question.questionKey ?? ''] === question.items[0]?.value"
+                        :label="question.items[0]?.label"
+                        class="font-raleway text-base text-gray-900 dark:text-gray-100"
+                        @update:model-value="(checked) => {
+                          const value = question.items[0]?.value
+                          if (value !== undefined) {
+                            state[question.questionKey ?? ''] = checked ? value : ''
+                          }
+                        }"
                       />
 
                       <USelect
@@ -449,7 +479,16 @@ const isFormValid = computed(() => {
                         :ui="{
                           base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
                         }"
-                      />
+                        :ui-menu="{
+                          option: {
+                            base: 'whitespace-normal break-words py-2',
+                          },
+                        }"
+                      >
+                        <template #option="{ option }">
+                          <span class="block whitespace-normal break-words">{{ option.label }}</span>
+                        </template>
+                      </USelect>
 
                       <UInput
                         v-else
@@ -481,12 +520,33 @@ const isFormValid = computed(() => {
                       </div>
 
                       <!-- T-shirt size guide image -->
-                      <img
+                      <div
                         v-if="question.questionKey === 'tshirt_size'"
-                        src="/appendix/tshirtsize.jpg"
-                        alt="T-shirt size guide"
-                        class="mt-2 rounded-lg max-w-full"
+                        class="mt-2"
                       >
+                        <div
+                          role="button"
+                          tabindex="0"
+                          class="cursor-pointer"
+                          @click="() => {
+                            console.log('Image clicked, opening modal')
+                            isTshirtImageModalOpen = true
+                            console.log('Modal state:', isTshirtImageModalOpen)
+                          }"
+                          @keydown.enter="() => { isTshirtImageModalOpen = true }"
+                          @keydown.space.prevent="() => { isTshirtImageModalOpen = true }"
+                        >
+                          <img
+                            src="/appendix/tshirtsize.jpg"
+                            alt="T-shirt size guide"
+                            class="rounded-lg max-w-full hover:opacity-90 transition-opacity"
+                          >
+                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-raleway">
+                            <span class="md:hidden">Tap to view larger</span>
+                            <span class="hidden md:inline">Click to view larger or download</span>
+                          </p>
+                        </div>
+                      </div>
 
                       <!-- Help text below the field -->
                       <p
@@ -514,16 +574,42 @@ const isFormValid = computed(() => {
 
         <!-- Social media links -->
         <div class="mt-8 font-raleway">
-          <p class="text-md mb-3">Please take some time to follow us!</p>
+          <p class="text-md mb-3">
+            Please take some time to follow us!
+          </p>
           <div class="flex gap-6">
-            <a href="https://www.instagram.com/geekshacking" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors">
-              <Icon name="fa6-brands:instagram" class="size-8" />
+            <a
+              href="https://www.instagram.com/geekshacking"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+            >
+              <Icon
+                name="fa6-brands:instagram"
+                class="size-8"
+              />
             </a>
-            <a href="https://www.linkedin.com/company/geekshacking/" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <Icon name="fa6-brands:linkedin" class="size-8" />
+            <a
+              href="https://www.linkedin.com/company/geekshacking/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <Icon
+                name="fa6-brands:linkedin"
+                class="size-8"
+              />
             </a>
-            <a href="https://www.facebook.com/GeeksHacking" target="_blank" rel="noopener noreferrer" class="text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500 transition-colors">
-              <Icon name="fa6-brands:facebook" class="size-8" />
+            <a
+              href="https://www.facebook.com/GeeksHacking"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
+            >
+              <Icon
+                name="fa6-brands:facebook"
+                class="size-8"
+              />
             </a>
           </div>
         </div>
@@ -552,5 +638,78 @@ const isFormValid = computed(() => {
         </div>
       </UForm>
     </div>
+
+    <!-- T-shirt size image modal -->
+    <UModal
+      v-model:open="isTshirtImageModalOpen"
+      :ui="{ container: 'items-center' }"
+    >
+      <template #content>
+        <div class="p-6 max-w-6xl mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-raleway font-semibold text-gray-900 dark:text-gray-100">
+              T-shirt Size Guide
+            </h3>
+            <button
+              type="button"
+              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              @click="isTshirtImageModalOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="overflow-auto max-h-[70vh]">
+            <a
+              href="/appendix/tshirtsize.jpg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="/appendix/tshirtsize.jpg"
+                alt="T-shirt size guide"
+                class="w-full h-auto rounded-lg cursor-zoom-in hover:opacity-90 transition-opacity"
+                title="Click to open full size in new tab"
+              >
+            </a>
+          </div>
+
+          <div class="mt-4 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 font-raleway">
+            <div>
+              <span class="hidden sm:hidden md:block">Click image to open full size in new tab</span>
+              <span class="block md:hidden">Pinch to zoom</span>
+            </div>
+            <a
+              href="/appendix/tshirtsize.jpg"
+              download="tshirt-size-guide.jpg"
+              class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline"
+            >
+              Download
+            </a>
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
+
+<style>
+/* Global styles for dropdown options to enable text wrapping */
+[role="option"],
+[role="option"] span,
+.ui-select-menu-option,
+.ui-select-option {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  line-height: 1.4 !important;
+  min-height: auto !important;
+}
+
+/* Target Nuxt UI specific classes */
+[data-headlessui-state] {
+  white-space: normal !important;
+}
+</style>

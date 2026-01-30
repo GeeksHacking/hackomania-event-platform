@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { registrationQuestionOrganizerQueries, useUpdateQuestionMutation, useInitQuestionMutation } from '~/composables/question'
+import { registrationQuestionOrganizerQueries, useUpdateQuestionMutation, useInitQuestionMutation, useCreateQuestionMutation, useDeleteQuestionMutation } from '~/composables/question'
 import type {
   HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto,
   HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto,
 } from '~/api-client/models'
 
 type Question = HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto
-type OptionForm = Required<Pick<HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto, 'optionText' | 'optionValue' | 'displayOrder' | 'hasFollowUpText'>> & { id?: string | null, followUpPlaceholder?: string | null }
 
 const props = defineProps<{
   hackathonId: string
@@ -27,6 +26,7 @@ const { data: questionsData, isLoading } = useQuery(
 const questions = computed(() => questionsData.value?.questions ?? [])
 
 const editingId = ref<string | null>(null)
+const isCreating = ref(false)
 const editForm = ref({
   questionText: '',
   helpText: '',
@@ -59,6 +59,8 @@ const questionTypes = [
 
 const updateMutation = useUpdateQuestionMutation(props.hackathonId)
 const initMutation = useInitQuestionMutation()
+const createMutation = useCreateQuestionMutation(props.hackathonId)
+const deleteMutation = useDeleteQuestionMutation(props.hackathonId)
 
 async function invalidateQuestions() {
   await queryClient.invalidateQueries({
@@ -95,23 +97,29 @@ function startEditing(question: Question) {
   }
 }
 
-function addOption() {
-  editForm.value.options.push({
-    optionText: '',
-    optionValue: '',
-    displayOrder: editForm.value.options.length,
-    hasFollowUpText: false,
-    followUpPlaceholder: null,
-  })
-}
-
-function removeOption(index: number) {
-  editForm.value.options.splice(index, 1)
-  editForm.value.options.forEach((o, i) => o.displayOrder = i)
+function startCreating() {
+  isCreating.value = true
+  editingId.value = null
+  optionsJsonError.value = ''
+  const nextDisplayOrder = questions.value.length > 0
+    ? Math.max(...questions.value.map(q => q.displayOrder ?? 0)) + 1
+    : 0
+  editForm.value = {
+    questionText: '',
+    helpText: '',
+    isRequired: false,
+    type: 0,
+    displayOrder: nextDisplayOrder,
+    category: '',
+    conditionalLogic: '',
+    validationRules: '',
+    optionsJson: '[]',
+  }
 }
 
 function cancelEditing() {
   editingId.value = null
+  isCreating.value = false
 }
 
 function parseOptionsJson(): Record<string, unknown>[] | null {
@@ -125,7 +133,6 @@ function parseOptionsJson(): Record<string, unknown>[] | null {
 }
 
 async function saveQuestion() {
-  if (!editingId.value) return
   optionsJsonError.value = ''
 
   let options: Record<string, unknown>[] | null
@@ -137,21 +144,49 @@ async function saveQuestion() {
     return
   }
 
-  await updateMutation.mutateAsync({
-    questionId: editingId.value,
-    data: {
-      questionText: editForm.value.questionText,
-      helpText: editForm.value.helpText || null,
-      isRequired: editForm.value.isRequired,
-      type: editForm.value.type,
-      displayOrder: editForm.value.displayOrder,
-      category: editForm.value.category || null,
-      conditionalLogic: editForm.value.conditionalLogic || null,
-      validationRules: editForm.value.validationRules || null,
-      options: options as typeof options & HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
-    },
-  })
-  editingId.value = null
+  const questionData = {
+    questionText: editForm.value.questionText,
+    helpText: editForm.value.helpText || null,
+    isRequired: editForm.value.isRequired,
+    type: editForm.value.type,
+    displayOrder: editForm.value.displayOrder,
+    category: editForm.value.category || null,
+    conditionalLogic: editForm.value.conditionalLogic || null,
+    validationRules: editForm.value.validationRules || null,
+    options: options as typeof options & HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
+  }
+
+  if (isCreating.value) {
+    await createMutation.mutateAsync(questionData)
+    isCreating.value = false
+  }
+  else if (editingId.value) {
+    await updateMutation.mutateAsync({
+      questionId: editingId.value,
+      data: questionData,
+    })
+    editingId.value = null
+  }
+
+  await invalidateQuestions()
+}
+
+async function deleteQuestion(questionId: string) {
+  if (!confirm('Are you sure you want to delete this question?')) return
+  await deleteMutation.mutateAsync(questionId)
+  await invalidateQuestions()
+}
+
+async function deleteAllQuestions() {
+  const count = questions.value.length
+  if (!confirm(`Are you sure you want to delete all ${count} questions? This action cannot be undone.`)) return
+
+  for (const question of questions.value) {
+    if (question.id) {
+      await deleteMutation.mutateAsync(question.id)
+    }
+  }
+
   await invalidateQuestions()
 }
 
@@ -164,16 +199,40 @@ function getTypeName(type: number | null | undefined): string {
   <UCard>
     <template #header>
       <div class="flex items-center justify-between gap-2">
-        <h3 class="text-sm font-semibold">
-          Questions
-        </h3>
-        <UBadge
-          v-if="questions.length"
-          variant="subtle"
-          size="xs"
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-semibold">
+            Questions
+          </h3>
+          <UBadge
+            v-if="questions.length"
+            variant="subtle"
+            size="xs"
+          >
+            {{ questions.length }}
+          </UBadge>
+        </div>
+        <div
+          v-if="questions.length && !isCreating && !editingId"
+          class="flex gap-2"
         >
-          {{ questions.length }}
-        </UBadge>
+          <UButton
+            size="xs"
+            variant="ghost"
+            color="error"
+            icon="i-lucide-trash-2"
+            :loading="deleteMutation.isPending.value"
+            @click="deleteAllQuestions"
+          >
+            Delete All
+          </UButton>
+          <UButton
+            size="xs"
+            icon="i-lucide-plus"
+            @click="startCreating"
+          >
+            Add Question
+          </UButton>
+        </div>
       </div>
     </template>
 
@@ -203,6 +262,113 @@ function getTypeName(type: number | null | undefined): string {
       v-else
       class="divide-y divide-(--ui-border)"
     >
+      <!-- Create new question form -->
+      <div
+        v-if="isCreating"
+        class="py-2"
+      >
+        <form
+          class="space-y-3"
+          @submit.prevent="saveQuestion"
+        >
+          <UFormField label="Question Text">
+            <UTextarea
+              v-model="editForm.questionText"
+              size="sm"
+              autoresize
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="Type">
+            <USelect
+              :model-value="editForm.type"
+              :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
+              size="sm"
+              class="w-full"
+              @update:model-value="editForm.type = Number($event)"
+            />
+          </UFormField>
+
+          <!-- Options JSON editor for choice-based types -->
+          <UFormField
+            v-if="showOptions"
+            label="Options (JSON)"
+            :error="optionsJsonError"
+          >
+            <UTextarea
+              v-model="editForm.optionsJson"
+              size="sm"
+              :rows="6"
+              placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
+              class="w-full font-mono text-xs"
+            />
+          </UFormField>
+
+          <UFormField label="Help Text">
+            <UInput
+              v-model="editForm.helpText"
+              size="sm"
+              placeholder="Optional help text"
+            />
+          </UFormField>
+
+          <UFormField label="Category">
+            <UInput
+              v-model="editForm.category"
+              size="sm"
+              placeholder="e.g. Personal Info, Preferences"
+            />
+          </UFormField>
+
+          <UFormField label="Display Order">
+            <UInput
+              v-model.number="editForm.displayOrder"
+              type="number"
+              size="sm"
+            />
+          </UFormField>
+
+          <UFormField label="Conditional Logic">
+            <UInput
+              v-model="editForm.conditionalLogic"
+              size="sm"
+              placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
+            />
+          </UFormField>
+
+          <UFormField label="Validation Rules">
+            <UInput
+              v-model="editForm.validationRules"
+              size="sm"
+              placeholder="Optional validation rules"
+            />
+          </UFormField>
+
+          <label class="flex items-center gap-2 text-sm">
+            <UCheckbox v-model="editForm.isRequired" />
+            Required
+          </label>
+
+          <div class="flex justify-end gap-2">
+            <UButton
+              size="xs"
+              variant="ghost"
+              @click="cancelEditing"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              size="xs"
+              type="submit"
+              :loading="createMutation.isPending.value"
+            >
+              Create
+            </UButton>
+          </div>
+        </form>
+      </div>
+
       <div
         v-for="question in questions"
         :key="question.id ?? ''"
@@ -275,12 +441,22 @@ function getTypeName(type: number | null | undefined): string {
               </UBadge>
             </div>
           </div>
-          <UButton
-            size="xs"
-            variant="ghost"
-            icon="i-lucide-pencil"
-            @click="startEditing(question)"
-          />
+          <div class="flex gap-1">
+            <UButton
+              size="xs"
+              variant="ghost"
+              icon="i-lucide-pencil"
+              @click="startEditing(question)"
+            />
+            <UButton
+              size="xs"
+              variant="ghost"
+              icon="i-lucide-trash-2"
+              color="error"
+              :loading="deleteMutation.isPending.value"
+              @click="deleteQuestion(question.id ?? '')"
+            />
+          </div>
         </div>
 
         <!-- Edit mode -->

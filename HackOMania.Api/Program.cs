@@ -92,7 +92,10 @@ builder
     {
         options.AllowAuthorizationCodeFlow();
         options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
-        var aspNetOptions = options.UseAspNetCore().EnableRedirectionEndpointPassthrough();
+        var aspNetOptions = options
+            .UseAspNetCore()
+            .EnableRedirectionEndpointPassthrough()
+            .EnableErrorPassthrough();
 
         if (builder.Environment.IsDevelopment())
         {

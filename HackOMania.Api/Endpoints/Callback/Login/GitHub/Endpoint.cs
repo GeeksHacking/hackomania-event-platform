@@ -32,6 +32,26 @@ public class Endpoint(
 
     public override async Task HandleAsync(CancellationToken ct)
     {
+        var openIddictResponse =
+            Microsoft.AspNetCore.OpenIddictClientAspNetCoreHelpers.GetOpenIddictClientResponse(
+                HttpContext
+            );
+        if (openIddictResponse is not null && !string.IsNullOrWhiteSpace(openIddictResponse.Error))
+        {
+            logger.LogWarning(
+                "GitHub OAuth error {Error}: {Description}",
+                openIddictResponse.Error,
+                openIddictResponse.ErrorDescription
+            );
+
+            HttpContext.Response.Cookies.Delete("auth_redirect_uri");
+            await Send.RedirectAsync(
+                $"{options.Value.FrontendUrl}/login",
+                allowRemoteRedirects: true
+            );
+            return;
+        }
+
         var result = await HttpContext.AuthenticateAsync(Providers.GitHub);
         if (!result.Succeeded || result.Principal is null)
         {

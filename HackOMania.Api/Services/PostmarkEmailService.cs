@@ -78,7 +78,7 @@ public class PostmarkEmailService : IEmailService
                 "Exception occurred while sending acceptance email to {Email}",
                 toEmail
             );
-            throw;
+            // Don't throw - we don't want email failures to break the calling process
         }
     }
 
@@ -140,7 +140,7 @@ public class PostmarkEmailService : IEmailService
                 "Exception occurred while sending rejection email to {Email}",
                 toEmail
             );
-            throw;
+            // Don't throw - we don't want email failures to break the calling process
         }
     }
 
@@ -158,25 +158,37 @@ public class PostmarkEmailService : IEmailService
 
         var tasks = participants.Select(async p =>
         {
-            if (p.Status.Equals("Accepted", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                await SendParticipantAcceptedEmailAsync(
-                    p.Email,
-                    p.Name,
-                    hackathonName,
-                    p.Reason,
-                    ct
-                );
+                if (p.Status.Equals("Accepted", StringComparison.OrdinalIgnoreCase))
+                {
+                    await SendParticipantAcceptedEmailAsync(
+                        p.Email,
+                        p.Name,
+                        hackathonName,
+                        p.Reason,
+                        ct
+                    );
+                }
+                else if (p.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+                {
+                    await SendParticipantRejectedEmailAsync(
+                        p.Email,
+                        p.Name,
+                        hackathonName,
+                        p.Reason,
+                        ct
+                    );
+                }
             }
-            else if (p.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
-                await SendParticipantRejectedEmailAsync(
-                    p.Email,
-                    p.Name,
-                    hackathonName,
-                    p.Reason,
-                    ct
+                _logger.LogError(
+                    ex,
+                    "Failed to send email to {Email} during batch operation",
+                    p.Email
                 );
+                // Continue with other emails even if one fails
             }
         });
 
@@ -190,7 +202,7 @@ public class PostmarkEmailService : IEmailService
     )
     {
         var reasonSection = !string.IsNullOrWhiteSpace(reason)
-            ? $"<p><strong>Message from organizers:</strong><br/>{reason}</p>"
+            ? $"<p><strong>Message from organizers:</strong><br/>{System.Net.WebUtility.HtmlEncode(reason)}</p>"
             : string.Empty;
 
         return $@"
@@ -211,11 +223,11 @@ public class PostmarkEmailService : IEmailService
             <h1>Application Accepted!</h1>
         </div>
         <div class=""content"">
-            <p>Dear {toName},</p>
-            <p>We are thrilled to inform you that your application for <strong>{hackathonName}</strong> has been <strong>accepted</strong>!</p>
+            <p>Dear {System.Net.WebUtility.HtmlEncode(toName)},</p>
+            <p>We are thrilled to inform you that your application for <strong>{System.Net.WebUtility.HtmlEncode(hackathonName)}</strong> has been <strong>accepted</strong>!</p>
             {reasonSection}
             <p>We look forward to seeing you at the event. Get ready for an amazing experience!</p>
-            <p>Best regards,<br/>The {hackathonName} Team</p>
+            <p>Best regards,<br/>The {System.Net.WebUtility.HtmlEncode(hackathonName)} Team</p>
         </div>
         <div class=""footer"">
             <p>This is an automated message. Please do not reply to this email.</p>
@@ -257,7 +269,7 @@ This is an automated message. Please do not reply to this email.";
     )
     {
         var reasonSection = !string.IsNullOrWhiteSpace(reason)
-            ? $"<p><strong>Reason:</strong><br/>{reason}</p>"
+            ? $"<p><strong>Reason:</strong><br/>{System.Net.WebUtility.HtmlEncode(reason)}</p>"
             : string.Empty;
 
         return $@"
@@ -278,11 +290,11 @@ This is an automated message. Please do not reply to this email.";
             <h1>Application Update</h1>
         </div>
         <div class=""content"">
-            <p>Dear {toName},</p>
-            <p>Thank you for your interest in <strong>{hackathonName}</strong>. After careful consideration, we regret to inform you that we are unable to accept your application at this time.</p>
+            <p>Dear {System.Net.WebUtility.HtmlEncode(toName)},</p>
+            <p>Thank you for your interest in <strong>{System.Net.WebUtility.HtmlEncode(hackathonName)}</strong>. After careful consideration, we regret to inform you that we are unable to accept your application at this time.</p>
             {reasonSection}
             <p>We appreciate your interest and encourage you to apply for future events.</p>
-            <p>Best regards,<br/>The {hackathonName} Team</p>
+            <p>Best regards,<br/>The {System.Net.WebUtility.HtmlEncode(hackathonName)} Team</p>
         </div>
         <div class=""footer"">
             <p>This is an automated message. Please do not reply to this email.</p>

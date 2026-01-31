@@ -70,16 +70,37 @@ public class Endpoint(ISqlSugarClient sql, IEmailService emailService)
             .ToListAsync(ct);
         var userDict = users.ToDictionary(u => u.Id);
 
-        // Get latest reviews for each participant
-        var reviews = await sql
+        // Get latest reviews for each participant using a more efficient approach
+        // Group by ParticipantId and get the max CreatedAt, then fetch those specific reviews
+        var latestReviewDates = await sql
             .Queryable<ParticipantReview>()
             .Where(r => participantIds.Contains(r.ParticipantId))
-            .OrderByDescending(r => r.CreatedAt)
+            .GroupBy(r => r.ParticipantId)
+            .Select(g => new { ParticipantId = g.ParticipantId, MaxDate = SqlFunc.AggregateMax(g.CreatedAt) })
             .ToListAsync(ct);
 
-        var latestReviewsByParticipant = reviews
-            .GroupBy(r => r.ParticipantId)
-            .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.CreatedAt).First());
+        var latestReviewsByParticipant = new Dictionary<Guid, ParticipantReview>();
+
+        if (latestReviewDates.Count > 0)
+        {
+            // Fetch only the latest reviews
+            var reviews = await sql
+                .Queryable<ParticipantReview>()
+                .Where(r => participantIds.Contains(r.ParticipantId))
+                .ToListAsync(ct);
+
+            // Build dictionary with latest review per participant
+            foreach (var reviewDate in latestReviewDates)
+            {
+                var latestReview = reviews
+                    .Where(r => r.ParticipantId == reviewDate.ParticipantId && r.CreatedAt == reviewDate.MaxDate)
+                    .FirstOrDefault();
+                if (latestReview != null)
+                {
+                    latestReviewsByParticipant[reviewDate.ParticipantId] = latestReview;
+                }
+            }
+        }
 
         // Build list of participants to email based on status filter
         var participantsToEmail = new List<(

@@ -1,11 +1,12 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
 using HackOMania.Api.Entities;
+using HackOMania.Api.Services;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Organizers.Hackathon.Participants.Review;
 
-public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
+public class Endpoint(ISqlSugarClient sql, IHookService hookService) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -61,6 +62,20 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         };
 
         await sql.Insertable(review).ExecuteCommandAsync(ct);
+
+        // Trigger hook to send email notification
+        var user = await sql.Queryable<User>().InSingleAsync(participant.UserId);
+        if (user is not null)
+        {
+            await hookService.OnParticipantReviewedAsync(
+                participant,
+                user,
+                hackathon,
+                status,
+                req.Reason,
+                ct
+            );
+        }
 
         await Send.OkAsync(
             new Response

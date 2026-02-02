@@ -43,9 +43,23 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             timelineItem.Title = req.Title;
         }
 
+        // Allow explicitly clearing or updating description
+        // When Description is provided (not null in request), update it even if it's empty
         if (req.Description is not null)
         {
-            timelineItem.Description = req.Description;
+            timelineItem.Description = string.IsNullOrWhiteSpace(req.Description) ? null : req.Description;
+        }
+
+        // Track if we're updating times to validate them
+        var newStartTime = req.StartTime ?? timelineItem.StartTime;
+        var newEndTime = req.EndTime ?? timelineItem.EndTime;
+
+        // Validate that EndTime is after StartTime
+        if (newEndTime <= newStartTime)
+        {
+            AddError("EndTime must be after StartTime");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
         }
 
         if (req.StartTime.HasValue)

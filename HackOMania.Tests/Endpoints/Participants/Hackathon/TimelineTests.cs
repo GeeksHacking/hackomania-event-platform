@@ -259,4 +259,71 @@ public class TimelineTests
         await Assert.That(result.TimelineItems[1].Title).IsEqualTo("Second Event");
         await Assert.That(result.TimelineItems[2].Title).IsEqualTo("Third Event");
     }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task CreateTimelineItem_WithInvalidTimes_ReturnsBadRequest(
+        AuthenticatedHttpClientDataClass client
+    )
+    {
+        // Arrange
+        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var now = DateTimeOffset.UtcNow;
+        var request = new
+        {
+            Title = "Invalid Event",
+            Description = "This should fail",
+            StartTime = now.AddDays(8),
+            EndTime = now.AddDays(7), // EndTime before StartTime
+        };
+
+        // Act
+        var response = await client.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathon.Id}/timeline",
+            request
+        );
+
+        // Assert
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task UpdateTimelineItem_WithInvalidTimes_ReturnsBadRequest(
+        AuthenticatedHttpClientDataClass client
+    )
+    {
+        // Arrange
+        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var now = DateTimeOffset.UtcNow;
+
+        // Create a valid timeline item
+        var createRequest = new
+        {
+            Title = "Valid Event",
+            Description = "Initially valid",
+            StartTime = now.AddDays(7),
+            EndTime = now.AddDays(8),
+        };
+
+        var createResponse = await client.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathon.Id}/timeline",
+            createRequest
+        );
+        var createdItem = await createResponse.Content.ReadFromJsonAsync<TimelineItemResponse>();
+
+        // Act - Update with invalid time
+        var updateRequest = new
+        {
+            EndTime = now.AddDays(6), // EndTime before StartTime
+        };
+
+        var response = await client.HttpClient.PatchAsJsonAsync(
+            $"/organizers/hackathons/{hackathon.Id}/timeline/{createdItem!.Id}",
+            updateRequest
+        );
+
+        // Assert
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
 }

@@ -28,6 +28,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
+        // Validate that EndTime is after StartTime
+        if (req.EndTime <= req.StartTime)
+        {
+            AddError("EndTime must be after StartTime");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
+        }
+
         var timelineItem = new EventTimelineItem
         {
             Id = Guid.NewGuid(),

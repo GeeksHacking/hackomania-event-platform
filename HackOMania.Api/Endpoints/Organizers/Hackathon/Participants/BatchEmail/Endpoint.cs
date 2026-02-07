@@ -94,13 +94,14 @@ public class Endpoint(
             .ToDictionary(g => g.Key, g => g.First());
 
         // Build list of participants to email based on status filter
-        var emailDispatches = new List<(
-            Participant Participant,
-            User User,
-            string EventKey,
-            string TemplateId,
-            TemplatedEmailRequest EmailRequest
-        )>();
+        var emailDispatches =
+            new List<(
+                Participant Participant,
+                User User,
+                string EventKey,
+                string TemplateId,
+                TemplatedEmailRequest EmailRequest
+            )>();
         var emailDeliveryLogs = new List<ParticipantEmailDelivery>();
         var errors = new List<string>();
 
@@ -261,10 +262,12 @@ public class Endpoint(
                         ProviderMessageId = sendResult.ProviderMessageId,
                         Status = sendResult.Status switch
                         {
-                            TemplatedEmailSendResult.SendStatus.Sent =>
-                                ParticipantEmailDelivery.EmailDeliveryStatus.Sent,
-                            TemplatedEmailSendResult.SendStatus.Failed =>
-                                ParticipantEmailDelivery.EmailDeliveryStatus.Failed,
+                            TemplatedEmailSendResult.SendStatus.Sent => ParticipantEmailDelivery
+                                .EmailDeliveryStatus
+                                .Sent,
+                            TemplatedEmailSendResult.SendStatus.Failed => ParticipantEmailDelivery
+                                .EmailDeliveryStatus
+                                .Failed,
                             _ => ParticipantEmailDelivery.EmailDeliveryStatus.Skipped,
                         },
                         ErrorMessage = sendResult.ErrorMessage,

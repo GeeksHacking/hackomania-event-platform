@@ -89,7 +89,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     : timelineItem.Description,
                 StartTime = timelineItem.StartTime,
                 EndTime = timelineItem.EndTime,
-                UpdatedAt = timelineItem.UpdatedAt
+                UpdatedAt = timelineItem.UpdatedAt,
             },
             ct
         );

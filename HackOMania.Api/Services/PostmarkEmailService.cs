@@ -157,17 +157,15 @@ public class PostmarkEmailService : IEmailService
         {
             _logger.LogInformation("Email sending is disabled. Skipping batch emails.");
             return emailList
-                .Select(e =>
-                    new TemplatedEmailSendResult(
-                        e.ToEmail,
-                        e.TemplateId,
-                        "postmark",
-                        TemplatedEmailSendResult.SendStatus.Skipped,
-                        DateTimeOffset.UtcNow,
-                        ErrorMessage: "Email sending is disabled",
-                        CorrelationId: e.CorrelationId
-                    )
-                )
+                .Select(e => new TemplatedEmailSendResult(
+                    e.ToEmail,
+                    e.TemplateId,
+                    "postmark",
+                    TemplatedEmailSendResult.SendStatus.Skipped,
+                    DateTimeOffset.UtcNow,
+                    ErrorMessage: "Email sending is disabled",
+                    CorrelationId: e.CorrelationId
+                ))
                 .ToList();
         }
 
@@ -175,17 +173,15 @@ public class PostmarkEmailService : IEmailService
         {
             _logger.LogWarning("Postmark server token is missing. Skipping batch emails.");
             return emailList
-                .Select(e =>
-                    new TemplatedEmailSendResult(
-                        e.ToEmail,
-                        e.TemplateId,
-                        "postmark",
-                        TemplatedEmailSendResult.SendStatus.Skipped,
-                        DateTimeOffset.UtcNow,
-                        ErrorMessage: "Postmark server token is missing",
-                        CorrelationId: e.CorrelationId
-                    )
-                )
+                .Select(e => new TemplatedEmailSendResult(
+                    e.ToEmail,
+                    e.TemplateId,
+                    "postmark",
+                    TemplatedEmailSendResult.SendStatus.Skipped,
+                    DateTimeOffset.UtcNow,
+                    ErrorMessage: "Postmark server token is missing",
+                    CorrelationId: e.CorrelationId
+                ))
                 .ToList();
         }
 

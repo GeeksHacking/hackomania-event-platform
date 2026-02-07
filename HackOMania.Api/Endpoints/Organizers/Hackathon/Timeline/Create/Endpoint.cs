@@ -41,11 +41,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             Id = Guid.NewGuid(),
             HackathonId = hackathon.Id,
             Title = req.Title,
-            Description = string.IsNullOrWhiteSpace(req.Description) ? string.Empty : req.Description,
+            Description = string.IsNullOrWhiteSpace(req.Description)
+                ? string.Empty
+                : req.Description,
             StartTime = req.StartTime,
             EndTime = req.EndTime,
             CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
+            UpdatedAt = DateTimeOffset.UtcNow,
         };
 
         await sql.Insertable(timelineItem).ExecuteCommandAsync(ct);
@@ -62,7 +64,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 StartTime = timelineItem.StartTime,
                 EndTime = timelineItem.EndTime,
                 CreatedAt = timelineItem.CreatedAt,
-                UpdatedAt = timelineItem.UpdatedAt
+                UpdatedAt = timelineItem.UpdatedAt,
             },
             ct
         );

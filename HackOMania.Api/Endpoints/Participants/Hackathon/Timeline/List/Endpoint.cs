@@ -41,14 +41,18 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         await Send.OkAsync(
             new Response
             {
-                TimelineItems = timelineItems.Select(t => new TimelineItemDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = string.IsNullOrWhiteSpace(t.Description) ? null : t.Description,
-                    StartTime = t.StartTime,
-                    EndTime = t.EndTime
-                }).ToList()
+                TimelineItems = timelineItems
+                    .Select(t => new TimelineItemDto
+                    {
+                        Id = t.Id,
+                        Title = t.Title,
+                        Description = string.IsNullOrWhiteSpace(t.Description)
+                            ? null
+                            : t.Description,
+                        StartTime = t.StartTime,
+                        EndTime = t.EndTime,
+                    })
+                    .ToList(),
             },
             ct
         );

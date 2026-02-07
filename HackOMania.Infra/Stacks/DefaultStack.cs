@@ -429,7 +429,7 @@ public class DefaultStack : Stack
                                 new ServiceTemplateContainerEnvArgs
                                 {
                                     Name = "Postmark__Enabled",
-                                    Value = "false",
+                                    Value = "true",
                                 },
                             },
                         },

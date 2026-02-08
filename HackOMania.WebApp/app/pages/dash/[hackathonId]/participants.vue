@@ -40,7 +40,7 @@ const viewOptions = [
 
 const searchQuery = ref('')
 
-type SortKey = 'name' | 'team' | 'status'
+type SortKey = 'name' | 'team' | 'status' | 'applicationTime'
 const sortKey = ref<SortKey>('name')
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
@@ -48,6 +48,7 @@ const sortOptions = [
   { label: 'Name', value: 'name' },
   { label: 'Team', value: 'team' },
   { label: 'Status', value: 'status' },
+  { label: 'Application Time', value: 'applicationTime' },
 ] as const
 
 // Filter state
@@ -58,6 +59,14 @@ function isIncomplete(p: ParticipantItem) {
   return !p.registrationSubmissions?.length
 }
 
+function isPendingStatus(status: number | null | undefined) {
+  return status === 0 || status === null || status === undefined
+}
+
+function isPendingParticipant(participant: ParticipantItem) {
+  return !isIncomplete(participant) && isPendingStatus(participant.concludedStatus)
+}
+
 const statusFilteredParticipants = computed(() => {
   const all = participants.value
   const complete = all.filter(p => !isIncomplete(p))
@@ -65,7 +74,7 @@ const statusFilteredParticipants = computed(() => {
     case 'incomplete':
       return all.filter(p => isIncomplete(p))
     case 'pending':
-      return complete.filter(p => p.concludedStatus === 0 || p.concludedStatus === null || p.concludedStatus === undefined)
+      return complete.filter(p => isPendingStatus(p.concludedStatus))
     case 'approved':
       return complete.filter(p => p.concludedStatus === 1)
     case 'rejected':
@@ -91,6 +100,9 @@ const sortedParticipants = computed(() => {
     if (sortKey.value === 'team') {
       result = compareStrings(a.teamName, b.teamName)
     }
+    else if (sortKey.value === 'applicationTime') {
+      result = getParticipantCreatedAtEpoch(a) - getParticipantCreatedAtEpoch(b)
+    }
     else if (sortKey.value === 'status') {
       result = getStatusSortValue(a.concludedStatus) - getStatusSortValue(b.concludedStatus)
     }
@@ -113,7 +125,7 @@ const filterCounts = computed(() => {
   return {
     all: complete.length,
     incomplete: all.filter(p => isIncomplete(p)).length,
-    pending: complete.filter(p => p.concludedStatus === 0 || p.concludedStatus === null || p.concludedStatus === undefined).length,
+    pending: complete.filter(p => isPendingStatus(p.concludedStatus)).length,
     approved: complete.filter(p => p.concludedStatus === 1).length,
     rejected: complete.filter(p => p.concludedStatus === 2).length,
   }
@@ -137,6 +149,20 @@ function getStatusSortValue(status: number | null | undefined) {
   if (status === 1) return 2
   if (status === 2) return 3
   return 1
+}
+
+function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
+  return participant.createdAt?.getTime() ?? 0
+}
+
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+
+function formatDateTime(value: Date | null | undefined) {
+  if (!value) return '—'
+  return dateTimeFormatter.format(value)
 }
 
 function matchesSearch(participant: ParticipantItem, query: string) {
@@ -327,34 +353,59 @@ function toggleParticipant(participantId: string) {
 const reviewMutation = useReviewParticipantMutation(props.hackathonId)
 
 // Modal state
-const isModalOpen = ref(false)
+const isReviewModalOpen = ref(false)
 const reviewingParticipantId = ref<string | null>(null)
-const reviewingParticipantName = ref<string | null>(null)
-const reviewForm = ref({
-  decision: 'accept',
-  reason: '',
+const reviewReason = ref('')
+
+const pendingParticipants = computed(() => participants.value.filter(p => isPendingParticipant(p)))
+
+const reviewingParticipant = computed(() => {
+  if (!reviewingParticipantId.value) return null
+  return participants.value.find(p => p.id === reviewingParticipantId.value) ?? null
 })
 
-function openReviewModal(participantId: string, participantName: string, decision: string) {
+const reviewingParticipantName = computed(() => reviewingParticipant.value?.name ?? reviewingParticipant.value?.id ?? '')
+
+const reviewingParticipantSubmissions = computed(() => {
+  const submissions = reviewingParticipant.value?.registrationSubmissions ?? []
+  const order = questionOrderMap.value
+  return [...submissions].sort((a, b) => {
+    const orderA = order.get(a.questionId ?? '') ?? Number.MAX_SAFE_INTEGER
+    const orderB = order.get(b.questionId ?? '') ?? Number.MAX_SAFE_INTEGER
+    return orderA - orderB
+  })
+})
+
+function openReviewModal(participantId: string) {
+  if (!participantId) return
   reviewingParticipantId.value = participantId
-  reviewingParticipantName.value = participantName
-  reviewForm.value = { decision, reason: '' }
-  isModalOpen.value = true
+  reviewReason.value = ''
+  isReviewModalOpen.value = true
 }
 
-async function handleReview() {
+function openFirstPendingReviewModal() {
+  const firstPendingId = pendingParticipants.value[0]?.id
+  if (!firstPendingId) return
+  openReviewModal(firstPendingId)
+}
+
+function closeReviewModal() {
+  isReviewModalOpen.value = false
+  reviewingParticipantId.value = null
+  reviewReason.value = ''
+}
+
+async function handleReview(decision: 'accept' | 'reject') {
   if (!reviewingParticipantId.value) return
   await reviewMutation.mutateAsync({
     participantUserId: reviewingParticipantId.value,
     review: {
-      decision: reviewForm.value.decision,
-      reason: reviewForm.value.reason || null,
+      decision,
+      reason: reviewReason.value || null,
     },
   })
   await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'participants', 'organizer'] })
-  isModalOpen.value = false
-  reviewingParticipantId.value = null
-  reviewingParticipantName.value = null
+  closeReviewModal()
 }
 
 function getStatusColor(status: number | null | undefined): 'success' | 'error' | 'warning' {
@@ -391,7 +442,7 @@ function getStatusLabel(status: number | null | undefined): string {
                 :model-value="sortKey"
                 :items="sortOptions"
                 size="sm"
-                class="w-36"
+                class="w-44"
                 @update:model-value="sortKey = $event as SortKey"
               />
               <UButton
@@ -409,46 +460,58 @@ function getStatusLabel(status: number | null | undefined): string {
               />
             </div>
           </div>
-          <div class="flex flex-wrap gap-1">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap gap-1">
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'all' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'all' ? 'primary' : 'neutral'"
+                @click="activeFilter = 'all'"
+              >
+                All ({{ filterCounts.all }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'incomplete' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'incomplete' ? 'neutral' : 'neutral'"
+                @click="activeFilter = 'incomplete'"
+              >
+                Incomplete ({{ filterCounts.incomplete }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'pending' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'pending' ? 'warning' : 'neutral'"
+                @click="activeFilter = 'pending'"
+              >
+                Pending ({{ filterCounts.pending }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'approved' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'approved' ? 'success' : 'neutral'"
+                @click="activeFilter = 'approved'"
+              >
+                Approved ({{ filterCounts.approved }})
+              </UButton>
+              <UButton
+                size="xs"
+                :variant="activeFilter === 'rejected' ? 'solid' : 'ghost'"
+                :color="activeFilter === 'rejected' ? 'error' : 'neutral'"
+                @click="activeFilter = 'rejected'"
+              >
+                Rejected ({{ filterCounts.rejected }})
+              </UButton>
+            </div>
             <UButton
               size="xs"
-              :variant="activeFilter === 'all' ? 'solid' : 'ghost'"
-              :color="activeFilter === 'all' ? 'primary' : 'neutral'"
-              @click="activeFilter = 'all'"
+              icon="i-lucide-clipboard-check"
+              color="warning"
+              variant="soft"
+              :disabled="!pendingParticipants.length"
+              @click="openFirstPendingReviewModal"
             >
-              All ({{ filterCounts.all }})
-            </UButton>
-            <UButton
-              size="xs"
-              :variant="activeFilter === 'incomplete' ? 'solid' : 'ghost'"
-              :color="activeFilter === 'incomplete' ? 'neutral' : 'neutral'"
-              @click="activeFilter = 'incomplete'"
-            >
-              Incomplete ({{ filterCounts.incomplete }})
-            </UButton>
-            <UButton
-              size="xs"
-              :variant="activeFilter === 'pending' ? 'solid' : 'ghost'"
-              :color="activeFilter === 'pending' ? 'warning' : 'neutral'"
-              @click="activeFilter = 'pending'"
-            >
-              Pending ({{ filterCounts.pending }})
-            </UButton>
-            <UButton
-              size="xs"
-              :variant="activeFilter === 'approved' ? 'solid' : 'ghost'"
-              :color="activeFilter === 'approved' ? 'success' : 'neutral'"
-              @click="activeFilter = 'approved'"
-            >
-              Approved ({{ filterCounts.approved }})
-            </UButton>
-            <UButton
-              size="xs"
-              :variant="activeFilter === 'rejected' ? 'solid' : 'ghost'"
-              :color="activeFilter === 'rejected' ? 'error' : 'neutral'"
-              @click="activeFilter = 'rejected'"
-            >
-              Rejected ({{ filterCounts.rejected }})
+              Review Pending ({{ pendingParticipants.length }})
             </UButton>
           </div>
         </div>
@@ -500,6 +563,9 @@ function getStatusLabel(status: number | null | undefined): string {
                 <p class="text-xs text-(--ui-text-muted)">
                   Team: {{ participant.teamName ?? 'No team' }}
                 </p>
+                <p class="text-xs text-(--ui-text-muted)">
+                  Applied: {{ formatDateTime(participant.createdAt) }}
+                </p>
               </div>
               <div class="flex items-center gap-2 ml-2">
                 <template v-if="!isIncomplete(participant)">
@@ -511,19 +577,15 @@ function getStatusLabel(status: number | null | undefined): string {
                     {{ getStatusLabel(participant.concludedStatus) }}
                   </UBadge>
                   <UButton
+                    v-if="isPendingParticipant(participant)"
                     size="xs"
-                    variant="ghost"
-                    color="success"
-                    icon="i-lucide-check"
-                    @click="openReviewModal(participant.id ?? '', participant.name ?? participant.id ?? '', 'accept')"
-                  />
-                  <UButton
-                    size="xs"
-                    variant="ghost"
-                    color="error"
-                    icon="i-lucide-x"
-                    @click="openReviewModal(participant.id ?? '', participant.name ?? participant.id ?? '', 'reject')"
-                  />
+                    variant="soft"
+                    color="warning"
+                    icon="i-lucide-clipboard-check"
+                    @click="openReviewModal(participant.id ?? '')"
+                  >
+                    Review
+                  </UButton>
                 </template>
                 <UBadge
                   v-else
@@ -623,25 +685,23 @@ function getStatusLabel(status: number | null | undefined): string {
 
             <template #actions-cell="{ row }">
               <div
-                v-if="!isIncomplete(row.original)"
+                v-if="isPendingParticipant(row.original)"
                 class="flex items-center gap-1"
               >
                 <UButton
                   size="xs"
-                  variant="ghost"
-                  color="success"
-                  icon="i-lucide-check"
-                  @click="openReviewModal(row.original.id ?? '', row.original.name ?? row.original.id ?? '', 'accept')"
-                />
-                <UButton
-                  size="xs"
-                  variant="ghost"
-                  color="error"
-                  icon="i-lucide-x"
-                  @click="openReviewModal(row.original.id ?? '', row.original.name ?? row.original.id ?? '', 'reject')"
-                />
+                  variant="soft"
+                  color="warning"
+                  icon="i-lucide-clipboard-check"
+                  @click="openReviewModal(row.original.id ?? '')"
+                >
+                  Review
+                </UButton>
               </div>
-              <span v-else class="text-(--ui-text-muted) text-xs">—</span>
+              <span
+                v-else
+                class="text-(--ui-text-muted) text-xs"
+              >—</span>
             </template>
           </UTable>
         </div>
@@ -649,58 +709,99 @@ function getStatusLabel(status: number | null | undefined): string {
     </UCard>
 
     <UModal
-      v-model:open="isModalOpen"
-      :title="reviewForm.decision === 'accept' ? 'Approve Participant' : 'Reject Participant'"
-      description="Review this participant's application"
+      v-model:open="isReviewModalOpen"
+      title="Review Pending Participant"
+      description="Review this participant's application and approve or reject it."
     >
       <template #content>
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-base font-semibold">
-                {{ reviewForm.decision === 'accept' ? 'Approve' : 'Reject' }} Participant
+                {{ reviewingParticipantName || 'Participant Review' }}
               </h3>
               <UButton
                 variant="ghost"
                 icon="i-lucide-x"
                 size="xs"
-                @click="isModalOpen = false"
+                @click="closeReviewModal"
               />
             </div>
           </template>
 
-          <form
-            class="space-y-4"
-            @submit.prevent="handleReview"
-          >
-            <p class="text-sm text-(--ui-text-muted)">
-              {{ reviewForm.decision === 'accept' ? 'Approving' : 'Rejecting' }} participant: <strong>{{ reviewingParticipantName }}</strong>
-            </p>
+          <div class="space-y-4">
+            <template v-if="reviewingParticipant">
+              <div class="rounded-lg border border-default p-3 text-sm">
+                <p>
+                  <strong>Team:</strong> {{ reviewingParticipant.teamName ?? 'No team' }}
+                </p>
+                <p>
+                  <strong>Applied:</strong> {{ formatDateTime(reviewingParticipant.createdAt) }}
+                </p>
+              </div>
 
-            <UFormField label="Reason (optional)">
+              <div>
+                <h4 class="text-sm font-semibold mb-2">
+                  Application Responses
+                </h4>
+                <div
+                  v-if="reviewingParticipantSubmissions.length"
+                  class="max-h-72 overflow-y-auto rounded-lg border border-default p-3 space-y-3"
+                >
+                  <UFormField
+                    v-for="submission in reviewingParticipantSubmissions"
+                    :key="submission.questionId ?? ''"
+                    :label="submission.questionText ?? 'Question'"
+                  >
+                    <UTextarea
+                      :model-value="formatSubmissionAnswer(submission)"
+                      disabled
+                      autoresize
+                      :rows="2"
+                    />
+                  </UFormField>
+                </div>
+                <p
+                  v-else
+                  class="text-sm text-(--ui-text-muted)"
+                >
+                  No form responses found.
+                </p>
+              </div>
+            </template>
+
+            <UFormField label="Review note (optional)">
               <UTextarea
-                v-model="reviewForm.reason"
-                :placeholder="reviewForm.decision === 'accept' ? 'Add a note for approval...' : 'Provide a reason for rejection...'"
+                v-model="reviewReason"
                 :rows="3"
+                placeholder="Add notes for this review decision..."
               />
             </UFormField>
 
             <div class="flex justify-end gap-2">
               <UButton
                 variant="ghost"
-                @click="isModalOpen = false"
+                :disabled="reviewMutation.isPending.value"
+                @click="closeReviewModal"
               >
                 Cancel
               </UButton>
               <UButton
-                type="submit"
-                :color="reviewForm.decision === 'accept' ? 'success' : 'error'"
+                color="error"
                 :loading="reviewMutation.isPending.value"
+                @click="handleReview('reject')"
               >
-                {{ reviewForm.decision === 'accept' ? 'Approve' : 'Reject' }}
+                Reject
+              </UButton>
+              <UButton
+                color="success"
+                :loading="reviewMutation.isPending.value"
+                @click="handleReview('accept')"
+              >
+                Approve
               </UButton>
             </div>
-          </form>
+          </div>
         </UCard>
       </template>
     </UModal>

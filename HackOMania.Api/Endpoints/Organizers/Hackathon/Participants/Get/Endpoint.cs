@@ -62,6 +62,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         await Send.OkAsync(
             new Response
             {
+                CreatedAt = participant.JoinedAt,
                 Id = participant.UserId,
                 Name = userName,
                 TeamId = participant.TeamId,

@@ -134,6 +134,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
                 return new ParticipantItem
                 {
+                    CreatedAt = p.JoinedAt,
                     Id = p.UserId,
                     Name = users.GetValueOrDefault(p.UserId, "Unknown"),
                     TeamId = p.TeamId,

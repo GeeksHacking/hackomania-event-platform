@@ -1458,6 +1458,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticip
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem(hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "concludedStatus": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.concludedStatus = n.getNumberValue(); },
+        "createdAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.createdAt = n.getDateValue(); },
         "id": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id = n.getStringValue(); },
         "name": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name = n.getStringValue(); },
         "registrationSubmissions": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItemFromDiscriminatorValue); },
@@ -3357,6 +3358,10 @@ export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsListPartic
      * The concludedStatus property
      */
     concludedStatus?: number | null;
+    /**
+     * The createdAt property
+     */
+    createdAt?: Date | null;
     /**
      * The id property
      */
@@ -5699,6 +5704,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsGe
 export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem || isSerializingDerivedType) { return; }
     writer.writeNumberValue("concludedStatus", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.concludedStatus);
+    writer.writeDateValue("createdAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.createdAt);
     writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id);
     writer.writeStringValue("name", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name);
     writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>("registrationSubmissions", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem);

@@ -30,6 +30,8 @@ type RegistrationQuestion = HackOManiaApiEndpointsParticipantsHackathonRegistrat
 type RegistrationSubmission = HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem
 
 const participants = computed<ParticipantItem[]>(() => participantsData.value?.participants ?? [])
+const REVIEW_OVERDUE_DAYS = 5
+const REVIEW_OVERDUE_MS = REVIEW_OVERDUE_DAYS * 24 * 60 * 60 * 1000
 
 type ViewMode = 'list' | 'table'
 const viewMode = ref<ViewMode>('list')
@@ -68,6 +70,23 @@ function isPendingParticipant(participant: ParticipantItem) {
   return !isIncomplete(participant) && isPendingStatus(participant.concludedStatus)
 }
 
+function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
+  return participant.createdAt?.getTime() ?? 0
+}
+
+function isReviewOverdue(participant: ParticipantItem) {
+  if (!isPendingParticipant(participant)) return false
+  const createdAtEpoch = getParticipantCreatedAtEpoch(participant)
+  if (!createdAtEpoch) return false
+  return Date.now() - createdAtEpoch >= REVIEW_OVERDUE_MS
+}
+
+function getReviewPriorityBucket(participant: ParticipantItem) {
+  if (isReviewOverdue(participant)) return 0
+  if (isPendingParticipant(participant)) return 1
+  return 2
+}
+
 const statusFilteredParticipants = computed(() => {
   const all = participants.value
   const complete = all.filter(p => !isIncomplete(p))
@@ -97,6 +116,11 @@ const sortedParticipants = computed(() => {
   const direction = sortDirection.value === 'asc' ? 1 : -1
   const sorted = [...searchFilteredParticipants.value]
   sorted.sort((a, b) => {
+    const priorityComparison = getReviewPriorityBucket(a) - getReviewPriorityBucket(b)
+    if (priorityComparison !== 0) {
+      return priorityComparison
+    }
+
     let result = 0
     if (sortKey.value === 'team') {
       result = compareStrings(a.teamName, b.teamName)
@@ -150,10 +174,6 @@ function getStatusSortValue(status: number | null | undefined) {
   if (status === 1) return 2
   if (status === 2) return 3
   return 1
-}
-
-function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
-  return participant.createdAt?.getTime() ?? 0
 }
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
@@ -359,6 +379,18 @@ const reviewingParticipantId = ref<string | null>(null)
 const reviewReason = ref('')
 
 const pendingParticipants = computed(() => participants.value.filter(p => isPendingParticipant(p)))
+const prioritizedPendingParticipants = computed(() => {
+  return [...pendingParticipants.value].sort((a, b) => {
+    const priorityComparison = getReviewPriorityBucket(a) - getReviewPriorityBucket(b)
+    if (priorityComparison !== 0) {
+      return priorityComparison
+    }
+
+    // For review queue, older applications should be handled first.
+    return getParticipantCreatedAtEpoch(a) - getParticipantCreatedAtEpoch(b)
+  })
+})
+const overduePendingCount = computed(() => pendingParticipants.value.filter(p => isReviewOverdue(p)).length)
 
 const reviewingParticipant = computed(() => {
   if (!reviewingParticipantId.value) return null
@@ -385,7 +417,7 @@ function openReviewModal(participantId: string) {
 }
 
 function openFirstPendingReviewModal() {
-  const firstPendingId = pendingParticipants.value[0]?.id
+  const firstPendingId = prioritizedPendingParticipants.value[0]?.id
   if (!firstPendingId) return
   openReviewModal(firstPendingId)
 }
@@ -547,12 +579,15 @@ function getStatusLabel(status: number | null | undefined): string {
             <UButton
               size="xs"
               icon="i-lucide-clipboard-check"
-              color="warning"
+              :color="overduePendingCount > 0 ? 'error' : 'warning'"
               variant="soft"
               :disabled="!pendingParticipants.length"
               @click="openFirstPendingReviewModal"
             >
               Review Pending ({{ pendingParticipants.length }})
+              <template v-if="overduePendingCount > 0">
+                • Overdue {{ overduePendingCount }}
+              </template>
             </UButton>
           </div>
         </div>
@@ -587,7 +622,10 @@ function getStatusLabel(status: number | null | undefined): string {
           <div
             v-for="participant in sortedParticipants"
             :key="participant.id ?? ''"
-            class="py-2"
+            :class="[
+              'py-2',
+              isReviewOverdue(participant) ? 'rounded-md bg-error/5 px-2 -mx-2' : '',
+            ]"
           >
             <div class="flex items-center justify-between">
               <div class="flex-1 min-w-0">
@@ -616,6 +654,14 @@ function getStatusLabel(status: number | null | undefined): string {
                     size="xs"
                   >
                     {{ getStatusLabel(participant.concludedStatus) }}
+                  </UBadge>
+                  <UBadge
+                    v-if="isReviewOverdue(participant)"
+                    color="error"
+                    variant="subtle"
+                    size="xs"
+                  >
+                    Overdue ({{ REVIEW_OVERDUE_DAYS }}d+)
                   </UBadge>
                   <UButton
                     v-if="isPendingParticipant(participant)"
@@ -698,6 +744,22 @@ function getStatusLabel(status: number | null | undefined): string {
             sticky="header"
             class="min-w-full"
           >
+            <template #name-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium">
+                  {{ row.original.name ?? row.original.id }}
+                </span>
+                <UBadge
+                  v-if="isReviewOverdue(row.original)"
+                  color="error"
+                  variant="subtle"
+                  size="xs"
+                >
+                  Overdue ({{ REVIEW_OVERDUE_DAYS }}d+)
+                </UBadge>
+              </div>
+            </template>
+
             <template #teamName-cell="{ row }">
               <span class="text-sm">
                 {{ row.original.teamName ?? 'No team' }}
@@ -712,6 +774,15 @@ function getStatusLabel(status: number | null | undefined): string {
                   size="xs"
                 >
                   {{ getStatusLabel(row.original.concludedStatus) }}
+                </UBadge>
+                <UBadge
+                  v-if="isReviewOverdue(row.original)"
+                  color="error"
+                  variant="subtle"
+                  size="xs"
+                  class="ml-1"
+                >
+                  Overdue
                 </UBadge>
               </template>
               <UBadge

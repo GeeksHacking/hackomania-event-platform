@@ -63,15 +63,11 @@ public class Endpoint(
                 return;
             }
 
+            // Get latest review for informational purposes, but don't block re-reviews
             latestReview = await sql.Queryable<ParticipantReview>()
                 .Where(r => r.ParticipantId == participant.Id)
                 .OrderByDescending(r => r.CreatedAt)
                 .FirstAsync();
-
-            if (latestReview is not null)
-            {
-                return;
-            }
 
             review = new ParticipantReview
             {
@@ -93,15 +89,6 @@ public class Endpoint(
         if (participant is null)
         {
             await Send.NotFoundAsync(ct);
-            return;
-        }
-
-        if (latestReview is not null)
-        {
-            AddError(
-                $"Participant has already been reviewed as '{latestReview.Status}' at {latestReview.CreatedAt:O}."
-            );
-            await Send.ErrorsAsync(409, ct);
             return;
         }
 

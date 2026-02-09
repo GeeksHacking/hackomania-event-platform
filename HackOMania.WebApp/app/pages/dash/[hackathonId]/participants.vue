@@ -6,6 +6,7 @@ import { registrationQuestionQueries } from '~/composables/question'
 import { registrationPageConfig } from '~/config/registration-pages'
 import type {
   HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem,
+  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem,
   HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem,
   HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
 } from '~/api-client/models'
@@ -26,6 +27,7 @@ const { data: participantsData, isLoading: isLoadingParticipants } = useQuery(
 )
 
 type ParticipantItem = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem
+type ParticipantReviewItem = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem
 type RegistrationQuestion = HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto
 type RegistrationSubmission = HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem
 
@@ -409,6 +411,28 @@ const reviewingParticipantSubmissions = computed(() => {
   })
 })
 
+const reviewingParticipantReviews = computed(() => {
+  return reviewingParticipant.value?.reviews ?? []
+})
+
+const isReReview = computed(() => {
+  return reviewingParticipantReviews.value.length > 0
+})
+
+const hasNoExpandedData = computed(() => {
+  return !participantDetail.value?.reviews?.length && !sortedSubmissions.value.length
+})
+
+const reviewModalTitle = computed(() => {
+  return isReReview.value ? 'Re-review Participant' : 'Review Participant'
+})
+
+const reviewModalDescription = computed(() => {
+  return isReReview.value
+    ? "Add a new review for this participant. The latest review will be the final decision."
+    : "Review this participant's application and approve or reject it."
+})
+
 function openReviewModal(participantId: string) {
   if (!participantId) return
   reviewingParticipantId.value = participantId
@@ -430,12 +454,20 @@ function closeReviewModal() {
 
 async function handleReview(decision: 'accept' | 'reject') {
   if (!reviewingParticipantId.value) return
+  
+  // Use default rejection message if rejecting and no reason provided
+  const defaultRejectionMessage = 'Thank you for your application. Unfortunately, we are unable to accept your participation at this time.'
+  const trimmedReason = reviewReason.value?.trim() || null
+  const finalReason = decision === 'reject' && !trimmedReason
+    ? defaultRejectionMessage 
+    : trimmedReason
+  
   try {
     await reviewMutation.mutateAsync({
       participantUserId: reviewingParticipantId.value,
       review: {
         decision,
-        reason: reviewReason.value || null,
+        reason: finalReason,
       },
     })
     await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'participants', 'organizer'] })
@@ -491,6 +523,18 @@ function getStatusLabel(status: number | null | undefined): string {
   if (status === 1) return 'Approved'
   if (status === 2) return 'Rejected'
   return 'Pending'
+}
+
+function getReviewStatusLabel(status: number | null | undefined): string {
+  if (status === 1) return 'Accepted'
+  if (status === 0) return 'Rejected'
+  return 'Unknown'
+}
+
+function getReviewStatusColor(status: number | null | undefined): 'success' | 'error' | 'neutral' {
+  if (status === 1) return 'success'
+  if (status === 0) return 'error'
+  return 'neutral'
 }
 </script>
 
@@ -664,14 +708,13 @@ function getStatusLabel(status: number | null | undefined): string {
                     Overdue ({{ REVIEW_OVERDUE_DAYS }}d+)
                   </UBadge>
                   <UButton
-                    v-if="isPendingParticipant(participant)"
                     size="xs"
-                    variant="soft"
-                    color="warning"
+                    :variant="isPendingParticipant(participant) ? 'soft' : 'ghost'"
+                    :color="isPendingParticipant(participant) ? 'warning' : 'neutral'"
                     icon="i-lucide-clipboard-check"
                     @click="openReviewModal(participant.id ?? '')"
                   >
-                    Review
+                    {{ isPendingParticipant(participant) ? 'Review' : 'Re-review' }}
                   </UButton>
                 </template>
                 <UBadge
@@ -696,39 +739,80 @@ function getStatusLabel(status: number | null | undefined): string {
               >
                 Loading form responses...
               </div>
-              <div v-else-if="sortedSubmissions.length">
-                <h4 class="text-sm font-semibold mb-3">
-                  Form Responses
-                </h4>
-                <div class="space-y-3">
-                  <UFormField
-                    v-for="submission in sortedSubmissions"
-                    :key="submission.questionId ?? ''"
-                    :label="submission.questionText ?? 'Question'"
-                  >
-                    <UInput
-                      :model-value="submission.value || '—'"
-                      disabled
-                      class="w-full"
-                    />
-                    <template v-if="submission.followUpValue">
-                      <p class="text-xs text-(--ui-text-muted) mt-1">
-                        Follow-up:
+              <div v-else>
+                <div v-if="participantDetail?.reviews && participantDetail.reviews.length > 0" class="mb-4">
+                  <h4 class="text-sm font-semibold mb-3">
+                    Review History ({{ participantDetail.reviews.length }})
+                  </h4>
+                  <div class="space-y-2">
+                    <div
+                      v-for="(review, index) in participantDetail.reviews"
+                      :key="review.id ?? index"
+                      class="rounded-lg border border-default p-3"
+                    >
+                      <div class="flex items-start justify-between mb-1">
+                        <UBadge
+                          :color="getReviewStatusColor(review.status)"
+                          variant="subtle"
+                          size="xs"
+                        >
+                          {{ getReviewStatusLabel(review.status) }}
+                        </UBadge>
+                        <span class="text-xs text-(--ui-text-muted)">
+                          {{ formatDateTime(review.createdAt) }}
+                        </span>
+                      </div>
+                      <p
+                        v-if="review.reason"
+                        class="text-xs text-(--ui-text-muted) mt-1"
+                      >
+                        {{ review.reason }}
                       </p>
+                      <p
+                        v-else
+                        class="text-xs text-(--ui-text-muted) italic mt-1"
+                      >
+                        No reason provided
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="sortedSubmissions.length">
+                  <h4 class="text-sm font-semibold mb-3">
+                    Form Responses
+                  </h4>
+                  <div class="space-y-3">
+                    <UFormField
+                      v-for="submission in sortedSubmissions"
+                      :key="submission.questionId ?? ''"
+                      :label="submission.questionText ?? 'Question'"
+                    >
                       <UInput
-                        :model-value="submission.followUpValue"
+                        :model-value="submission.value || '—'"
                         disabled
+                        class="w-full"
+                      />
+                      <template v-if="submission.followUpValue">
+                        <p class="text-xs text-(--ui-text-muted) mt-1">
+                          Follow-up:
+                        </p>
+                        <UInput
+                          :model-value="submission.followUpValue"
+                          disabled
                         class="w-full"
                       />
                     </template>
                   </UFormField>
                 </div>
               </div>
+
               <div
-                v-else
+                v-if="hasNoExpandedData"
                 class="text-sm text-(--ui-text-muted)"
               >
-                No form responses found.
+                No data found.
+              </div>
               </div>
             </div>
           </div>
@@ -797,17 +881,17 @@ function getStatusLabel(status: number | null | undefined): string {
 
             <template #actions-cell="{ row }">
               <div
-                v-if="isPendingParticipant(row.original)"
+                v-if="!isIncomplete(row.original)"
                 class="flex items-center gap-1"
               >
                 <UButton
                   size="xs"
-                  variant="soft"
-                  color="warning"
+                  :variant="isPendingParticipant(row.original) ? 'soft' : 'ghost'"
+                  :color="isPendingParticipant(row.original) ? 'warning' : 'neutral'"
                   icon="i-lucide-clipboard-check"
                   @click="openReviewModal(row.original.id ?? '')"
                 >
-                  Review
+                  {{ isPendingParticipant(row.original) ? 'Review' : 'Re-review' }}
                 </UButton>
               </div>
               <span
@@ -822,8 +906,8 @@ function getStatusLabel(status: number | null | undefined): string {
 
     <UModal
       v-model:open="isReviewModalOpen"
-      title="Review Pending Participant"
-      description="Review this participant's application and approve or reject it."
+      :title="reviewModalTitle"
+      :description="reviewModalDescription"
     >
       <template #content>
         <UCard>
@@ -850,6 +934,55 @@ function getStatusLabel(status: number | null | undefined): string {
                 <p>
                   <strong>Applied:</strong> {{ formatDateTime(reviewingParticipant.createdAt) }}
                 </p>
+                <p>
+                  <strong>Current Status:</strong>
+                  <UBadge
+                    :color="getStatusColor(reviewingParticipant.concludedStatus)"
+                    variant="subtle"
+                    size="xs"
+                    class="ml-1"
+                  >
+                    {{ getStatusLabel(reviewingParticipant.concludedStatus) }}
+                  </UBadge>
+                </p>
+              </div>
+
+              <div v-if="reviewingParticipantReviews.length > 0">
+                <h4 class="text-sm font-semibold mb-2">
+                  Review History ({{ reviewingParticipantReviews.length }})
+                </h4>
+                <div class="max-h-48 overflow-y-auto rounded-lg border border-default p-3 space-y-3">
+                  <div
+                    v-for="(review, index) in reviewingParticipantReviews"
+                    :key="review.id ?? index"
+                    class="border-b border-default last:border-b-0 pb-3 last:pb-0"
+                  >
+                    <div class="flex items-start justify-between mb-1">
+                      <UBadge
+                        :color="getReviewStatusColor(review.status)"
+                        variant="subtle"
+                        size="xs"
+                      >
+                        {{ getReviewStatusLabel(review.status) }}
+                      </UBadge>
+                      <span class="text-xs text-(--ui-text-muted)">
+                        {{ formatDateTime(review.createdAt) }}
+                      </span>
+                    </div>
+                    <p
+                      v-if="review.reason"
+                      class="text-xs text-(--ui-text-muted) mt-1"
+                    >
+                      {{ review.reason }}
+                    </p>
+                    <p
+                      v-else
+                      class="text-xs text-(--ui-text-muted) italic mt-1"
+                    >
+                      No reason provided
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div>

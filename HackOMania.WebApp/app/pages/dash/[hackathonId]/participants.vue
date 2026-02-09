@@ -457,9 +457,10 @@ async function handleReview(decision: 'accept' | 'reject') {
   
   // Use default rejection message if rejecting and no reason provided
   const defaultRejectionMessage = 'Application does not meet the requirements.'
-  const finalReason = decision === 'reject' && !reviewReason.value.trim() 
+  const trimmedReason = reviewReason.value?.trim() || null
+  const finalReason = decision === 'reject' && !trimmedReason
     ? defaultRejectionMessage 
-    : reviewReason.value || null
+    : trimmedReason
   
   try {
     await reviewMutation.mutateAsync({

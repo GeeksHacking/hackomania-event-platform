@@ -146,7 +146,8 @@ public class ParticipantsManagementTests
 
         var statuses = new[] { reviewTask1.Result.StatusCode, reviewTask2.Result.StatusCode };
 
-        // Assert - Both requests should succeed as row locking serializes them
+        // Assert - Both requests should succeed as row locking serializes them,
+        // allowing both reviews to be saved sequentially
         await Assert.That(statuses.Count(s => s == HttpStatusCode.OK)).IsEqualTo(2);
 
         var listResponse = await organizerClient.HttpClient.GetAsync(

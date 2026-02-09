@@ -392,7 +392,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                   </template>
 
                   <!-- Registration complete but not approved: View registration status -->
-                  <template v-else-if="statusDataForIndex(index)?.status !== 1">
+                  <template v-else-if="statusDataForIndex(index)?.status !== 'Accepted'">
                     <UButton
                       :to="`/dash/${hackathon.id}/participant`"
                       color="neutral"

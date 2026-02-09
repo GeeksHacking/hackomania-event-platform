@@ -83,8 +83,6 @@ public class RegistrationQuestionsManagementTests
             request
         );
 
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
-
         var result = await response.Content.ReadFromJsonAsync<CreateRegistrationQuestionResponse>();
 
         // Assert

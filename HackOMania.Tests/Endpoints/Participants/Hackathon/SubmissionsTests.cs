@@ -97,7 +97,6 @@ public class SubmissionsTests
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/submissions",
             request
         );
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
         var result = await response.Content.ReadFromJsonAsync<CreateSubmissionResponse>();
 
         // Assert

@@ -41,7 +41,6 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
 
         if (hackathon is null)
         {
-            Console.WriteLine(req.ShortCode);
             await Send.NotFoundAsync(ct);
             return;
         }

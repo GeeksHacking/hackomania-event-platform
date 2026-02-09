@@ -206,14 +206,16 @@ function getStatusSortValue(status: ParticipantConcludedStatus | null | undefine
   return 1
 }
 
+const REVIEW_TIME_ZONE = 'Asia/Singapore'
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium',
   timeStyle: 'short',
+  timeZone: REVIEW_TIME_ZONE,
 })
 
 function formatDateTime(value: Date | null | undefined) {
   if (!value) return '—'
-  return dateTimeFormatter.format(value)
+  return `${dateTimeFormatter.format(value)} SGT`
 }
 
 function matchesSearch(participant: ParticipantItem, query: string) {

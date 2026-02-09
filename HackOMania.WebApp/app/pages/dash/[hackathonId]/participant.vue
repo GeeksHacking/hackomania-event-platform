@@ -162,6 +162,18 @@ const joinHackathon = async () => {
     })
   }
 }
+
+const reviewedDateFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeZone: 'Asia/Singapore',
+})
+
+function formatReviewedDate(value: Date | string | null | undefined) {
+  if (!value) return '—'
+  const parsed = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(parsed.getTime())) return '—'
+  return `${reviewedDateFormatter.format(parsed)} SGT`
+}
 </script>
 
 <template>
@@ -297,7 +309,7 @@ const joinHackathon = async () => {
                 <p class="text-sm text-(--ui-text-muted)">
                   {{ statusDisplay.label }}
                   <span v-if="statusData?.reviewedAt">
-                    • Reviewed {{ new Date(statusData.reviewedAt).toLocaleDateString() }}
+                    • Reviewed {{ formatReviewedDate(statusData.reviewedAt) }}
                   </span>
                 </p>
                 <p

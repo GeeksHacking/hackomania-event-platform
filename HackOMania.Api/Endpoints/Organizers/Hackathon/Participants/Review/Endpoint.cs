@@ -57,6 +57,7 @@ public class Endpoint(
         Participant? participant = null;
         ParticipantReview? review = null;
 
+        var reviewedAt = DateTimeOffset.Now;
         var transactionResult = await sql.Ado.UseTranAsync(async () =>
         {
             participant = await sql.Queryable<Participant>()
@@ -75,7 +76,7 @@ public class Endpoint(
                 ParticipantId = participant.Id,
                 Status = status,
                 Reason = normalizedReason,
-                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedAt = reviewedAt,
             };
 
             await sql.Insertable(review).ExecuteCommandAsync(ct);

@@ -4,14 +4,20 @@
 // @ts-ignore
 import { createHackOManiaApiEndpointsOrganizersHackathonParticipantsListResponseFromDiscriminatorValue, type HackOManiaApiEndpointsOrganizersHackathonParticipantsListResponse } from '../../../../models/index.js';
 // @ts-ignore
+import { BatchEmailRequestBuilderRequestsMetadata, type BatchEmailRequestBuilder } from './batchEmail/index.js';
+// @ts-ignore
 import { ParticipantUserItemRequestBuilderNavigationMetadata, ParticipantUserItemRequestBuilderRequestsMetadata, type ParticipantUserItemRequestBuilder } from './item/index.js';
 // @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
- * Builds and executes requests for operations under /organizers/hackathons/{hackathonId}/participants
+ * Builds and executes requests for operations under /organizers/hackathons/{hackathon-id}/participants
  */
 export interface ParticipantsRequestBuilder extends BaseRequestBuilder<ParticipantsRequestBuilder> {
+    /**
+     * The batchEmail property
+     */
+    get batchEmail(): BatchEmailRequestBuilder;
     /**
      * Gets an item from the ApiSdk.organizers.hackathons.item.participants.item collection
      * @param participantUserId Unique identifier of the item
@@ -34,7 +40,7 @@ export interface ParticipantsRequestBuilder extends BaseRequestBuilder<Participa
 /**
  * Uri template for the request builder.
  */
-export const ParticipantsRequestBuilderUriTemplate = "{+baseurl}/organizers/hackathons/{hackathonId}/participants";
+export const ParticipantsRequestBuilderUriTemplate = "{+baseurl}/organizers/hackathons/{hackathon%2Did}/participants";
 /**
  * Metadata for all the navigation properties in the request builder.
  */
@@ -43,6 +49,9 @@ export const ParticipantsRequestBuilderNavigationMetadata: Record<Exclude<keyof 
         requestsMetadata: ParticipantUserItemRequestBuilderRequestsMetadata,
         navigationMetadata: ParticipantUserItemRequestBuilderNavigationMetadata,
         pathParametersMappings: ["participantUser%2Did"],
+    },
+    batchEmail: {
+        requestsMetadata: BatchEmailRequestBuilderRequestsMetadata,
     },
 };
 /**

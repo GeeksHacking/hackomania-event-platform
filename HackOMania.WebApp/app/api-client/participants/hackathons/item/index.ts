@@ -18,6 +18,8 @@ import { SubmissionsRequestBuilderNavigationMetadata, type SubmissionsRequestBui
 // @ts-ignore
 import { TeamsRequestBuilderNavigationMetadata, TeamsRequestBuilderRequestsMetadata, type TeamsRequestBuilder } from './teams/index.js';
 // @ts-ignore
+import { TimelineRequestBuilderRequestsMetadata, type TimelineRequestBuilder } from './timeline/index.js';
+// @ts-ignore
 import { type VenueRequestBuilder, VenueRequestBuilderNavigationMetadata } from './venue/index.js';
 // @ts-ignore
 import { type WorkshopsRequestBuilder, WorkshopsRequestBuilderNavigationMetadata, WorkshopsRequestBuilderRequestsMetadata } from './workshops/index.js';
@@ -56,6 +58,10 @@ export interface HackathonIdOrShortCodeItemRequestBuilder extends BaseRequestBui
      * The teams property
      */
     get teams(): TeamsRequestBuilder;
+    /**
+     * The timeline property
+     */
+    get timeline(): TimelineRequestBuilder;
     /**
      * The venue property
      */
@@ -107,6 +113,9 @@ export const HackathonIdOrShortCodeItemRequestBuilderNavigationMetadata: Record<
     teams: {
         requestsMetadata: TeamsRequestBuilderRequestsMetadata,
         navigationMetadata: TeamsRequestBuilderNavigationMetadata,
+    },
+    timeline: {
+        requestsMetadata: TimelineRequestBuilderRequestsMetadata,
     },
     venue: {
         navigationMetadata: VenueRequestBuilderNavigationMetadata,

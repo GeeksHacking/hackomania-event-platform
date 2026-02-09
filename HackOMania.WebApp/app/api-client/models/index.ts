@@ -97,6 +97,15 @@ export function createHackOManiaApiEndpointsOrganizersHackathonChallengesUpdateR
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {HackOManiaApiEndpointsOrganizersHackathonCreateRequest}
  */
 // @ts-ignore
@@ -106,11 +115,29 @@ export function createHackOManiaApiEndpointsOrganizersHackathonCreateRequestFrom
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {HackOManiaApiEndpointsOrganizersHackathonCreateResponse}
  */
 // @ts-ignore
 export function createHackOManiaApiEndpointsOrganizersHackathonCreateResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
     return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -187,6 +214,15 @@ export function createHackOManiaApiEndpointsOrganizersHackathonJudgesUpdateRespo
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem}
  */
 // @ts-ignore
@@ -237,6 +273,33 @@ export function createHackOManiaApiEndpointsOrganizersHackathonOrganizersListRes
 // @ts-ignore
 export function createHackOManiaApiEndpointsOrganizersHackathonOrganizersListResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
     return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonOrganizersListResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItemFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -520,11 +583,65 @@ export function createHackOManiaApiEndpointsOrganizersHackathonTeamsListTeamItem
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {HackOManiaApiEndpointsOrganizersHackathonUpdateRequest}
  */
 // @ts-ignore
 export function createHackOManiaApiEndpointsOrganizersHackathonUpdateRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
     return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplatesFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -961,6 +1078,24 @@ export function createHackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResp
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsParticipantsHackathonTimelineListResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsParticipantsHackathonTimelineListResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto}
+ */
+// @ts-ignore
+export function createHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDtoFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {HackOManiaApiEndpointsParticipantsHackathonVenueCheckOutResponse}
  */
 // @ts-ignore
@@ -1205,6 +1340,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonChalleng
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRequest(hackOManiaApiEndpointsOrganizersHackathonCreateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonCreateRequest.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonCreateRequest.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonCreateRequest.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonCreateRequest.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonCreateRequest.homepageUri = n.getStringValue(); },
@@ -1220,6 +1356,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRe
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsOrganizersHackathonCreateResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1227,6 +1373,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRe
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateResponse(hackOManiaApiEndpointsOrganizersHackathonCreateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonCreateResponse.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonCreateResponse.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonCreateResponse.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonCreateResponse.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonCreateResponse.homepageUri = n.getStringValue(); },
@@ -1243,6 +1390,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRe
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsOrganizersHackathonGetResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1250,6 +1407,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonCreateRe
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonGetResponse(hackOManiaApiEndpointsOrganizersHackathonGetResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonGetResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.homepageUri = n.getStringValue(); },
@@ -1262,6 +1420,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonGetRespo
         "submissionsEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.submissionsEndDate = n.getDateValue(); },
         "submissionsStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.submissionsStartDate = n.getDateValue(); },
         "venue": n => { hackOManiaApiEndpointsOrganizersHackathonGetResponse.venue = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
     }
 }
 /**
@@ -1375,6 +1543,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonListResp
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem(hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem: Partial<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.homepageUri = n.getStringValue(); },
@@ -1387,6 +1556,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonListResp
         "submissionsEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.submissionsEndDate = n.getDateValue(); },
         "submissionsStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.submissionsStartDate = n.getDateValue(); },
         "venue": n => { hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.venue = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
     }
 }
 /**
@@ -1440,6 +1619,50 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonOrganize
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest(hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "participantUserIds": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest.participantUserIds = n.getCollectionOfPrimitiveValues<string>(); },
+        "status": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest.status = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse(hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "acceptedEmailsSent": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.acceptedEmailsSent = n.getNumberValue(); },
+        "errors": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.errors = n.getCollectionOfPrimitiveValues<string>(); },
+        "rejectedEmailsSent": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.rejectedEmailsSent = n.getNumberValue(); },
+        "totalEmailsSent": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.totalEmailsSent = n.getNumberValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem(hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "errorMessage": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.errorMessage = n.getStringValue(); },
+        "eventKey": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.eventKey = n.getStringValue(); },
+        "id": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.id = n.getStringValue(); },
+        "provider": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.provider = n.getStringValue(); },
+        "providerMessageId": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.providerMessageId = n.getStringValue(); },
+        "sentAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.sentAt = n.getDateValue(); },
+        "status": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.status = n.getStringValue(); },
+        "templateId": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.templateId = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1447,6 +1670,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonOrganize
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse(hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         ...deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem(hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse),
+        "emailDeliveries": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse.emailDeliveries = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItemFromDiscriminatorValue); },
     }
 }
 /**
@@ -1459,7 +1683,10 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticip
     return {
         "concludedStatus": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.concludedStatus = n.getNumberValue(); },
         "createdAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.createdAt = n.getDateValue(); },
+        "emailSentCount": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.emailSentCount = n.getNumberValue(); },
         "id": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id = n.getStringValue(); },
+        "lastEmailSentAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailSentAt = n.getDateValue(); },
+        "lastEmailStatus": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailStatus = n.getStringValue(); },
         "name": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name = n.getStringValue(); },
         "registrationSubmissions": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItemFromDiscriminatorValue); },
         "reviews": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.reviews = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemFromDiscriminatorValue); },
@@ -1911,6 +2138,69 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTeamsLis
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest(hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.description = n.getStringValue(); },
+        "endTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.endTime = n.getDateValue(); },
+        "startTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.startTime = n.getDateValue(); },
+        "title": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.title = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse(hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "createdAt": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.createdAt = n.getDateValue(); },
+        "description": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.description = n.getStringValue(); },
+        "endTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.endTime = n.getDateValue(); },
+        "hackathonId": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.hackathonId = n.getStringValue(); },
+        "id": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.id = n.getStringValue(); },
+        "startTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.startTime = n.getDateValue(); },
+        "title": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.title = n.getStringValue(); },
+        "updatedAt": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.updatedAt = n.getDateValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest(hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.description = n.getStringValue(); },
+        "endTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.endTime = n.getDateValue(); },
+        "startTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.startTime = n.getDateValue(); },
+        "title": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.title = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse(hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.description = n.getStringValue(); },
+        "endTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.endTime = n.getDateValue(); },
+        "hackathonId": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.hackathonId = n.getStringValue(); },
+        "id": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.id = n.getStringValue(); },
+        "startTime": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.startTime = n.getDateValue(); },
+        "title": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.title = n.getStringValue(); },
+        "updatedAt": n => { hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.updatedAt = n.getDateValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsOrganizersHackathonUpdateRequest The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1918,6 +2208,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonTeamsLis
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRequest(hackOManiaApiEndpointsOrganizersHackathonUpdateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.homepageUri = n.getStringValue(); },
@@ -1933,6 +2224,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRe
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsOrganizersHackathonUpdateResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1940,6 +2241,7 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRe
 export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateResponse(hackOManiaApiEndpointsOrganizersHackathonUpdateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "description": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.description = n.getStringValue(); },
+        "emailTemplates": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.emailTemplates = n.getObjectValue<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates>(createHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplatesFromDiscriminatorValue); },
         "eventEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.eventEndDate = n.getDateValue(); },
         "eventStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.eventStartDate = n.getDateValue(); },
         "homepageUri": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.homepageUri = n.getStringValue(); },
@@ -1952,6 +2254,16 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateRe
         "submissionsEndDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.submissionsEndDate = n.getDateValue(); },
         "submissionsStartDate": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.submissionsStartDate = n.getDateValue(); },
         "venue": n => { hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.venue = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates(hackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
     }
 }
 /**
@@ -2647,6 +2959,32 @@ export function deserializeIntoHackOManiaApiEndpointsParticipantsHackathonTeamsU
 }
 /**
  * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsParticipantsHackathonTimelineListResponse(hackOManiaApiEndpointsParticipantsHackathonTimelineListResponse: Partial<HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "timelineItems": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListResponse.timelineItems = n.getCollectionOfObjectValues<HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto>(createHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDtoFromDiscriminatorValue); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto(hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto: Partial<HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.description = n.getStringValue(); },
+        "endTime": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.endTime = n.getDateValue(); },
+        "id": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.id = n.getStringValue(); },
+        "startTime": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.startTime = n.getDateValue(); },
+        "title": n => { hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.title = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param HackOManiaApiEndpointsParticipantsHackathonVenueCheckOutResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -2997,6 +3335,10 @@ export interface HackOManiaApiEndpointsOrganizersHackathonCreateRequest extends 
      */
     description?: string | null;
     /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates | null;
+    /**
      * The eventEndDate property
      */
     eventEndDate?: Date | null;
@@ -3040,6 +3382,8 @@ export interface HackOManiaApiEndpointsOrganizersHackathonCreateRequest extends 
      * The venue property
      */
     venue?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates extends AdditionalDataHolder, Parsable {
 }
 export interface HackOManiaApiEndpointsOrganizersHackathonCreateResponse extends Parsable {
     /**
@@ -3047,6 +3391,10 @@ export interface HackOManiaApiEndpointsOrganizersHackathonCreateResponse extends
      */
     description?: string | null;
     /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates | null;
+    /**
      * The eventEndDate property
      */
     eventEndDate?: Date | null;
@@ -3095,11 +3443,17 @@ export interface HackOManiaApiEndpointsOrganizersHackathonCreateResponse extends
      */
     venue?: string | null;
 }
+export interface HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates extends AdditionalDataHolder, Parsable {
+}
 export interface HackOManiaApiEndpointsOrganizersHackathonGetResponse extends Parsable {
     /**
      * The description property
      */
     description?: string | null;
+    /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates | null;
     /**
      * The eventEndDate property
      */
@@ -3148,6 +3502,8 @@ export interface HackOManiaApiEndpointsOrganizersHackathonGetResponse extends Pa
      * The venue property
      */
     venue?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates extends AdditionalDataHolder, Parsable {
 }
 export interface HackOManiaApiEndpointsOrganizersHackathonJudgesCreateRequest extends Parsable {
     /**
@@ -3259,6 +3615,10 @@ export interface HackOManiaApiEndpointsOrganizersHackathonListResponse_Hackathon
      */
     description?: string | null;
     /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates | null;
+    /**
      * The eventEndDate property
      */
     eventEndDate?: Date | null;
@@ -3307,6 +3667,8 @@ export interface HackOManiaApiEndpointsOrganizersHackathonListResponse_Hackathon
      */
     venue?: string | null;
 }
+export interface HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates extends AdditionalDataHolder, Parsable {
+}
 export interface HackOManiaApiEndpointsOrganizersHackathonOrganizersAddRequest extends Parsable {
     /**
      * The type property
@@ -3351,7 +3713,73 @@ export interface HackOManiaApiEndpointsOrganizersHackathonOrganizersListResponse
      */
     userId?: string | null;
 }
+export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest extends Parsable {
+    /**
+     * The participantUserIds property
+     */
+    participantUserIds?: string[] | null;
+    /**
+     * The status property
+     */
+    status?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse extends Parsable {
+    /**
+     * The acceptedEmailsSent property
+     */
+    acceptedEmailsSent?: number | null;
+    /**
+     * The errors property
+     */
+    errors?: string[] | null;
+    /**
+     * The rejectedEmailsSent property
+     */
+    rejectedEmailsSent?: number | null;
+    /**
+     * The totalEmailsSent property
+     */
+    totalEmailsSent?: number | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem extends Parsable {
+    /**
+     * The errorMessage property
+     */
+    errorMessage?: string | null;
+    /**
+     * The eventKey property
+     */
+    eventKey?: string | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The provider property
+     */
+    provider?: string | null;
+    /**
+     * The providerMessageId property
+     */
+    providerMessageId?: string | null;
+    /**
+     * The sentAt property
+     */
+    sentAt?: Date | null;
+    /**
+     * The status property
+     */
+    status?: string | null;
+    /**
+     * The templateId property
+     */
+    templateId?: string | null;
+}
 export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse extends AdditionalDataHolder, HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem, Parsable {
+    /**
+     * The emailDeliveries property
+     */
+    emailDeliveries?: HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem[] | null;
 }
 export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem extends Parsable {
     /**
@@ -3363,9 +3791,21 @@ export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsListPartic
      */
     createdAt?: Date | null;
     /**
+     * The emailSentCount property
+     */
+    emailSentCount?: number | null;
+    /**
      * The id property
      */
     id?: string | null;
+    /**
+     * The lastEmailSentAt property
+     */
+    lastEmailSentAt?: Date | null;
+    /**
+     * The lastEmailStatus property
+     */
+    lastEmailStatus?: string | null;
     /**
      * The name property
      */
@@ -4053,11 +4493,115 @@ export interface HackOManiaApiEndpointsOrganizersHackathonTeamsListTeamItem exte
      */
     name?: string | null;
 }
+export interface HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The endTime property
+     */
+    endTime?: Date | null;
+    /**
+     * The startTime property
+     */
+    startTime?: Date | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse extends Parsable {
+    /**
+     * The createdAt property
+     */
+    createdAt?: Date | null;
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The endTime property
+     */
+    endTime?: Date | null;
+    /**
+     * The hackathonId property
+     */
+    hackathonId?: string | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The startTime property
+     */
+    startTime?: Date | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+    /**
+     * The updatedAt property
+     */
+    updatedAt?: Date | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The endTime property
+     */
+    endTime?: Date | null;
+    /**
+     * The startTime property
+     */
+    startTime?: Date | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The endTime property
+     */
+    endTime?: Date | null;
+    /**
+     * The hackathonId property
+     */
+    hackathonId?: string | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The startTime property
+     */
+    startTime?: Date | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+    /**
+     * The updatedAt property
+     */
+    updatedAt?: Date | null;
+}
 export interface HackOManiaApiEndpointsOrganizersHackathonUpdateRequest extends Parsable {
     /**
      * The description property
      */
     description?: string | null;
+    /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates | null;
     /**
      * The eventEndDate property
      */
@@ -4103,11 +4647,17 @@ export interface HackOManiaApiEndpointsOrganizersHackathonUpdateRequest extends 
      */
     venue?: string | null;
 }
+export interface HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates extends AdditionalDataHolder, Parsable {
+}
 export interface HackOManiaApiEndpointsOrganizersHackathonUpdateResponse extends Parsable {
     /**
      * The description property
      */
     description?: string | null;
+    /**
+     * The emailTemplates property
+     */
+    emailTemplates?: HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates | null;
     /**
      * The eventEndDate property
      */
@@ -4156,6 +4706,8 @@ export interface HackOManiaApiEndpointsOrganizersHackathonUpdateResponse extends
      * The venue property
      */
     venue?: string | null;
+}
+export interface HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates extends AdditionalDataHolder, Parsable {
 }
 export interface HackOManiaApiEndpointsOrganizersHackathonVenueCheckInResponse extends Parsable {
     /**
@@ -5135,6 +5687,34 @@ export interface HackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse 
      */
     name?: string | null;
 }
+export interface HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse extends Parsable {
+    /**
+     * The timelineItems property
+     */
+    timelineItems?: HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto[] | null;
+}
+export interface HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The endTime property
+     */
+    endTime?: Date | null;
+    /**
+     * The id property
+     */
+    id?: string | null;
+    /**
+     * The startTime property
+     */
+    startTime?: Date | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+}
 export interface HackOManiaApiEndpointsParticipantsHackathonVenueCheckOutResponse extends Parsable {
     /**
      * The checkOutTime property
@@ -5450,6 +6030,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonChallengesUpda
 export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateRequest(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonCreateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonCreateRequest || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonCreateRequest.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonCreateRequest.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonCreateRequest.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonCreateRequest.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonCreateRequest.homepageUri);
@@ -5464,6 +6045,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateRequest(
 }
 /**
  * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonCreateRequest_emailTemplates.additionalData);
+}
+/**
+ * Serializes information the current object
  * @param HackOManiaApiEndpointsOrganizersHackathonCreateResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -5472,6 +6064,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateRequest(
 export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonCreateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonCreateResponse || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonCreateResponse.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonCreateResponse.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonCreateResponse.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonCreateResponse.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonCreateResponse.homepageUri);
@@ -5487,6 +6080,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateResponse
 }
 /**
  * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonCreateResponse_emailTemplates.additionalData);
+}
+/**
+ * Serializes information the current object
  * @param HackOManiaApiEndpointsOrganizersHackathonGetResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -5495,6 +6099,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonCreateResponse
 export function serializeHackOManiaApiEndpointsOrganizersHackathonGetResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonGetResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonGetResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonGetResponse || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonGetResponse.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonGetResponse.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonGetResponse.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonGetResponse.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonGetResponse.homepageUri);
@@ -5507,6 +6112,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonGetResponse(wr
     writer.writeDateValue("submissionsEndDate", hackOManiaApiEndpointsOrganizersHackathonGetResponse.submissionsEndDate);
     writer.writeDateValue("submissionsStartDate", hackOManiaApiEndpointsOrganizersHackathonGetResponse.submissionsStartDate);
     writer.writeStringValue("venue", hackOManiaApiEndpointsOrganizersHackathonGetResponse.venue);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonGetResponse_emailTemplates.additionalData);
 }
 /**
  * Serializes information the current object
@@ -5620,6 +6236,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonListResponse(w
 export function serializeHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem: Partial<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.homepageUri);
@@ -5632,6 +6249,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonListResponse_H
     writer.writeDateValue("submissionsEndDate", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.submissionsEndDate);
     writer.writeDateValue("submissionsStartDate", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.submissionsStartDate);
     writer.writeStringValue("venue", hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem.venue);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonListResponse_HackathonItem_emailTemplates.additionalData);
 }
 /**
  * Serializes information the current object
@@ -5684,6 +6312,50 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonOrganizersList
 }
 /**
  * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfPrimitiveValues<string>("participantUserIds", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest.participantUserIds);
+    writer.writeStringValue("status", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailRequest.status);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse || isSerializingDerivedType) { return; }
+    writer.writeNumberValue("acceptedEmailsSent", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.acceptedEmailsSent);
+    writer.writeCollectionOfPrimitiveValues<string>("errors", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.errors);
+    writer.writeNumberValue("rejectedEmailsSent", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.rejectedEmailsSent);
+    writer.writeNumberValue("totalEmailsSent", hackOManiaApiEndpointsOrganizersHackathonParticipantsBatchEmailResponse.totalEmailsSent);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem || isSerializingDerivedType) { return; }
+    writer.writeStringValue("errorMessage", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.errorMessage);
+    writer.writeStringValue("eventKey", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.eventKey);
+    writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.id);
+    writer.writeStringValue("provider", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.provider);
+    writer.writeStringValue("providerMessageId", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.providerMessageId);
+    writer.writeDateValue("sentAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.sentAt);
+    writer.writeStringValue("status", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.status);
+    writer.writeStringValue("templateId", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem.templateId);
+}
+/**
+ * Serializes information the current object
  * @param HackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -5692,6 +6364,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonOrganizersList
 export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse || isSerializingDerivedType) { return; }
     serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem(writer, hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse, isSerializingDerivedType)
+    writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem>("emailDeliveries", hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse.emailDeliveries, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsGetParticipantEmailDeliveryItem);
     writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonParticipantsGetResponse.additionalData);
 }
 /**
@@ -5705,7 +6378,10 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsLi
     if (!hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem || isSerializingDerivedType) { return; }
     writer.writeNumberValue("concludedStatus", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.concludedStatus);
     writer.writeDateValue("createdAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.createdAt);
+    writer.writeNumberValue("emailSentCount", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.emailSentCount);
     writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id);
+    writer.writeDateValue("lastEmailSentAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailSentAt);
+    writer.writeStringValue("lastEmailStatus", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailStatus);
     writer.writeStringValue("name", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name);
     writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>("registrationSubmissions", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem);
     writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem>("reviews", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.reviews, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem);
@@ -6156,6 +6832,69 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonTeamsListTeamI
 }
 /**
  * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.description);
+    writer.writeDateValue("endTime", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.endTime);
+    writer.writeDateValue("startTime", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.startTime);
+    writer.writeStringValue("title", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateRequest.title);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse || isSerializingDerivedType) { return; }
+    writer.writeDateValue("createdAt", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.createdAt);
+    writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.description);
+    writer.writeDateValue("endTime", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.endTime);
+    writer.writeStringValue("hackathonId", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.hackathonId);
+    writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.id);
+    writer.writeDateValue("startTime", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.startTime);
+    writer.writeStringValue("title", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.title);
+    writer.writeDateValue("updatedAt", hackOManiaApiEndpointsOrganizersHackathonTimelineCreateResponse.updatedAt);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.description);
+    writer.writeDateValue("endTime", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.endTime);
+    writer.writeDateValue("startTime", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.startTime);
+    writer.writeStringValue("title", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateRequest.title);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.description);
+    writer.writeDateValue("endTime", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.endTime);
+    writer.writeStringValue("hackathonId", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.hackathonId);
+    writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.id);
+    writer.writeDateValue("startTime", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.startTime);
+    writer.writeStringValue("title", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.title);
+    writer.writeDateValue("updatedAt", hackOManiaApiEndpointsOrganizersHackathonTimelineUpdateResponse.updatedAt);
+}
+/**
+ * Serializes information the current object
  * @param HackOManiaApiEndpointsOrganizersHackathonUpdateRequest The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -6164,6 +6903,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonTeamsListTeamI
 export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateRequest(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonUpdateRequest: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonUpdateRequest || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonUpdateRequest.homepageUri);
@@ -6178,6 +6918,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateRequest(
 }
 /**
  * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonUpdateRequest_emailTemplates.additionalData);
+}
+/**
+ * Serializes information the current object
  * @param HackOManiaApiEndpointsOrganizersHackathonUpdateResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
@@ -6186,6 +6937,7 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateRequest(
 export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateResponse(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonUpdateResponse: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!hackOManiaApiEndpointsOrganizersHackathonUpdateResponse || isSerializingDerivedType) { return; }
     writer.writeStringValue("description", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.description);
+    writer.writeObjectValue<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates>("emailTemplates", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.emailTemplates, serializeHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates);
     writer.writeDateValue("eventEndDate", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.eventEndDate);
     writer.writeDateValue("eventStartDate", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.eventStartDate);
     writer.writeStringValue("homepageUri", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.homepageUri);
@@ -6198,6 +6950,17 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateResponse
     writer.writeDateValue("submissionsEndDate", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.submissionsEndDate);
     writer.writeDateValue("submissionsStartDate", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.submissionsStartDate);
     writer.writeStringValue("venue", hackOManiaApiEndpointsOrganizersHackathonUpdateResponse.venue);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates(writer: SerializationWriter, hackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates: Partial<HackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(hackOManiaApiEndpointsOrganizersHackathonUpdateResponse_emailTemplates.additionalData);
 }
 /**
  * Serializes information the current object
@@ -6889,6 +7652,32 @@ export function serializeHackOManiaApiEndpointsParticipantsHackathonTeamsUpdateR
     writer.writeStringValue("hackathonId", hackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse.hackathonId);
     writer.writeStringValue("id", hackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse.id);
     writer.writeStringValue("name", hackOManiaApiEndpointsParticipantsHackathonTeamsUpdateResponse.name);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsParticipantsHackathonTimelineListResponse(writer: SerializationWriter, hackOManiaApiEndpointsParticipantsHackathonTimelineListResponse: Partial<HackOManiaApiEndpointsParticipantsHackathonTimelineListResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsParticipantsHackathonTimelineListResponse || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto>("timelineItems", hackOManiaApiEndpointsParticipantsHackathonTimelineListResponse.timelineItems, serializeHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto);
+}
+/**
+ * Serializes information the current object
+ * @param HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeHackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto(writer: SerializationWriter, hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto: Partial<HackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.description);
+    writer.writeDateValue("endTime", hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.endTime);
+    writer.writeStringValue("id", hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.id);
+    writer.writeDateValue("startTime", hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.startTime);
+    writer.writeStringValue("title", hackOManiaApiEndpointsParticipantsHackathonTimelineListTimelineItemDto.title);
 }
 /**
  * Serializes information the current object

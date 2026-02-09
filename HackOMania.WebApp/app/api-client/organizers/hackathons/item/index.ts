@@ -20,6 +20,8 @@ import { SubmissionsRequestBuilderNavigationMetadata, SubmissionsRequestBuilderR
 // @ts-ignore
 import { TeamsRequestBuilderRequestsMetadata, type TeamsRequestBuilder } from './teams/index.js';
 // @ts-ignore
+import { TimelineRequestBuilderNavigationMetadata, TimelineRequestBuilderRequestsMetadata, type TimelineRequestBuilder } from './timeline/index.js';
+// @ts-ignore
 import { type VenueRequestBuilder, VenueRequestBuilderNavigationMetadata } from './venue/index.js';
 // @ts-ignore
 import { type WorkshopsRequestBuilder, WorkshopsRequestBuilderNavigationMetadata, WorkshopsRequestBuilderRequestsMetadata } from './workshops/index.js';
@@ -27,9 +29,9 @@ import { type WorkshopsRequestBuilder, WorkshopsRequestBuilderNavigationMetadata
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
- * Builds and executes requests for operations under /organizers/hackathons/{hackathonId}
+ * Builds and executes requests for operations under /organizers/hackathons/{hackathon-id}
  */
-export interface WithHackathonItemRequestBuilder extends BaseRequestBuilder<WithHackathonItemRequestBuilder> {
+export interface HackathonItemRequestBuilder extends BaseRequestBuilder<HackathonItemRequestBuilder> {
     /**
      * The challenges property
      */
@@ -62,6 +64,10 @@ export interface WithHackathonItemRequestBuilder extends BaseRequestBuilder<With
      * The teams property
      */
     get teams(): TeamsRequestBuilder;
+    /**
+     * The timeline property
+     */
+    get timeline(): TimelineRequestBuilder;
     /**
      * The venue property
      */
@@ -100,11 +106,11 @@ export interface WithHackathonItemRequestBuilder extends BaseRequestBuilder<With
 /**
  * Uri template for the request builder.
  */
-export const WithHackathonItemRequestBuilderUriTemplate = "{+baseurl}/organizers/hackathons/{hackathonId}";
+export const HackathonItemRequestBuilderUriTemplate = "{+baseurl}/organizers/hackathons/{hackathon%2Did}";
 /**
  * Metadata for all the navigation properties in the request builder.
  */
-export const WithHackathonItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithHackathonItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+export const HackathonItemRequestBuilderNavigationMetadata: Record<Exclude<keyof HackathonItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     challenges: {
         requestsMetadata: ChallengesRequestBuilderRequestsMetadata,
         navigationMetadata: ChallengesRequestBuilderNavigationMetadata,
@@ -135,6 +141,10 @@ export const WithHackathonItemRequestBuilderNavigationMetadata: Record<Exclude<k
     teams: {
         requestsMetadata: TeamsRequestBuilderRequestsMetadata,
     },
+    timeline: {
+        requestsMetadata: TimelineRequestBuilderRequestsMetadata,
+        navigationMetadata: TimelineRequestBuilderNavigationMetadata,
+    },
     venue: {
         navigationMetadata: VenueRequestBuilderNavigationMetadata,
     },
@@ -146,15 +156,15 @@ export const WithHackathonItemRequestBuilderNavigationMetadata: Record<Exclude<k
 /**
  * Metadata for all the requests in the request builder.
  */
-export const WithHackathonItemRequestBuilderRequestsMetadata: RequestsMetadata = {
+export const HackathonItemRequestBuilderRequestsMetadata: RequestsMetadata = {
     get: {
-        uriTemplate: WithHackathonItemRequestBuilderUriTemplate,
+        uriTemplate: HackathonItemRequestBuilderUriTemplate,
         responseBodyContentType: "application/json",
         adapterMethodName: "send",
         responseBodyFactory:  createHackOManiaApiEndpointsOrganizersHackathonGetResponseFromDiscriminatorValue,
     },
     patch: {
-        uriTemplate: WithHackathonItemRequestBuilderUriTemplate,
+        uriTemplate: HackathonItemRequestBuilderUriTemplate,
         responseBodyContentType: "application/json",
         adapterMethodName: "send",
         responseBodyFactory:  createHackOManiaApiEndpointsOrganizersHackathonUpdateResponseFromDiscriminatorValue,

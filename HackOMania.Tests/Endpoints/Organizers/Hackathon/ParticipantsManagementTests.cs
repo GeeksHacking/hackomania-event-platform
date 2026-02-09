@@ -56,6 +56,28 @@ public class ParticipantsManagementTests
         return client;
     }
 
+    private static async Task<(
+        Guid HackathonId,
+        Guid ParticipantUserId
+    )> CreateHackathonWithJoinedParticipantAsync(AuthenticatedHttpClientDataClass organizerClient)
+    {
+        var hackathonId = await CreateHackathonAsync(organizerClient);
+
+        await using var participantClient = await CreateParticipantClientAsync();
+        var participantWhoAmI = await participantClient.HttpClient.GetFromJsonAsync<WhoAmIResponse>(
+            "/auth/whoami"
+        );
+        await Assert.That(participantWhoAmI).IsNotNull();
+
+        var joinResponse = await participantClient.HttpClient.PostAsync(
+            $"/participants/hackathons/{hackathonId}/join",
+            null
+        );
+        await Assert.That(joinResponse.IsSuccessStatusCode).IsTrue();
+
+        return (hackathonId, participantWhoAmI!.Id);
+    }
+
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task ListParticipants_WithValidHackathon_ReturnsOk(
@@ -117,19 +139,9 @@ public class ParticipantsManagementTests
     )
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(organizerClient);
-
-        await using var participantClient = await CreateParticipantClientAsync();
-        var participantWhoAmI = await participantClient.HttpClient.GetFromJsonAsync<WhoAmIResponse>(
-            "/auth/whoami"
+        var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
+            organizerClient
         );
-        await Assert.That(participantWhoAmI).IsNotNull();
-
-        var joinResponse = await participantClient.HttpClient.PostAsync(
-            $"/participants/hackathons/{hackathonId}/join",
-            null
-        );
-        await Assert.That(joinResponse.IsSuccessStatusCode).IsTrue();
 
         var reviewRequest = new ParticipantReviewRequest
         {
@@ -137,7 +149,7 @@ public class ParticipantsManagementTests
             Reason = "Concurrent review safety test",
         };
         var reviewUrl =
-            $"/organizers/hackathons/{hackathonId}/participants/{participantWhoAmI!.Id}/review";
+            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review";
 
         // Act
         var reviewTask1 = organizerClient.HttpClient.PostAsJsonAsync(reviewUrl, reviewRequest);
@@ -157,12 +169,59 @@ public class ParticipantsManagementTests
         await Assert.That(participants).IsNotNull();
 
         var reviewedParticipant = participants!.Participants?.FirstOrDefault(p =>
-            p.Id == participantWhoAmI.Id
+            p.Id == participantUserId
         );
         await Assert.That(reviewedParticipant).IsNotNull();
         await Assert.That(reviewedParticipant!.Reviews).IsNotNull();
         // Both reviews should be saved - row locking ensures serialization but allows both
         await Assert.That(reviewedParticipant.Reviews!.Count()).IsEqualTo(2);
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task ReviewParticipant_WithRejectDecisionWithoutReason_ReturnsBadRequest(
+        AuthenticatedHttpClientDataClass organizerClient
+    )
+    {
+        // Arrange
+        var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
+            organizerClient
+        );
+        var reviewRequest = new ParticipantReviewRequest { Decision = "reject", Reason = "   " };
+
+        // Act
+        var response = await organizerClient.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review",
+            reviewRequest
+        );
+
+        // Assert
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task ReviewParticipant_WithAcceptDecisionWithoutReason_ReturnsOk(
+        AuthenticatedHttpClientDataClass organizerClient
+    )
+    {
+        // Arrange
+        var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
+            organizerClient
+        );
+        var reviewRequest = new ParticipantReviewRequest { Decision = "accept", Reason = null };
+
+        // Act
+        var response = await organizerClient.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review",
+            reviewRequest
+        );
+        var result = await response.Content.ReadFromJsonAsync<ParticipantReviewResponse>();
+
+        // Assert
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.Status).IsEqualTo("Accepted");
     }
 
     [Test]

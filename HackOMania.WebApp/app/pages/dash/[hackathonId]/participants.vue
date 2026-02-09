@@ -483,19 +483,22 @@ function closeReviewModal() {
 async function handleReview(decision: 'accept' | 'reject') {
   if (!reviewingParticipantId.value) return
   
-  // Use default rejection message if rejecting and no reason provided
-  const defaultRejectionMessage = 'Thank you for your application. Unfortunately, we are unable to accept your participation at this time.'
   const trimmedReason = reviewReason.value?.trim() || null
-  const finalReason = decision === 'reject' && !trimmedReason
-    ? defaultRejectionMessage 
-    : trimmedReason
+  if (decision === 'reject' && !trimmedReason) {
+    toast.add({
+      title: 'Reason required',
+      description: 'Please provide a reason before rejecting this participant.',
+      color: 'warning',
+    })
+    return
+  }
   
   try {
     await reviewMutation.mutateAsync({
       participantUserId: reviewingParticipantId.value,
       review: {
         decision,
-        reason: finalReason,
+        reason: trimmedReason,
       },
     })
     await queryClient.invalidateQueries({ queryKey: ['hackathons', props.hackathonId, 'participants', 'organizer'] })
@@ -1044,11 +1047,11 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                 </div>
               </template>
 
-              <UFormField label="Review note (optional)">
+              <UFormField label="Review note">
                 <UTextarea
                   v-model="reviewReason"
                   :rows="3"
-                  placeholder="Add notes for this review decision..."
+                  placeholder="Provide a reason for rejection (optional for approval)..."
                 />
               </UFormField>
 
@@ -1062,6 +1065,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                 </UButton>
                 <UButton
                   color="error"
+                  :disabled="reviewMutation.isPending.value || !reviewReason.trim()"
                   :loading="reviewMutation.isPending.value"
                   @click="handleReview('reject')"
                 >

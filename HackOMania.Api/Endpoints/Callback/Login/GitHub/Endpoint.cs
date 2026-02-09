@@ -132,7 +132,8 @@ public class Endpoint(
                 var lastName = string.Empty;
                 if (!string.IsNullOrWhiteSpace(name))
                 {
-                    var nameParts = name.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    var nameParts = name.Trim()
+                        .Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
                     firstName = (nameParts.Length > 0 ? nameParts[0] : string.Empty).Trim();
                     lastName = (nameParts.Length > 1 ? nameParts[1] : string.Empty).Trim();
                 }

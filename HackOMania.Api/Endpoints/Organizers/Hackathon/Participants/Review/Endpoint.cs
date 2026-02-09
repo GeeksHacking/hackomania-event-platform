@@ -34,6 +34,13 @@ public class Endpoint(
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
+        var normalizedReason = req.Reason?.Trim() ?? string.Empty;
+        if (decision == "reject" && string.IsNullOrWhiteSpace(normalizedReason))
+        {
+            AddError("A reason is required when rejecting a participant.");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
+        }
 
         var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
         if (hackathon is null)
@@ -67,7 +74,7 @@ public class Endpoint(
                 Id = Guid.NewGuid(),
                 ParticipantId = participant.Id,
                 Status = status,
-                Reason = req.Reason ?? string.Empty,
+                Reason = normalizedReason,
                 CreatedAt = DateTimeOffset.UtcNow,
             };
 
@@ -140,7 +147,7 @@ public class Endpoint(
                         user,
                         hackathon,
                         reviewStatus,
-                        req.Reason
+                        normalizedReason
                     );
 
                     var sendResult = await emailService.SendTemplatedEmailAsync(

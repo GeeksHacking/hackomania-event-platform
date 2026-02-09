@@ -11,7 +11,7 @@ public class Request
     public required string Decision { get; set; }
 
     /// <summary>
-    /// Optional reason for the decision
+    /// Reason for the decision. Required for rejections.
     /// </summary>
     public string? Reason { get; set; }
 }

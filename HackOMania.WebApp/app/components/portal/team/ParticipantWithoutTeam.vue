@@ -23,7 +23,7 @@ function handleCreateTeam() {
   if (!newTeamName.value.trim()) return
   createTeamMutation.mutate({
     name: newTeamName.value.trim(),
-    description: newTeamDescription.value.trim() || undefined,
+    description: newTeamDescription.value.trim() || '',
   }, {
     onSuccess() {
       newTeamName.value = ''

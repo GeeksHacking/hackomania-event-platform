@@ -13,9 +13,6 @@ public class Endpoint(
     INotificationTemplateResolver notificationTemplateResolver
 ) : Endpoint<Request, Response>
 {
-    // Time window to prevent concurrent review submissions (in seconds)
-    private const int ConcurrentReviewWindowSeconds = 5;
-
     public override void Configure()
     {
         Post("organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId}/review");
@@ -50,12 +47,8 @@ public class Endpoint(
                 ? ParticipantReview.ParticipantReviewStatus.Accepted
                 : ParticipantReview.ParticipantReviewStatus.Rejected;
 
-        var currentTime = DateTimeOffset.UtcNow;
-        var concurrentWindowStart = currentTime.AddSeconds(-ConcurrentReviewWindowSeconds);
-
         Participant? participant = null;
         ParticipantReview? review = null;
-        bool hasConcurrentReview = false;
 
         var transactionResult = await sql.Ado.UseTranAsync(async () =>
         {
@@ -69,26 +62,13 @@ public class Endpoint(
                 return;
             }
 
-            // Check for concurrent review attempts (within configured time window)
-            // This prevents race conditions while still allowing re-reviews
-            hasConcurrentReview = await sql.Queryable<ParticipantReview>()
-                .Where(r => r.ParticipantId == participant.Id)
-                .Where(r => r.CreatedAt > concurrentWindowStart)
-                .AnyAsync();
-
-            if (hasConcurrentReview)
-            {
-                // Found a review created within the time window - this is likely a concurrent request
-                return;
-            }
-
             review = new ParticipantReview
             {
                 Id = Guid.NewGuid(),
                 ParticipantId = participant.Id,
                 Status = status,
                 Reason = req.Reason ?? string.Empty,
-                CreatedAt = currentTime,
+                CreatedAt = DateTimeOffset.UtcNow,
             };
 
             await sql.Insertable(review).ExecuteCommandAsync(ct);
@@ -102,15 +82,6 @@ public class Endpoint(
         if (participant is null)
         {
             await Send.NotFoundAsync(ct);
-            return;
-        }
-
-        if (hasConcurrentReview)
-        {
-            AddError(
-                "A review was just submitted for this participant. Please wait a moment before submitting another review."
-            );
-            await Send.ErrorsAsync(409, ct);
             return;
         }
 

@@ -48,7 +48,6 @@ public class Endpoint(
                 : ParticipantReview.ParticipantReviewStatus.Rejected;
 
         Participant? participant = null;
-        ParticipantReview? latestReview = null;
         ParticipantReview? review = null;
 
         var transactionResult = await sql.Ado.UseTranAsync(async () =>
@@ -59,16 +58,6 @@ public class Endpoint(
                 .SingleAsync();
 
             if (participant is null)
-            {
-                return;
-            }
-
-            latestReview = await sql.Queryable<ParticipantReview>()
-                .Where(r => r.ParticipantId == participant.Id)
-                .OrderByDescending(r => r.CreatedAt)
-                .FirstAsync();
-
-            if (latestReview is not null)
             {
                 return;
             }
@@ -93,15 +82,6 @@ public class Endpoint(
         if (participant is null)
         {
             await Send.NotFoundAsync(ct);
-            return;
-        }
-
-        if (latestReview is not null)
-        {
-            AddError(
-                $"Participant has already been reviewed as '{latestReview.Status}' at {latestReview.CreatedAt:O}."
-            );
-            await Send.ErrorsAsync(409, ct);
             return;
         }
 

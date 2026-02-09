@@ -112,7 +112,7 @@ public class ParticipantsManagementTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public async Task ReviewParticipant_WithConcurrentRequests_OnlyOneReviewIsSaved(
+    public async Task ReviewParticipant_WithConcurrentRequests_BothReviewsAreSaved(
         AuthenticatedHttpClientDataClass organizerClient
     )
     {
@@ -146,9 +146,9 @@ public class ParticipantsManagementTests
 
         var statuses = new[] { reviewTask1.Result.StatusCode, reviewTask2.Result.StatusCode };
 
-        // Assert
-        await Assert.That(statuses.Count(s => s == HttpStatusCode.OK)).IsEqualTo(1);
-        await Assert.That(statuses.Count(s => s == HttpStatusCode.Conflict)).IsEqualTo(1);
+        // Assert - Both requests should succeed as row locking serializes them,
+        // allowing both reviews to be saved sequentially
+        await Assert.That(statuses.Count(s => s == HttpStatusCode.OK)).IsEqualTo(2);
 
         var listResponse = await organizerClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/participants"
@@ -161,7 +161,8 @@ public class ParticipantsManagementTests
         );
         await Assert.That(reviewedParticipant).IsNotNull();
         await Assert.That(reviewedParticipant!.Reviews).IsNotNull();
-        await Assert.That(reviewedParticipant.Reviews!.Count()).IsEqualTo(1);
+        // Both reviews should be saved - row locking ensures serialization but allows both
+        await Assert.That(reviewedParticipant.Reviews!.Count()).IsEqualTo(2);
     }
 
     [Test]

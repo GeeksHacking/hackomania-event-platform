@@ -16,7 +16,7 @@ public class HackathonCacheService(IDistributedCache cache) : IHackathonCacheSer
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default)
     {
-        var bytes = await cache.GetAsync(GetCacheKey(key), ct);
+        var bytes = await cache.GetAsync(key, ct);
         if (bytes is null)
         {
             return default;
@@ -37,12 +37,12 @@ public class HackathonCacheService(IDistributedCache cache) : IHackathonCacheSer
         {
             AbsoluteExpirationRelativeToNow = expiration ?? DefaultExpiration,
         };
-        await cache.SetAsync(GetCacheKey(key), bytes, options, ct);
+        await cache.SetAsync(key, bytes, options, ct);
     }
 
     public async Task RemoveAsync(string key, CancellationToken ct = default)
     {
-        await cache.RemoveAsync(GetCacheKey(key), ct);
+        await cache.RemoveAsync(key, ct);
     }
 
     public async Task InvalidateHackathonListCachesAsync(CancellationToken ct = default)
@@ -100,9 +100,10 @@ public class HackathonCacheService(IDistributedCache cache) : IHackathonCacheSer
 
     private async Task IncrementCacheVersionAsync(CancellationToken ct = default)
     {
+        // Note: This operation is not atomic and could have race conditions in high-concurrency scenarios.
+        // However, cache misses are acceptable and will only result in slightly more database queries.
+        // In the future, consider using Redis INCR command for atomic increments if this becomes a concern.
         var currentVersion = await GetCacheVersionAsync(ct);
         await SetCacheVersionAsync(currentVersion + 1, ct);
     }
-
-    private static string GetCacheKey(string key) => key;
 }

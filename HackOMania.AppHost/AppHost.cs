@@ -15,10 +15,12 @@ if (builder.Configuration.GetValue("UseVolumes", true))
 }
 
 var db = mysql.AddDatabase("db");
+var cache = builder.AddRedis("cache").WithRedisInsight();
 
 var api = builder
     .AddProject<HackOMania_Api>("api")
     .WithReference(db)
+    .WithReference(cache)
     .WithEnvironment("App:FrontendUrl", appFrontendUrl)
     .WithEnvironment("GitHub:ClientId", githubClientId)
     .WithEnvironment("GitHub:ClientSecret", githubClientSecret)

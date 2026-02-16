@@ -1,7 +1,6 @@
 using FastEndpoints;
 using HackOMania.Api.Entities;
 using HackOMania.Api.Extensions;
-using Microsoft.AspNetCore.Hosting;
 using SqlSugar;
 
 namespace HackOMania.Api.Endpoints.Participants.Hackathon.Join;

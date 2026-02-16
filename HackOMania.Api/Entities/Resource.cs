@@ -19,5 +19,5 @@ public class Resource
     public Guid HackathonId { get; set; }
 
     [Navigate(NavigateType.OneToMany, nameof(ResourceRedemption.ResourceId))]
-    public List<ResourceRedemption> Redemptions { get; set; } = null!;
+    public List<ResourceRedemption>? Redemptions { get; set; } = null!;
 }

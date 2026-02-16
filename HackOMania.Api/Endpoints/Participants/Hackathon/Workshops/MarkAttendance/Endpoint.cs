@@ -1,6 +1,5 @@
 using FastEndpoints;
 using HackOMania.Api.Authorization;
-using HackOMania.Api.Constants;
 using HackOMania.Api.Entities;
 using HackOMania.Api.Extensions;
 using SqlSugar;

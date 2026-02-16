@@ -30,6 +30,7 @@ public class RegistrationSubmissionItem
     public required string QuestionText { get; init; }
     public required string Value { get; init; }
     public string? FollowUpValue { get; init; }
+    public required DateTimeOffset UpdatedAt { get; init; }
 }
 
 public class ParticipantReviewItem

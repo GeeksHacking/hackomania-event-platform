@@ -43,7 +43,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var user = await sql.Queryable<User>().InSingleAsync(participant.UserId);
-        var participantReviews = participant.ParticipantReviews ?? [];
+        var participantReviews = participant.ParticipantReviews;
         var emailDeliveries = await sql.Queryable<ParticipantEmailDelivery>()
             .Where(e => e.ParticipantId == participant.Id)
             .OrderByDescending(e => e.SentAt)
@@ -96,6 +96,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                                 QuestionText = q.QuestionText,
                                 Value = s.Value,
                                 FollowUpValue = s.FollowUpValue,
+                                UpdatedAt = s.UpdatedAt,
                             }
                     )
                     .ToListAsync(ct),

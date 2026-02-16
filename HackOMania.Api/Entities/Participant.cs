@@ -10,7 +10,7 @@ public class Participant : HackathonUser
     public DateTimeOffset JoinedAt { get; set; } = DateTimeOffset.UtcNow;
 
     [Navigate(NavigateType.ManyToOne, nameof(TeamId), nameof(Team.Id))]
-    public Team Team { get; set; } = null!;
+    public Team? Team { get; set; } = null!;
 
     [Navigate(NavigateType.OneToMany, nameof(ParticipantReview.ParticipantId))]
     public List<ParticipantReview> ParticipantReviews { get; set; } = [];

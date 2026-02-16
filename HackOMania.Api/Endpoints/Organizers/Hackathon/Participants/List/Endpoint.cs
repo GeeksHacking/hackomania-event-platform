@@ -22,7 +22,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var hackathonExists = await sql.Queryable<Entities.Hackathon>()
-            .AnyAsync(h => h.Id == req.HackathonId);
+            .AnyAsync(h => h.Id == req.HackathonId, ct);
         if (!hackathonExists)
         {
             await Send.NotFoundAsync(ct);
@@ -100,6 +100,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                             QuestionText = q.QuestionText,
                             Value = s.Value,
                             FollowUpValue = s.FollowUpValue,
+                            UpdatedAt = s.UpdatedAt,
                         },
                     }
             )

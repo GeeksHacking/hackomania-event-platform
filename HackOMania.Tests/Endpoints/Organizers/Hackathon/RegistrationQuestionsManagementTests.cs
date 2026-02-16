@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using HackOMania.Tests.Data;
 using HackOMania.Tests.Models;
 

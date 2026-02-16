@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using FastEndpoints;
 using HackOMania.Api.Constants;
 using HackOMania.Api.Entities;

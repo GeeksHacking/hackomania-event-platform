@@ -10,7 +10,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Delete("participants/hackathons/{HackathonId:guid}/teams/{TeamId:guid}/members/{UserId:guid}");
+        Delete(
+            "participants/hackathons/{HackathonId:guid}/teams/{TeamId:guid}/members/{UserId:guid}"
+        );
         Policies(PolicyNames.TeamCreatorForHackathonTeam);
         Description(b => b.WithTags("Participants", "Teams"));
         Summary(s =>

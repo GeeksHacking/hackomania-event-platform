@@ -1,4 +1,3 @@
-using Dm.util;
 using HackOMania.Api.Entities;
 using static HackOMania.Api.Services.RegistrationValidationService;
 

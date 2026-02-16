@@ -109,7 +109,7 @@ public class Endpoint(
                     NotificationEventKeys.ParticipantReviewAccepted,
                 ParticipantReview.ParticipantReviewStatus.Rejected =>
                     NotificationEventKeys.ParticipantReviewRejected,
-                _ => null,
+                _ => throw new ArgumentOutOfRangeException(),
             };
 
             if (!string.IsNullOrWhiteSpace(eventKey))

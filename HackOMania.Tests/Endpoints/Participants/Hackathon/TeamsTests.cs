@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Net;
 using System.Net.Http.Json;
 using HackOMania.Tests.Data;
 using HackOMania.Tests.Models;
@@ -823,7 +821,10 @@ public class TeamsTests
         try
         {
             // Second user joins hackathon and team
-            await client2.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
+            await client2.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathonId}/join",
+                null
+            );
             await client2.HttpClient.PostAsJsonAsync(
                 "/participants/teams/join",
                 new { team!.JoinCode }
@@ -889,7 +890,10 @@ public class TeamsTests
 
         try
         {
-            await client2.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
+            await client2.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathonId}/join",
+                null
+            );
             await client2.HttpClient.PostAsJsonAsync(
                 "/participants/teams/join",
                 new { team!.JoinCode }
@@ -918,7 +922,9 @@ public class TeamsTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public async Task RemoveMember_RemovingSelf_ReturnsError(AuthenticatedHttpClientDataClass client)
+    public async Task RemoveMember_RemovingSelf_ReturnsError(
+        AuthenticatedHttpClientDataClass client
+    )
     {
         // Arrange
         var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
@@ -955,7 +961,11 @@ public class TeamsTests
         // Arrange
         var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
 
-        var teamRequest = new { Name = "Test Team", Description = "Team for non-existent member test" };
+        var teamRequest = new
+        {
+            Name = "Test Team",
+            Description = "Team for non-existent member test",
+        };
         var teamResponse = await client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             teamRequest

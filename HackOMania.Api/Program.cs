@@ -60,19 +60,9 @@ builder.Services.AddOptions<GitHubOptions>().Bind(builder.Configuration.GetSecti
 builder.Services.AddOptions<PostmarkOptions>().Bind(builder.Configuration.GetSection("Postmark"));
 
 var cacheConnectionString = builder.Configuration.GetConnectionString("cache");
-if (string.IsNullOrWhiteSpace(cacheConnectionString))
-{
-    builder.Services.AddDistributedMemoryCache();
-}
-else
-{
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.Configuration = cacheConnectionString;
-    });
-}
 
-builder.Services.AddSingleton<ICacheService, SqlSugarDistributedCacheService>();
+// Register SqlSugar cache service using SugarRedis
+builder.Services.AddSingleton<ICacheService>(s => new SqlSugarRedisCache(cacheConnectionString));
 
 builder.Services.AddSingleton<ISqlSugarClient>(s =>
 {

@@ -59,10 +59,31 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             _ => ParticipantConcludedStatus.Pending,
         };
 
+        var registrationSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
+            .LeftJoin<RegistrationQuestion>((s, q) => s.QuestionId == q.Id)
+            .Where((s, q) => s.ParticipantId == participant.Id)
+            .Select(
+                (s, q) =>
+                    new RegistrationSubmissionItem
+                    {
+                        QuestionId = s.QuestionId,
+                        QuestionText = q.QuestionText,
+                        Value = s.Value,
+                        FollowUpValue = s.FollowUpValue,
+                        UpdatedAt = s.UpdatedAt,
+                    }
+            )
+            .ToListAsync(ct);
+
+        var lastRegistrationUpdateAt = registrationSubmissions.Any()
+            ? registrationSubmissions.Max(s => s.UpdatedAt)
+            : (DateTimeOffset?)null;
+
         await Send.OkAsync(
             new Response
             {
                 CreatedAt = participant.JoinedAt,
+                LastRegistrationUpdateAt = lastRegistrationUpdateAt,
                 Id = participant.UserId,
                 Name = userName,
                 TeamId = participant.TeamId,
@@ -85,21 +106,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                         CreatedAt = r.CreatedAt,
                     }),
                 ],
-                RegistrationSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
-                    .LeftJoin<RegistrationQuestion>((s, q) => s.QuestionId == q.Id)
-                    .Where((s, q) => s.ParticipantId == participant.Id)
-                    .Select(
-                        (s, q) =>
-                            new RegistrationSubmissionItem
-                            {
-                                QuestionId = s.QuestionId,
-                                QuestionText = q.QuestionText,
-                                Value = s.Value,
-                                FollowUpValue = s.FollowUpValue,
-                                UpdatedAt = s.UpdatedAt,
-                            }
-                    )
-                    .ToListAsync(ct),
+                RegistrationSubmissions = registrationSubmissions,
                 EmailSentCount = emailDeliveries.Count(e =>
                     e.Status == ParticipantEmailDelivery.EmailDeliveryStatus.Sent
                 ),

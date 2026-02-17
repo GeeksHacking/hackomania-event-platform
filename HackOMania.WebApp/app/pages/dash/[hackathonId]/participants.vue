@@ -88,6 +88,12 @@ function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
   return participant.createdAt?.getTime() ?? 0
 }
 
+function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
+  const lastUpdateAt = participant.lastRegistrationUpdateAt?.getTime()
+  if (lastUpdateAt) return lastUpdateAt
+  return participant.createdAt?.getTime() ?? 0
+}
+
 function isReviewOverdue(participant: ParticipantItem) {
   if (!isPendingParticipant(participant)) return false
   const createdAtEpoch = getParticipantCreatedAtEpoch(participant)
@@ -148,7 +154,7 @@ const sortedParticipants = computed(() => {
       result = compareStrings(a.teamName, b.teamName)
     }
     else if (sortKey.value === 'applicationTime') {
-      result = getParticipantCreatedAtEpoch(a) - getParticipantCreatedAtEpoch(b)
+      result = getParticipantApplicationTimeEpoch(a) - getParticipantApplicationTimeEpoch(b)
     }
     else if (sortKey.value === 'status') {
       result = getStatusSortValue(a.concludedStatus) - getStatusSortValue(b.concludedStatus)

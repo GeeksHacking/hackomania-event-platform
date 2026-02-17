@@ -125,12 +125,16 @@ The following endpoints involve data that changes frequently and may cause cache
 - `POST /participants/hackathons/{id}/teams/leave` - Leave team
 - `DELETE /participants/hackathons/{id}/teams/members/{id}` - Remove member
 - `PATCH /participants/hackathons/{id}/teams/{id}` - Update team
+- `PUT /participants/hackathons/{id}/teams/{id}/challenge` - Select challenge
+- `POST /participants/teams/join` - Join team by code
 - **Issue**: Team changes invalidate both `Team` and `Participant` caches
 - **Impact**: Affects team list, team details, and participant queries
-- **Frequency**: High during team formation periods
+- **Frequency**: High during team formation periods, but infrequent after teams are established
+- **Mitigation**: Read queries within these endpoints are now cached since teams are not frequently mutated
 - **Recommendation**: 
-  - Consider granular cache keys (per team ID)
-  - Short TTL during hackathon event days
+  - Automatic cache invalidation handles write operations correctly
+  - Caching validation queries improves performance during team operations
+  - Monitor cache hit/miss ratio during team formation periods
 
 #### 4. **Registration Submissions** ⚠️ POTENTIAL INVALIDATION ISSUE
 - `POST /participants/hackathons/{id}/registration/submissions/submit`
@@ -188,6 +192,7 @@ Monitor these metrics to identify cache effectiveness:
 
 ### What Changed
 
+#### Initial Implementation (Commits 1-3)
 Added `.WithCache()` to 11 previously uncached GET endpoints:
 1. Auth/WhoAmI
 2. Users/Profile/Get
@@ -201,15 +206,27 @@ Added `.WithCache()` to 11 previously uncached GET endpoints:
 10. Participants/Hackathon/Registration/Submissions/List
 11. Organizers/Hackathon/Venue/Overview
 
+#### Team Endpoints Enhancement (Commit 4)
+Added `.WithCache()` to read queries within team-related write endpoints:
+- Teams/Create - Hackathon validation query
+- Teams/Update - Hackathon and team validation queries
+- Teams/SelectChallenge - Hackathon, team, and challenge validation queries
+- Teams/JoinTeam - Hackathon and team validation queries
+- Teams/Leave - Hackathon and participant validation queries
+- Teams/RemoveMember - Hackathon, team, participant, and member count queries
+- Teams/JoinByCode - Team, hackathon, and participant validation queries
+
+**Rationale**: Teams are not frequently mutated after initial formation. Caching validation queries improves performance without significant cache invalidation concerns due to automatic cache invalidation on writes.
+
 ### Endpoints NOT Cached (By Design)
 
 The following endpoints are intentionally NOT cached:
 
-#### Mutation Endpoints (POST/PUT/PATCH/DELETE)
+#### Write Operations
 - All CREATE operations
 - All UPDATE operations
 - All DELETE operations
-- **Reason**: These are write operations; caching doesn't apply
+- **Reason**: These are write operations; only validation read queries within them are cached
 
 #### Special Cases
 - `POST /auth/login` - Authentication endpoint

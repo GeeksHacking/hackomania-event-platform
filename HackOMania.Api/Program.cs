@@ -76,6 +76,10 @@ builder.Services.AddSingleton<ISqlSugarClient>(s =>
             {
                 DataInfoCacheService = s.GetRequiredService<ICacheService>(),
             },
+            MoreSettings = new ConnMoreSettings
+            {
+                IsAutoRemoveDataCache = true, // Enable automatic cache invalidation on INSERT/UPDATE/DELETE
+            },
         },
         db => { }
     );

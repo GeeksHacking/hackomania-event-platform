@@ -20,10 +20,12 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Client;
 using Scalar.AspNetCore;
 using SqlSugar;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddRedisClient("cache");
 
 if (builder.Environment.IsProduction())
 {
@@ -59,10 +61,10 @@ builder.Services.AddOptions<AppOptions>().Bind(builder.Configuration.GetSection(
 builder.Services.AddOptions<GitHubOptions>().Bind(builder.Configuration.GetSection("GitHub"));
 builder.Services.AddOptions<PostmarkOptions>().Bind(builder.Configuration.GetSection("Postmark"));
 
-var cacheConnectionString = builder.Configuration.GetConnectionString("cache");
-
-// Register SqlSugar cache service using SugarRedis
-builder.Services.AddSingleton<ICacheService>(s => new SqlSugarRedisCache(cacheConnectionString));
+// Register SqlSugar cache service using Aspire's Redis integration
+builder.Services.AddSingleton<ICacheService>(s => new SqlSugarRedisCache(
+    s.GetRequiredService<IConnectionMultiplexer>()
+));
 
 builder.Services.AddSingleton<ISqlSugarClient>(s =>
 {
@@ -76,10 +78,7 @@ builder.Services.AddSingleton<ISqlSugarClient>(s =>
             {
                 DataInfoCacheService = s.GetRequiredService<ICacheService>(),
             },
-            MoreSettings = new ConnMoreSettings
-            {
-                IsAutoRemoveDataCache = true, // Enable automatic cache invalidation on INSERT/UPDATE/DELETE
-            },
+            MoreSettings = new ConnMoreSettings { IsAutoRemoveDataCache = true },
         },
         db => { }
     );

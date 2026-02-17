@@ -1,37 +1,19 @@
+using System.Text.Json;
 using SqlSugar;
-using SugarRedis;
+using StackExchange.Redis;
 
 namespace HackOMania.Api.Services;
 
-public class SqlSugarRedisCache : ICacheService
+public class SqlSugarRedisCache(IConnectionMultiplexer connectionMultiplexer) : ICacheService
 {
-    // SugarRedis client should be singleton
-    private static SugarRedisClient? _service;
-    private static readonly object _lock = new();
-
-    public SqlSugarRedisCache(string? connectionString = null)
-    {
-        if (_service == null)
-        {
-            lock (_lock)
-            {
-                if (_service == null)
-                {
-                    // Initialize SugarRedis with connection string if provided
-                    // Default: 127.0.0.1:6379,password=,connectTimeout=3000,connectRetry=1,syncTimeout=10000,DefaultDatabase=0
-                    _service = string.IsNullOrWhiteSpace(connectionString)
-                        ? new SugarRedisClient()
-                        : new SugarRedisClient(connectionString);
-                }
-            }
-        }
-    }
+    private readonly IDatabase _db = connectionMultiplexer.GetDatabase();
 
     public void Add<TV>(string key, TV value)
     {
         if (value != null)
         {
-            _service!.Set(key, value);
+            var json = JsonSerializer.Serialize(value);
+            _db.StringSet(key, json);
         }
     }
 
@@ -39,50 +21,65 @@ public class SqlSugarRedisCache : ICacheService
     {
         if (value != null)
         {
-            _service!.SetBySeconds(key, value, cacheDurationInSeconds);
+            var json = JsonSerializer.Serialize(value);
+            _db.StringSet(key, json, TimeSpan.FromSeconds(cacheDurationInSeconds));
         }
     }
 
     public bool ContainsKey<TV>(string key)
     {
-        return _service!.Exists(key);
+        return _db.KeyExists(key);
     }
 
     public TV Get<TV>(string key)
     {
-        return _service!.Get<TV>(key);
+        var value = _db.StringGet(key);
+        if (value.IsNullOrEmpty)
+        {
+            return default!;
+        }
+
+        return JsonSerializer.Deserialize<TV>(value.ToString())!;
     }
 
     public IEnumerable<string> GetAllKey<TV>()
     {
         // Only query keys used by SqlSugar for performance
-        return _service!.SearchCacheRegex("SqlSugarDataCache.*");
+        var server = connectionMultiplexer.GetServers().FirstOrDefault();
+        if (server == null)
+        {
+            return [];
+        }
+
+        return server.Keys(pattern: "SqlSugarDataCache.*").Select(k => k.ToString());
     }
 
-    public TV GetOrCreate<TV>(string cacheKey, Func<TV> create, int cacheDurationInSeconds = int.MaxValue)
+    public TV GetOrCreate<TV>(
+        string cacheKey,
+        Func<TV> create,
+        int cacheDurationInSeconds = int.MaxValue
+    )
     {
-        if (this.ContainsKey<TV>(cacheKey))
+        if (ContainsKey<TV>(cacheKey))
         {
-            var result = this.Get<TV>(cacheKey);
+            var result = Get<TV>(cacheKey);
             if (result == null)
             {
                 return create();
             }
-            else
-            {
-                return result;
-            }
+
+            return result;
         }
         else
         {
             var result = create();
-            this.Add(cacheKey, result, cacheDurationInSeconds);
+            Add(cacheKey, result, cacheDurationInSeconds);
             return result;
         }
     }
 
     public void Remove<TV>(string key)
     {
-        _service!.Remove(key);
+        _db.KeyDelete(key);
     }
 }

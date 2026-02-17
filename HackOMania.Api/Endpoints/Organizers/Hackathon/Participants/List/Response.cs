@@ -12,7 +12,6 @@ public class Response
 public class ParticipantItem
 {
     public required DateTimeOffset CreatedAt { get; init; }
-    public DateTimeOffset? LastRegistrationUpdateAt { get; init; }
     public required Guid Id { get; init; }
     public required string Name { get; init; }
     public Guid? TeamId { get; init; }

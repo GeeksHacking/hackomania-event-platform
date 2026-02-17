@@ -141,15 +141,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     _ => ParticipantConcludedStatus.Pending,
                 };
 
-                var submissions = submissionsByParticipant.GetValueOrDefault(p.Id) ?? [];
-                var lastRegistrationUpdateAt = submissions.Any()
-                    ? submissions.Max(s => s.UpdatedAt)
-                    : (DateTimeOffset?)null;
-
                 return new ParticipantItem
                 {
                     CreatedAt = p.JoinedAt,
-                    LastRegistrationUpdateAt = lastRegistrationUpdateAt,
                     Id = p.UserId,
                     Name = users.GetValueOrDefault(p.UserId, "Unknown"),
                     TeamId = p.TeamId,
@@ -172,7 +166,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                             CreatedAt = r.CreatedAt,
                         }),
                     ],
-                    RegistrationSubmissions = submissions,
+                    RegistrationSubmissions =
+                        submissionsByParticipant.GetValueOrDefault(p.Id) ?? [],
                     EmailSentCount = deliveryLogs.Count(x =>
                         x.Status == ParticipantEmailDelivery.EmailDeliveryStatus.Sent
                     ),

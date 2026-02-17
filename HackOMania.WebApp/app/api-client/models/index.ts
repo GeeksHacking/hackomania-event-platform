@@ -1696,7 +1696,6 @@ export function deserializeIntoHackOManiaApiEndpointsOrganizersHackathonParticip
         "id": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id = n.getStringValue(); },
         "lastEmailSentAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailSentAt = n.getDateValue(); },
         "lastEmailStatus": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailStatus = n.getStringValue(); },
-        "lastRegistrationUpdateAt": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastRegistrationUpdateAt = n.getDateValue(); },
         "name": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name = n.getStringValue(); },
         "registrationSubmissions": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItemFromDiscriminatorValue); },
         "reviews": n => { hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.reviews = n.getCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem>(createHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemFromDiscriminatorValue); },
@@ -3828,10 +3827,6 @@ export interface HackOManiaApiEndpointsOrganizersHackathonParticipantsListPartic
      * The lastEmailStatus property
      */
     lastEmailStatus?: string | null;
-    /**
-     * The lastRegistrationUpdateAt property
-     */
-    lastRegistrationUpdateAt?: Date | null;
     /**
      * The name property
      */
@@ -6418,7 +6413,6 @@ export function serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsLi
     writer.writeStringValue("id", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.id);
     writer.writeDateValue("lastEmailSentAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailSentAt);
     writer.writeStringValue("lastEmailStatus", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastEmailStatus);
-    writer.writeDateValue("lastRegistrationUpdateAt", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.lastRegistrationUpdateAt);
     writer.writeStringValue("name", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.name);
     writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem>("registrationSubmissions", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.registrationSubmissions, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem);
     writer.writeCollectionOfObjectValues<HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem>("reviews", hackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem.reviews, serializeHackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem);

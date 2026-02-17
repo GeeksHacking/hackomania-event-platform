@@ -89,8 +89,12 @@ function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
 }
 
 function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
-  const lastUpdateAt = participant.lastRegistrationUpdateAt?.getTime()
-  if (lastUpdateAt) return lastUpdateAt
+  // Calculate the last registration update time from the submissions
+  const submissions = participant.registrationSubmissions ?? []
+  if (submissions.length > 0) {
+    const maxUpdateTime = Math.max(...submissions.map(s => s.updatedAt?.getTime() ?? 0))
+    if (maxUpdateTime > 0) return maxUpdateTime
+  }
   return participant.createdAt?.getTime() ?? 0
 }
 

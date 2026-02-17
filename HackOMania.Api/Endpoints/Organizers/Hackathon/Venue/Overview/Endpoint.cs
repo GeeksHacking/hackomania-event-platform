@@ -28,12 +28,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var participants = await sql.Queryable<Participant>()
             .LeftJoin<User>((p, u) => p.UserId == u.Id)
             .Where(p => p.HackathonId == hackathonId)
+            .WithCache()
             .Select((p, u) => new { Participant = p, User = u })
             .ToListAsync(ct);
 
         // Get all check-ins for this hackathon
         var checkIns = await sql.Queryable<VenueCheckIn>()
             .Where(v => v.HackathonId == hackathonId)
+            .WithCache()
             .ToListAsync(ct);
 
         var participantDtos = participants

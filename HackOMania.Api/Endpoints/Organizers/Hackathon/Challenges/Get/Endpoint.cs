@@ -21,14 +21,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
+        var hackathon = await sql.Queryable<Entities.Hackathon>().WithCache().InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        var challenge = await sql.Queryable<Challenge>().InSingleAsync(req.ChallengeId);
+        var challenge = await sql.Queryable<Challenge>().WithCache().InSingleAsync(req.ChallengeId);
         if (challenge is null)
         {
             await Send.NotFoundAsync(ct);

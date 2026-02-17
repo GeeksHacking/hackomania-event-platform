@@ -116,6 +116,18 @@ public class DefaultStack : Stack
             }
         );
 
+        var redisConnectionString = new SecretManager.Secret(
+            "redis-connection-string",
+            new SecretManager.SecretArgs
+            {
+                SecretId = "redis-connection-string",
+                Replication = new SecretManager.Inputs.SecretReplicationArgs
+                {
+                    Auto = new SecretManager.Inputs.SecretReplicationAutoArgs(),
+                },
+            }
+        );
+
         var githubClientIdAccessor = new SecretManager.SecretIamMember(
             "github-client-id-accessor",
             new SecretManager.SecretIamMemberArgs
@@ -151,6 +163,16 @@ public class DefaultStack : Stack
             new SecretManager.SecretIamMemberArgs
             {
                 SecretId = postmarkServerToken.SecretId,
+                Role = "roles/secretmanager.secretAccessor",
+                Member = Output.Format($"serviceAccount:{cloudRunServiceAccount.Email}"),
+            }
+        );
+
+        var redisConnectionStringAccessor = new SecretManager.SecretIamMember(
+            "redis-connection-string-accessor",
+            new SecretManager.SecretIamMemberArgs
+            {
+                SecretId = redisConnectionString.SecretId,
                 Role = "roles/secretmanager.secretAccessor",
                 Member = Output.Format($"serviceAccount:{cloudRunServiceAccount.Email}"),
             }
@@ -415,6 +437,19 @@ public class DefaultStack : Stack
                                             new ServiceTemplateContainerEnvValueSourceSecretKeyRefArgs
                                             {
                                                 Secret = postmarkServerToken.SecretId,
+                                                Version = "latest",
+                                            },
+                                    },
+                                },
+                                new ServiceTemplateContainerEnvArgs
+                                {
+                                    Name = "ConnectionStrings__cache",
+                                    ValueSource = new ServiceTemplateContainerEnvValueSourceArgs
+                                    {
+                                        SecretKeyRef =
+                                            new ServiceTemplateContainerEnvValueSourceSecretKeyRefArgs
+                                            {
+                                                Secret = redisConnectionString.SecretId,
                                                 Version = "latest",
                                             },
                                     },

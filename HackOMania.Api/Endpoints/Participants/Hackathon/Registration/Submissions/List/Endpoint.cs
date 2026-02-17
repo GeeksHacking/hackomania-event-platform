@@ -22,7 +22,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
+        var hackathon = await sql.Queryable<Entities.Hackathon>().WithCache().InSingleAsync(req.HackathonId);
         if (hackathon is null || !hackathon.IsPublished)
         {
             await Send.NotFoundAsync(ct);
@@ -36,6 +36,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var participant = await sql.Queryable<Participant>()
+            .WithCache()
             .SingleAsync(p => p.UserId == userId.Value && p.HackathonId == req.HackathonId);
 
         var submissions = await sql.Queryable<ParticipantRegistrationSubmission>()
@@ -45,10 +46,12 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         var totalQuestions = await sql.Queryable<RegistrationQuestion>()
             .Where(q => q.HackathonId == req.HackathonId)
+            .WithCache()
             .CountAsync(ct);
 
         var requiredQuestions = await sql.Queryable<RegistrationQuestion>()
             .Where(q => q.HackathonId == req.HackathonId && q.IsRequired)
+            .WithCache()
             .Select(q => q.Id)
             .ToListAsync(ct);
 

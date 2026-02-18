@@ -88,6 +88,19 @@ function getParticipantCreatedAtEpoch(participant: ParticipantItem) {
   return participant.createdAt?.getTime() ?? 0
 }
 
+function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
+  // Calculate the last registration update time from the submissions
+  const submissions = participant.registrationSubmissions ?? []
+  if (submissions.length > 0) {
+    const maxUpdateTime = submissions.reduce((max, s) => {
+      const updateTime = s.updatedAt?.getTime() ?? 0
+      return updateTime > max ? updateTime : max
+    }, 0)
+    if (maxUpdateTime > 0) return maxUpdateTime
+  }
+  return participant.createdAt?.getTime() ?? 0
+}
+
 function isReviewOverdue(participant: ParticipantItem) {
   if (!isPendingParticipant(participant)) return false
   const createdAtEpoch = getParticipantCreatedAtEpoch(participant)
@@ -148,7 +161,7 @@ const sortedParticipants = computed(() => {
       result = compareStrings(a.teamName, b.teamName)
     }
     else if (sortKey.value === 'applicationTime') {
-      result = getParticipantCreatedAtEpoch(a) - getParticipantCreatedAtEpoch(b)
+      result = getParticipantApplicationTimeEpoch(a) - getParticipantApplicationTimeEpoch(b)
     }
     else if (sortKey.value === 'status') {
       result = getStatusSortValue(a.concludedStatus) - getStatusSortValue(b.concludedStatus)

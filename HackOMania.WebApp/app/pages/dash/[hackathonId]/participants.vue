@@ -101,6 +101,11 @@ function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
   return participant.createdAt?.getTime() ?? 0
 }
 
+function getParticipantApplicationTime(participant: ParticipantItem): Date | null {
+  const epoch = getParticipantApplicationTimeEpoch(participant)
+  return epoch > 0 ? new Date(epoch) : null
+}
+
 function isReviewOverdue(participant: ParticipantItem) {
   if (!isPendingParticipant(participant)) return false
   const createdAtEpoch = getParticipantCreatedAtEpoch(participant)
@@ -733,7 +738,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                   Team: {{ participant.teamName ?? 'No team' }}
                 </p>
                 <p class="text-xs text-(--ui-text-muted)">
-                  Applied: {{ formatDateTime(participant.createdAt) }}
+                  Applied: {{ formatDateTime(getParticipantApplicationTime(participant)) }}
                 </p>
               </div>
               <div class="flex items-center gap-2 ml-2">
@@ -979,7 +984,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                     <strong>Team:</strong> {{ reviewingParticipant.teamName ?? 'No team' }}
                   </p>
                   <p>
-                    <strong>Applied:</strong> {{ formatDateTime(reviewingParticipant.createdAt) }}
+                    <strong>Applied:</strong> {{ formatDateTime(getParticipantApplicationTime(reviewingParticipant)) }}
                   </p>
                   <p>
                     <strong>Current Status:</strong>

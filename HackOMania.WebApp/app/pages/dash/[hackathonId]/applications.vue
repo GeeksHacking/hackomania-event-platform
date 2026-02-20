@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const hackathonId = computed(() => route.params.hackathonId as string)
+const participantsPath = computed(() => `/dash/${encodeURIComponent(hackathonId.value)}/participants`)
 </script>
 
 <template>
@@ -22,7 +23,7 @@ const hackathonId = computed(() => route.params.hackathonId as string)
       </p>
       <div>
         <UButton
-          :to="`/dash/${hackathonId}/participants`"
+          :to="participantsPath"
           icon="i-lucide-users"
           size="sm"
         >

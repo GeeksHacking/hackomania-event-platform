@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useVirtualList } from '@vueuse/core'
 import { judgeQueries, useCreateJudgeMutation, useUpdateJudgeMutation } from '~/composables/judges'
 
 const props = defineProps<{
@@ -18,6 +19,15 @@ const { data: judgesData, isLoading: isLoadingJudges } = useQuery(
 )
 
 const judges = computed(() => judgesData.value?.judges ?? [])
+
+const {
+  list: virtualJudges,
+  containerProps: judgesContainerProps,
+  wrapperProps: judgesWrapperProps,
+} = useVirtualList(judges, {
+  itemHeight: 56,
+  overscan: 8,
+})
 
 // Mutations
 const createMutation = useCreateJudgeMutation(props.hackathonId)
@@ -125,35 +135,41 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 
       <div
         v-else
-        class="divide-y divide-(--ui-border)"
+        v-bind="judgesContainerProps"
+        class="max-h-[36rem] overflow-y-auto"
       >
         <div
-          v-for="judge in judges"
-          :key="judge.id ?? ''"
-          class="py-2 flex items-center justify-between"
+          v-bind="judgesWrapperProps"
+          class="divide-y divide-(--ui-border)"
         >
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium">
-              {{ judge.name }}
-            </p>
-            <p class="text-xs text-(--ui-text-muted) truncate">
-              Secret: {{ judge.secret }}
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center justify-end gap-2 ml-2">
-            <UBadge
-              :color="judge.active ? 'success' : 'warning'"
-              variant="subtle"
-              size="xs"
-            >
-              {{ judge.active ? 'Active' : 'Inactive' }}
-            </UBadge>
-            <UButton
-              size="xs"
-              variant="ghost"
-              icon="i-lucide-pencil"
-              @click="openEditModal(judge)"
-            />
+          <div
+            v-for="{ data: judge, index } in virtualJudges"
+            :key="judge.id ?? index"
+            class="py-2 flex items-center justify-between"
+          >
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium">
+                {{ judge.name }}
+              </p>
+              <p class="text-xs text-(--ui-text-muted) truncate">
+                Secret: {{ judge.secret }}
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center justify-end gap-2 ml-2">
+              <UBadge
+                :color="judge.active ? 'success' : 'warning'"
+                variant="subtle"
+                size="xs"
+              >
+                {{ judge.active ? 'Active' : 'Inactive' }}
+              </UBadge>
+              <UButton
+                size="xs"
+                variant="ghost"
+                icon="i-lucide-pencil"
+                @click="openEditModal(judge)"
+              />
+            </div>
           </div>
         </div>
       </div>

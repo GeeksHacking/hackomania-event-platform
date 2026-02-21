@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useVirtualList } from '@vueuse/core'
 import { participantOrganizerQueries, useReviewParticipantMutation } from '~/composables/participants'
 import { registrationQuestionQueries } from '~/composables/question'
 import { registrationPageConfig } from '~/config/registration-pages'
@@ -403,6 +404,25 @@ const sortedSubmissions = computed(() => {
   })
 })
 
+function getParticipantListItemHeight(index: number) {
+  const participant = sortedParticipants.value[index]
+  if (!participant) return 84
+  if (expandedParticipantId.value !== participant.id) return 84
+
+  const reviewCount = participantDetail.value?.reviews?.length ?? 0
+  const submissionCount = sortedSubmissions.value.length
+  return Math.min(1400, 220 + reviewCount * 96 + submissionCount * 92)
+}
+
+const {
+  list: virtualParticipants,
+  containerProps: participantListContainerProps,
+  wrapperProps: participantListWrapperProps,
+} = useVirtualList(sortedParticipants, {
+  itemHeight: getParticipantListItemHeight,
+  overscan: 8,
+})
+
 function toggleParticipant(participantId: string) {
   if (expandedParticipantId.value === participantId) {
     expandedParticipantId.value = null
@@ -705,158 +725,163 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
       <div v-else>
         <div
           v-if="viewMode === 'list'"
-          class="divide-y divide-(--ui-border)"
+          v-bind="participantListContainerProps"
+          class="max-h-[42rem] overflow-y-auto"
         >
           <div
-            v-for="participant in sortedParticipants"
-            :key="participant.id ?? ''"
-            :class="[
-              'py-2',
-              isReviewOverdue(participant) ? 'rounded-md bg-error/5 px-2 -mx-2' : '',
-            ]"
+            v-bind="participantListWrapperProps"
+            class="divide-y divide-(--ui-border)"
           >
-            <div class="flex items-center justify-between">
-              <div class="flex-1 min-w-0">
-                <button
-                  class="text-sm font-medium text-left hover:underline cursor-pointer text-highlighted"
-                  @click="toggleParticipant(participant.id ?? '')"
-                >
-                  {{ participant.name ?? participant.id }}
-                  <UIcon
-                    :name="expandedParticipantId === participant.id ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
-                    class="inline-block w-4 h-4 ml-1 align-middle"
-                  />
-                </button>
-                <p class="text-xs text-(--ui-text-muted)">
-                  Team: {{ participant.teamName ?? 'No team' }}
-                </p>
-                <p class="text-xs text-(--ui-text-muted)">
-                  Applied: {{ formatDateTime(getParticipantApplicationDate(participant)) }}
-                </p>
-              </div>
-              <div class="flex items-center gap-2 ml-2">
-                <template v-if="!isIncomplete(participant)">
-                  <UBadge
-                    :color="getStatusColor(participant.concludedStatus)"
-                    variant="subtle"
-                    size="xs"
-                  >
-                    {{ getStatusLabel(participant.concludedStatus) }}
-                  </UBadge>
-                  <UBadge
-                    v-if="isReviewOverdue(participant)"
-                    color="error"
-                    variant="subtle"
-                    size="xs"
-                  >
-                    Overdue ({{ REVIEW_OVERDUE_DAYS }}d+)
-                  </UBadge>
-                  <UButton
-                    size="xs"
-                    :variant="isPendingParticipant(participant) ? 'soft' : 'ghost'"
-                    :color="isPendingParticipant(participant) ? 'warning' : 'neutral'"
-                    icon="i-lucide-clipboard-check"
-                    @click="openReviewModal(participant.id ?? '')"
-                  >
-                    {{ isPendingParticipant(participant) ? 'Review' : 'Re-review' }}
-                  </UButton>
-                </template>
-                <UBadge
-                  v-else
-                  color="neutral"
-                  variant="subtle"
-                  size="xs"
-                >
-                  Incomplete
-                </UBadge>
-              </div>
-            </div>
-
-            <!-- Expanded: Registration Submissions -->
             <div
-              v-if="expandedParticipantId === participant.id"
-              class="mt-3 ml-2 p-4 rounded-lg bg-elevated border border-default max-h-96 overflow-y-auto"
+              v-for="{ data: participant, index } in virtualParticipants"
+              :key="participant.id ?? index"
+              :class="[
+                'py-2',
+                isReviewOverdue(participant) ? 'rounded-md bg-error/5 px-2 -mx-2' : '',
+              ]"
             >
-              <div
-                v-if="isLoadingDetail"
-                class="text-sm text-muted"
-              >
-                Loading form responses...
-              </div>
-              <div v-else>
-                <div v-if="participantDetail?.reviews && participantDetail.reviews.length > 0" class="mb-4">
-                  <h4 class="text-sm font-semibold mb-3">
-                    Review History ({{ participantDetail.reviews.length }})
-                  </h4>
-                  <div class="space-y-2">
-                    <div
-                      v-for="(review, index) in participantDetail.reviews"
-                      :key="review.id ?? index"
-                      class="rounded-lg border border-default p-3"
+              <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                  <button
+                    class="text-sm font-medium text-left hover:underline cursor-pointer text-highlighted"
+                    @click="toggleParticipant(participant.id ?? '')"
+                  >
+                    {{ participant.name ?? participant.id }}
+                    <UIcon
+                      :name="expandedParticipantId === participant.id ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                      class="inline-block w-4 h-4 ml-1 align-middle"
+                    />
+                  </button>
+                  <p class="text-xs text-(--ui-text-muted)">
+                    Team: {{ participant.teamName ?? 'No team' }}
+                  </p>
+                  <p class="text-xs text-(--ui-text-muted)">
+                    Applied: {{ formatDateTime(getParticipantApplicationDate(participant)) }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2 ml-2">
+                  <template v-if="!isIncomplete(participant)">
+                    <UBadge
+                      :color="getStatusColor(participant.concludedStatus)"
+                      variant="subtle"
+                      size="xs"
                     >
-                      <div class="flex items-start justify-between mb-1">
-                        <UBadge
-                          :color="getReviewStatusColor(review.status)"
-                          variant="subtle"
-                          size="xs"
+                      {{ getStatusLabel(participant.concludedStatus) }}
+                    </UBadge>
+                    <UBadge
+                      v-if="isReviewOverdue(participant)"
+                      color="error"
+                      variant="subtle"
+                      size="xs"
+                    >
+                      Overdue ({{ REVIEW_OVERDUE_DAYS }}d+)
+                    </UBadge>
+                    <UButton
+                      size="xs"
+                      :variant="isPendingParticipant(participant) ? 'soft' : 'ghost'"
+                      :color="isPendingParticipant(participant) ? 'warning' : 'neutral'"
+                      icon="i-lucide-clipboard-check"
+                      @click="openReviewModal(participant.id ?? '')"
+                    >
+                      {{ isPendingParticipant(participant) ? 'Review' : 'Re-review' }}
+                    </UButton>
+                  </template>
+                  <UBadge
+                    v-else
+                    color="neutral"
+                    variant="subtle"
+                    size="xs"
+                  >
+                    Incomplete
+                  </UBadge>
+                </div>
+              </div>
+
+              <div
+                v-if="expandedParticipantId === participant.id"
+                class="mt-3 ml-2 p-4 rounded-lg bg-elevated border border-default max-h-96 overflow-y-auto"
+              >
+                <div
+                  v-if="isLoadingDetail"
+                  class="text-sm text-muted"
+                >
+                  Loading form responses...
+                </div>
+                <div v-else>
+                  <div v-if="participantDetail?.reviews && participantDetail.reviews.length > 0" class="mb-4">
+                    <h4 class="text-sm font-semibold mb-3">
+                      Review History ({{ participantDetail.reviews.length }})
+                    </h4>
+                    <div class="space-y-2">
+                      <div
+                        v-for="(review, reviewIndex) in participantDetail.reviews"
+                        :key="review.id ?? reviewIndex"
+                        class="rounded-lg border border-default p-3"
+                      >
+                        <div class="flex items-start justify-between mb-1">
+                          <UBadge
+                            :color="getReviewStatusColor(review.status)"
+                            variant="subtle"
+                            size="xs"
+                          >
+                            {{ getReviewStatusLabel(review.status) }}
+                          </UBadge>
+                          <span class="text-xs text-(--ui-text-muted)">
+                            {{ formatDateTime(review.createdAt) }}
+                          </span>
+                        </div>
+                        <p
+                          v-if="review.reason"
+                          class="text-xs text-(--ui-text-muted) mt-1"
                         >
-                          {{ getReviewStatusLabel(review.status) }}
-                        </UBadge>
-                        <span class="text-xs text-(--ui-text-muted)">
-                          {{ formatDateTime(review.createdAt) }}
-                        </span>
+                          {{ review.reason }}
+                        </p>
+                        <p
+                          v-else
+                          class="text-xs text-(--ui-text-muted) italic mt-1"
+                        >
+                          No reason provided
+                        </p>
                       </div>
-                      <p
-                        v-if="review.reason"
-                        class="text-xs text-(--ui-text-muted) mt-1"
+                    </div>
+                  </div>
+
+                  <div v-if="sortedSubmissions.length">
+                    <h4 class="text-sm font-semibold mb-3">
+                      Form Responses
+                    </h4>
+                    <div class="space-y-3">
+                      <UFormField
+                        v-for="submission in sortedSubmissions"
+                        :key="submission.questionId ?? ''"
+                        :label="submission.questionText ?? 'Question'"
                       >
-                        {{ review.reason }}
-                      </p>
-                      <p
-                        v-else
-                        class="text-xs text-(--ui-text-muted) italic mt-1"
-                      >
-                        No reason provided
-                      </p>
+                        <UInput
+                          :model-value="submission.value || '—'"
+                          disabled
+                          class="w-full"
+                        />
+                        <template v-if="submission.followUpValue">
+                          <p class="text-xs text-(--ui-text-muted) mt-1">
+                            Follow-up:
+                          </p>
+                          <UInput
+                            :model-value="submission.followUpValue"
+                            disabled
+                            class="w-full"
+                          />
+                        </template>
+                      </UFormField>
                     </div>
                   </div>
                 </div>
 
-                <div v-if="sortedSubmissions.length">
-                  <h4 class="text-sm font-semibold mb-3">
-                    Form Responses
-                  </h4>
-                  <div class="space-y-3">
-                    <UFormField
-                      v-for="submission in sortedSubmissions"
-                      :key="submission.questionId ?? ''"
-                      :label="submission.questionText ?? 'Question'"
-                    >
-                      <UInput
-                        :model-value="submission.value || '—'"
-                        disabled
-                        class="w-full"
-                      />
-                      <template v-if="submission.followUpValue">
-                        <p class="text-xs text-(--ui-text-muted) mt-1">
-                          Follow-up:
-                        </p>
-                        <UInput
-                          :model-value="submission.followUpValue"
-                          disabled
-                        class="w-full"
-                      />
-                    </template>
-                  </UFormField>
+                <div
+                  v-if="hasNoExpandedData"
+                  class="text-sm text-(--ui-text-muted)"
+                >
+                  No data found.
                 </div>
-              </div>
-
-              <div
-                v-if="hasNoExpandedData"
-                class="text-sm text-(--ui-text-muted)"
-              >
-                No data found.
-              </div>
               </div>
             </div>
           </div>

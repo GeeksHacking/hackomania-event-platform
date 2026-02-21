@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import { useVirtualList } from '@vueuse/core'
 import { submissionOrganizerQueries } from '~/composables/submissions'
 
 const props = defineProps<{
@@ -16,6 +17,15 @@ const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery(
 )
 
 const submissions = computed(() => submissionsData.value?.submissions ?? [])
+
+const {
+  list: virtualSubmissions,
+  containerProps: submissionsContainerProps,
+  wrapperProps: submissionsWrapperProps,
+} = useVirtualList(submissions, {
+  itemHeight: 56,
+  overscan: 8,
+})
 
 function formatDate(date: Date | null | undefined): string {
   if (!date) return 'Unknown'
@@ -60,27 +70,33 @@ function formatDate(date: Date | null | undefined): string {
 
     <div
       v-else
-      class="divide-y divide-(--ui-border)"
+      v-bind="submissionsContainerProps"
+      class="max-h-[36rem] overflow-y-auto"
     >
       <div
-        v-for="submission in submissions"
-        :key="submission.id ?? ''"
-        class="py-2 flex items-center justify-between gap-2"
+        v-bind="submissionsWrapperProps"
+        class="divide-y divide-(--ui-border)"
       >
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium">
-            {{ submission.title }}
-          </p>
-          <p class="text-xs text-(--ui-text-muted)">
-            {{ submission.teamName }} - {{ submission.challengeTitle }}
-          </p>
-        </div>
-        <UBadge
-          variant="subtle"
-          size="xs"
+        <div
+          v-for="{ data: submission, index } in virtualSubmissions"
+          :key="submission.id ?? index"
+          class="py-2 flex items-center justify-between gap-2"
         >
-          {{ formatDate(submission.submittedAt) }}
-        </UBadge>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium">
+              {{ submission.title }}
+            </p>
+            <p class="text-xs text-(--ui-text-muted)">
+              {{ submission.teamName }} - {{ submission.challengeTitle }}
+            </p>
+          </div>
+          <UBadge
+            variant="subtle"
+            size="xs"
+          >
+            {{ formatDate(submission.submittedAt) }}
+          </UBadge>
+        </div>
       </div>
     </div>
   </UCard>

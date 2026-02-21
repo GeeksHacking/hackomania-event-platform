@@ -103,6 +103,11 @@ watch([isOrganizer, isLoadingOrganizerCheck], ([org, loading]) => {
             :is-organizer="isOrganizer"
           />
 
+          <ParticipantAnalytics
+            :hackathon-id="resolvedHackathonId ?? ''"
+            :is-organizer="isOrganizer"
+          />
+
           <Participants
             :hackathon-id="resolvedHackathonId ?? ''"
             :is-organizer="isOrganizer"

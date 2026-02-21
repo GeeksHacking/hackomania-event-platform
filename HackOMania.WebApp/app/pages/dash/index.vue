@@ -320,7 +320,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
               </p>
 
               <div class="mt-3 flex flex-col gap-2">
-                <div class="flex items-center gap-2 text-xs text-(--ui-text-muted)">
+                <div class="flex flex-wrap items-center gap-2 text-xs text-(--ui-text-muted)">
                   <span>
                     Starts: {{ hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toLocaleDateString() : 'TBC' }}
                   </span>
@@ -337,13 +337,14 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                   Reason: {{ statusDataForIndex(index)?.reviewReason }}
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <!-- Root user: View + Manage -->
                   <template v-if="user?.isRoot">
                     <UButton
                       :to="`/dash/${hackathon.id}`"
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       Manage
                     </UButton>
@@ -355,6 +356,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                       :to="`/dash/${hackathon.id}`"
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       Manage
                     </UButton>
@@ -363,6 +365,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                       color="neutral"
                       variant="outline"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       Go to hackathon portal
                     </UButton>
@@ -373,6 +376,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                     <UButton
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                       :loading="joinMutation.isPending.value"
                       @click="joinHackathon({ id: hackathon.id!, shortCode: hackathon.shortCode! })"
                     >
@@ -386,6 +390,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                       :to="`/${hackathon.shortCode}/registration`"
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       Continue registration
                     </UButton>
@@ -397,6 +402,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                       :to="`/dash/${hackathon.id}/participant`"
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       View registration status
                     </UButton>
@@ -408,6 +414,7 @@ const joinHackathon = async (hackathon: { id: string, shortCode: string }) => {
                       :to="`/${hackathon.shortCode}/team`"
                       color="neutral"
                       size="sm"
+                      class="w-full sm:w-auto"
                     >
                       Go to hackathon portal
                     </UButton>

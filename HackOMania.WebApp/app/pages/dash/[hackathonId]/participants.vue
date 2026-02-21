@@ -598,11 +598,11 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
     <UCard>
       <template #header>
         <div class="flex flex-col gap-3">
-          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <h3 class="text-sm font-semibold">
               Participants
             </h3>
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto">
               <UInput
                 v-model="searchQuery"
                 size="sm"
@@ -614,11 +614,11 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                 :model-value="sortKey"
                 :items="sortOptions"
                 size="sm"
-                class="w-44"
+                class="w-full sm:w-44"
                 @update:model-value="sortKey = $event as SortKey"
               />
               <UButton
-                size="xs"
+                size="sm"
                 variant="ghost"
                 :icon="sortDirection === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'"
                 @click="sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'"
@@ -632,7 +632,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
               />
             </div>
           </div>
-          <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div class="flex flex-wrap gap-1">
               <UButton
                 size="xs"
@@ -680,6 +680,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
               icon="i-lucide-clipboard-check"
               :color="overduePendingCount > 0 ? 'error' : 'warning'"
               variant="soft"
+              class="w-full justify-center sm:w-auto"
               :disabled="!pendingParticipants.length"
               @click="openFirstPendingReviewModal"
             >

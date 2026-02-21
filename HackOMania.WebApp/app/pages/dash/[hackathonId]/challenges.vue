@@ -110,7 +110,7 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
   <div>
     <UCard>
       <template #header>
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 class="text-sm font-semibold">
             Challenges
           </h3>
@@ -163,7 +163,7 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
               {{ challenge.description ?? 'No description' }}
             </p>
           </div>
-          <div class="flex items-center gap-2 ml-2">
+          <div class="flex flex-wrap items-center justify-end gap-2 ml-2">
             <UBadge
               variant="subtle"
               size="xs"

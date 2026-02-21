@@ -48,7 +48,7 @@ function toggleTeam(teamId: string) {
 <template>
   <UCard>
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 class="text-sm font-semibold">
           Teams
         </h3>
@@ -84,7 +84,7 @@ function toggleTeam(teamId: string) {
         :key="team.id ?? ''"
         class="py-2"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <div class="flex-1 min-w-0">
             <button
               class="text-sm font-medium text-left hover:underline cursor-pointer text-(--ui-text-highlighted)"

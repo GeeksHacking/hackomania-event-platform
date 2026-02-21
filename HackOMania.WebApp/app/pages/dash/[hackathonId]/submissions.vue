@@ -31,7 +31,7 @@ function formatDate(date: Date | null | undefined): string {
 <template>
   <UCard>
     <template #header>
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 class="text-sm font-semibold">
           Submissions
         </h3>
@@ -65,7 +65,7 @@ function formatDate(date: Date | null | undefined): string {
       <div
         v-for="submission in submissions"
         :key="submission.id ?? ''"
-        class="py-2 flex items-center justify-between"
+        class="py-2 flex items-center justify-between gap-2"
       >
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium">

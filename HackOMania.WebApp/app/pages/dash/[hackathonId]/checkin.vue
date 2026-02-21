@@ -205,7 +205,7 @@ onUnmounted(() => {
     <UCard>
       <template #header>
         <div class="flex flex-col gap-3">
-          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 class="text-sm font-semibold">
                 Check-In Scanner
@@ -217,6 +217,7 @@ onUnmounted(() => {
             <UButton
               icon="i-lucide-qr-code"
               size="sm"
+              class="w-full sm:w-auto"
               @click="openScanner"
             >
               Open Scanner

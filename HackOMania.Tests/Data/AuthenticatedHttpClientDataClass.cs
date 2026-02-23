@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using TUnit.Core.Interfaces;
+using TUnit.Core.Exceptions;
 
 namespace HackOMania.Tests.Data;
 
@@ -16,6 +17,11 @@ public class AuthenticatedHttpClientDataClass : IAsyncInitializer, IAsyncDisposa
 
     public async Task InitializeAsync()
     {
+        if (GlobalHooks.StartupFailureReason is not null)
+        {
+            throw new SkipTestException(GlobalHooks.StartupFailureReason);
+        }
+
         var handler = new HttpClientHandler
         {
             UseCookies = true,

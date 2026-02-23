@@ -1,4 +1,5 @@
-﻿using TUnit.Core.Interfaces;
+using TUnit.Core.Interfaces;
+using TUnit.Core.Exceptions;
 
 namespace HackOMania.Tests.Data
 {
@@ -8,6 +9,11 @@ namespace HackOMania.Tests.Data
 
         public async Task InitializeAsync()
         {
+            if (GlobalHooks.StartupFailureReason is not null)
+            {
+                throw new SkipTestException(GlobalHooks.StartupFailureReason);
+            }
+
             var app = GlobalHooks.App ?? throw new NullReferenceException();
 
             var handler = new HttpClientHandler

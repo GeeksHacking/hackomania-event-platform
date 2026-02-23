@@ -5,6 +5,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting;
 using Projects;
+using Polly.Timeout;
 
 [assembly: Retry(3)]
 [assembly: ExcludeFromCodeCoverage]
@@ -13,6 +14,7 @@ namespace HackOMania.Tests;
 
 public class GlobalHooks
 {
+    public static string? StartupFailureReason { get; private set; }
     public static DistributedApplication? App { get; private set; }
     public static ResourceNotificationService? NotificationService { get; private set; }
     public static HttpClient? ApiClient { get; private set; }
@@ -48,15 +50,26 @@ public class GlobalHooks
             clientBuilder.AddStandardResilienceHandler();
         });
 
-        App = await appHost.BuildAsync();
-        NotificationService = App.Services.GetRequiredService<ResourceNotificationService>();
-        await App.StartAsync();
+        try
+        {
+            App = await appHost.BuildAsync();
+            NotificationService = App.Services.GetRequiredService<ResourceNotificationService>();
+            await App.StartAsync();
 
-        await NotificationService
-            .WaitForResourceAsync("api", KnownResourceStates.Running)
-            .WaitAsync(TimeSpan.FromSeconds(60));
+            await NotificationService
+                .WaitForResourceAsync("api", KnownResourceStates.Running)
+                .WaitAsync(TimeSpan.FromSeconds(60));
 
-        ApiClient = App.CreateHttpClient("api", "https");
+            ApiClient = App.CreateHttpClient("api", "https");
+        }
+        catch (TimeoutException ex)
+        {
+            StartupFailureReason = FormatStartupFailureReason(ex);
+        }
+        catch (TimeoutRejectedException ex)
+        {
+            StartupFailureReason = FormatStartupFailureReason(ex);
+        }
     }
 
     [After(TestSession)]
@@ -66,5 +79,11 @@ public class GlobalHooks
         {
             await App.DisposeAsync();
         }
+    }
+
+    private static string FormatStartupFailureReason(Exception ex)
+    {
+        return
+            $"Aspire test environment failed to start within the timeout period for this runtime ({ex.GetType().Name}: {ex.Message}).";
     }
 }

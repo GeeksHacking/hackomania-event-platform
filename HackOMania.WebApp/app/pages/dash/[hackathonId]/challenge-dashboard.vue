@@ -254,18 +254,18 @@ function hasChart(challengeId: string | null | undefined): boolean {
       <!-- Full-screen dark dashboard -->
       <div
         ref="dashboardElement"
-        class="h-full min-h-0 overflow-y-auto bg-gray-950 p-6"
+        class="h-full min-h-0 overflow-y-auto bg-gray-50 p-6"
       >
         <!-- Loading state -->
         <div
           v-if="isLoadingOrganizerCheck || isLoadingChallenges"
-          class="flex items-center justify-center h-64 text-gray-500 text-sm"
+          class="flex items-center justify-center h-64 text-gray-600 text-sm"
         >
           Loading dashboard…
         </div>
         <div
           v-else-if="!challenges.length"
-          class="flex items-center justify-center h-64 text-gray-500 text-sm"
+          class="flex items-center justify-center h-64 text-gray-600 text-sm"
         >
           No challenges available yet.
         </div>
@@ -278,20 +278,20 @@ function hasChart(challengeId: string | null | undefined): boolean {
           <div
             v-for="challenge in sortedChallenges"
             :key="challenge.id ?? ''"
-            class="relative bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col gap-3 overflow-hidden group transition-all duration-300 hover:border-orange-500/40 hover:shadow-[0_0_32px_-4px_rgba(249,115,22,0.15)]"
+            class="relative bg-white border border-gray-200 rounded-2xl p-6 flex flex-col gap-3 overflow-hidden group transition-all duration-300 hover:border-orange-500/40 hover:shadow-[0_0_32px_-4px_rgba(249,115,22,0.15)]"
           >
             <!-- Subtle gradient accent -->
-            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-transparent pointer-events-none" />
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent pointer-events-none" />
 
             <!-- Challenge title -->
-            <p class="text-gray-400 text-xs font-semibold uppercase tracking-widest truncate">
+            <p class="text-gray-500 text-xs font-semibold uppercase tracking-widest truncate">
               {{ challenge.title }}
             </p>
 
             <!-- Team count -->
             <div class="flex items-end gap-3">
               <span
-                class="text-white font-bold tabular-nums leading-none"
+                class="text-gray-900 font-bold tabular-nums leading-none"
                 style="font-size: clamp(3rem, 5vw, 5rem)"
               >
                 {{ challenge.teamCount ?? 0 }}
@@ -350,7 +350,7 @@ function hasChart(challengeId: string | null | undefined): boolean {
                 v-else
                 class="w-full h-full flex items-center"
               >
-                <div class="w-full h-px bg-gray-800" />
+                <div class="w-full h-px bg-gray-200" />
               </div>
             </div>
           </div>

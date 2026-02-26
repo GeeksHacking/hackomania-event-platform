@@ -6,6 +6,7 @@ export interface ItineraryItem {
 
 export interface WorkshopItem {
   logo: string
+  logoClass?: string
   title: string
   description: string
   speakerName: string
@@ -42,7 +43,8 @@ export const workshopItems: WorkshopItem[] = [
     speakerBackground: 'ClickHouse, Solution Architect',
   },
   {
-    logo: '/logos/geekshacking.svg',
+    logo: '/logos/google_cloud_logo_colored.png',
+    logoClass: 'h-12',
     title: 'Design and Build Multi-agent Systems with ADK',
     description: 'In this hands-on workshop, you will learn how to build Multi-agent Systems using Agent Development Kit, how to design agentic applications, and how to ensure they can communicate to each other using A2A protocol.',
     speakerName: 'Thu Ya',

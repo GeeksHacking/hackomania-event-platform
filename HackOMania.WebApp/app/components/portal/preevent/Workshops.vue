@@ -14,6 +14,7 @@ defineProps<{
         v-for="(item, index) in items"
         :key="index"
         :logo="item.logo"
+        :logo-class="item.logoClass"
         :title="item.title"
         :description="item.description"
         :speaker-name="item.speakerName"

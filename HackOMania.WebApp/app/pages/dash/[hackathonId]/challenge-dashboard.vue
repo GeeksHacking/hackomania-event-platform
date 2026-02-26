@@ -251,7 +251,7 @@ function hasChart(challengeId: string | null | undefined): boolean {
     </template>
 
     <template #body>
-      <!-- Full-screen dark dashboard -->
+      <!-- Full-screen light dashboard -->
       <div
         ref="dashboardElement"
         class="h-full min-h-0 overflow-y-auto bg-gray-50 p-6"

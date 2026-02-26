@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { challengeQueries } from '~/composables/challenges'
 import { hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
@@ -9,7 +9,7 @@ import { authQueries } from '~/composables/auth'
 const route = useRoute()
 const hackathonIdOrShortCode = computed(() => (route.params.hackathonId as string | undefined) ?? null)
 
-const { data: hackathon } = useQuery(
+const { data: hackathon, isLoading: isLoadingHackathon } = useQuery(
   computed(() => ({
     ...participantHackathonQueries.detail(hackathonIdOrShortCode.value ?? ''),
     enabled: !!hackathonIdOrShortCode.value,
@@ -18,7 +18,7 @@ const { data: hackathon } = useQuery(
 
 const resolvedHackathonId = computed(() => hackathon.value?.id ?? null)
 
-const { data: user } = useQuery(authQueries.whoAmI)
+const { data: user, isLoading: isLoadingUser } = useQuery(authQueries.whoAmI)
 
 const { data: organizersData, isLoading: isLoadingOrganizers } = useQuery(
   computed(() => ({
@@ -33,14 +33,16 @@ const isOrganizer = computed(() => {
   return organizersData.value?.organizers?.some(org => org.userId === user.value?.id) ?? false
 })
 
-watch([isOrganizer, isLoadingOrganizers], ([org, loading]) => {
+const isLoadingOrganizerCheck = computed(() => isLoadingHackathon.value || isLoadingUser.value || isLoadingOrganizers.value)
+
+watch([isOrganizer, isLoadingOrganizerCheck], ([org, loading]) => {
   if (!loading && !org) {
     navigateTo(`/dash/${hackathonIdOrShortCode.value}`)
   }
 })
 
 // Poll challenges every 10 seconds for live updates
-const { data: challengesData, dataUpdatedAt } = useQuery(
+const { data: challengesData, dataUpdatedAt, isLoading: isLoadingChallenges } = useQuery(
   computed(() => ({
     ...challengeQueries.list(resolvedHackathonId.value ?? ''),
     enabled: !!resolvedHackathonId.value && isOrganizer.value,
@@ -75,6 +77,31 @@ let _notifId = 0
 
 // Previous counts for change detection
 const prevCounts = ref(new Map<string, number>())
+const dashboardElement = ref<HTMLElement | null>(null)
+const isFullscreen = ref(false)
+
+function syncFullscreenState() {
+  if (!import.meta.client) return
+  isFullscreen.value = !!document.fullscreenElement
+}
+
+async function toggleFullscreen() {
+  if (!import.meta.client) return
+  if (!document.fullscreenElement) {
+    await (dashboardElement.value ?? document.documentElement).requestFullscreen()
+  }
+  else {
+    await document.exitFullscreen()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', syncFullscreenState)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
+})
 
 // When data updates, accumulate history and emit notifications
 watch(dataUpdatedAt, () => {
@@ -192,6 +219,16 @@ function hasChart(challengeId: string | null | undefined): boolean {
 
         <template #trailing>
           <div class="flex items-center gap-3">
+            <UButton
+              :icon="isFullscreen ? 'i-lucide-shrink' : 'i-lucide-expand'"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              :aria-label="isFullscreen ? 'Exit full screen' : 'View full screen'"
+              @click="toggleFullscreen"
+            >
+              {{ isFullscreen ? 'Exit full screen' : 'Full screen' }}
+            </UButton>
             <div class="text-sm text-(--ui-text-muted)">
               <span class="font-semibold text-(--ui-text)">{{ totalTeams }}</span> teams total
             </div>
@@ -209,13 +246,22 @@ function hasChart(challengeId: string | null | undefined): boolean {
 
     <template #body>
       <!-- Full-screen dark dashboard -->
-      <div class="h-full min-h-0 overflow-y-auto bg-gray-950 p-6">
+      <div
+        ref="dashboardElement"
+        class="h-full min-h-0 overflow-y-auto bg-gray-950 p-6"
+      >
         <!-- Loading state -->
         <div
-          v-if="!challenges.length"
+          v-if="isLoadingOrganizerCheck || isLoadingChallenges"
           class="flex items-center justify-center h-64 text-gray-500 text-sm"
         >
           Loading challenges…
+        </div>
+        <div
+          v-else-if="!challenges.length"
+          class="flex items-center justify-center h-64 text-gray-500 text-sm"
+        >
+          No challenges available yet.
         </div>
 
         <!-- Challenge grid -->

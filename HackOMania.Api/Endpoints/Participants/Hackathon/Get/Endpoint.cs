@@ -19,12 +19,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
+        var hackathonCacheKey = $"hackathon:public-details:{req.HackathonIdOrShortCode}";
         var hackathon = await sql.Queryable<Entities.Hackathon>()
             .Where(h =>
                 h.Id.ToString() == req.HackathonIdOrShortCode
                 || h.ShortCode == req.HackathonIdOrShortCode
             )
-            .WithCache()
+            .WithCache(hackathonCacheKey)
             .FirstAsync(ct);
 
         if (hackathon is null || !hackathon.IsPublished)

@@ -12,7 +12,7 @@ The HackOMania Event Platform uses a dual-layer caching system to improve perfor
    - Implementation: `SqlSugarRedisCache` service
    - Uses StackExchange.Redis via Aspire integration
    - JSON serialization for cache entries
-   - Keys follow pattern: `SqlSugarDataCache.{semantic-segment}.*` for hot hackathon queries (fallback remains `SqlSugarDataCache.*`)
+   - Keys follow pattern: `SqlSugarDataCache.*`
 
 2. **Fallback Cache: NoOpCacheService**
    - Activated when Redis is unavailable during startup
@@ -178,6 +178,8 @@ SqlSugar automatically generates cache keys based on:
 - SQL query text
 - Query parameters
 - Table names
+
+For hot hackathon endpoints, explicitly defined cache keys are used via `.WithCache("...")` (for example `hackathon:details:{id}` and `hackathon:public-list`) to make cache intent easier to understand while preserving table-based invalidation.
 
 **User-Specific Data**: Queries with `WHERE userId = {userId}` get unique cache keys per user, providing natural isolation.
 

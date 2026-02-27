@@ -247,13 +247,13 @@ public class DefaultStack : Stack
                 Location = "asia-southeast1",
                 Description = "HackOMania API Service",
                 Ingress = "INGRESS_TRAFFIC_ALL",
-                Scaling = new ServiceScalingArgs { MinInstanceCount = 0, MaxInstanceCount = 1 },
+                Scaling = new ServiceScalingArgs { MinInstanceCount = 0, MaxInstanceCount = 10 },
                 Template = new ServiceTemplateArgs
                 {
                     // Required by Cloud Run for CPU allocations below 0.5 vCPU.
                     ExecutionEnvironment = "EXECUTION_ENVIRONMENT_GEN1",
                     ServiceAccount = cloudRunServiceAccount.Email,
-                    MaxInstanceRequestConcurrency = 1,
+                    MaxInstanceRequestConcurrency = 128,
                     Containers = new[]
                     {
                         new ServiceTemplateContainerArgs
@@ -268,7 +268,7 @@ public class DefaultStack : Stack
                             {
                                 // Keep Cloud Run in request-based CPU allocation mode for lowest cost.
                                 CpuIdle = true,
-                                Limits = { { "cpu", "0.5" }, { "memory", "512Mi" } },
+                                Limits = { { "cpu", "1" }, { "memory", "1Gi" } },
                             },
                             StartupProbe = new ServiceTemplateContainerStartupProbeArgs
                             {

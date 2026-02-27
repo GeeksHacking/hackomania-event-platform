@@ -110,162 +110,174 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 </script>
 
 <template>
-  <div>
-    <UCard>
-      <template #header>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h3 class="text-sm font-semibold">
-            Challenges
-          </h3>
-          <div class="flex items-center gap-2">
-            <UBadge
-              variant="subtle"
-              size="sm"
-            >
-              {{ challenges.length }} total
-            </UBadge>
-            <UButton
-              size="xs"
-              icon="i-lucide-plus"
-              @click="openCreateModal"
-            >
-              Add
-            </UButton>
-          </div>
-        </div>
-      </template>
+  <UDashboardPanel id="challenges">
+    <template #header>
+      <UDashboardNavbar title="Challenges">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <div
-        v-if="isLoadingChallenges"
-        class="text-(--ui-text-muted) text-sm"
-      >
-        Loading challenges...
-      </div>
-
-      <div
-        v-else-if="!challenges.length"
-        class="text-(--ui-text-muted) text-sm"
-      >
-        No challenges yet.
-      </div>
-
-      <div
-        v-else
-        class="divide-y divide-(--ui-border)"
-      >
-        <div
-          v-for="challenge in challenges"
-          :key="challenge.id ?? ''"
-          class="py-2 flex items-center justify-between"
-        >
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium">
-              {{ challenge.title }}
-            </p>
-            <p class="text-xs text-(--ui-text-muted) truncate">
-              {{ challenge.description ?? 'No description' }}
-            </p>
-          </div>
-          <div class="flex flex-wrap items-center justify-end gap-2 ml-2">
-            <UBadge
-              variant="subtle"
-              size="xs"
-              color="neutral"
-            >
-              {{ teamCountByChallengeId.get(challenge.id ?? '') ?? 0 }} {{ teamCountByChallengeId.get(challenge.id ?? '') === 1 ? 'team' : 'teams' }}
-            </UBadge>
-            <UBadge
-              :color="challenge.isPublished ? 'success' : 'warning'"
-              variant="subtle"
-              size="xs"
-            >
-              {{ challenge.isPublished ? 'Published' : 'Draft' }}
-            </UBadge>
-            <UButton
-              size="xs"
-              variant="ghost"
-              icon="i-lucide-pencil"
-              @click="openEditModal(challenge)"
-            />
-            <UButton
-              size="xs"
-              variant="ghost"
-              color="error"
-              icon="i-lucide-trash-2"
-              :loading="deleteMutation.isPending.value"
-              @click="handleDelete(challenge.id ?? '')"
-            />
-          </div>
-        </div>
-      </div>
-    </UCard>
-
-    <UModal v-model:open="isModalOpen">
-      <template #content>
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-base font-semibold">
-                {{ isEditing ? 'Edit Challenge' : 'Create Challenge' }}
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 class="text-sm font-semibold">
+                Challenges
               </h3>
-              <UButton
-                variant="ghost"
-                icon="i-lucide-x"
-                size="xs"
-                @click="isModalOpen = false"
-              />
+              <div class="flex items-center gap-2">
+                <UBadge
+                  variant="subtle"
+                  size="sm"
+                >
+                  {{ challenges.length }} total
+                </UBadge>
+                <UButton
+                  size="xs"
+                  icon="i-lucide-plus"
+                  @click="openCreateModal"
+                >
+                  Add
+                </UButton>
+              </div>
             </div>
           </template>
 
-          <form
-            class="space-y-4"
-            @submit.prevent="handleSubmit"
+          <div
+            v-if="isLoadingChallenges"
+            class="text-(--ui-text-muted) text-sm"
           >
-            <UFormField label="Title">
-              <UInput
-                v-model="form.title"
-                placeholder="Challenge title"
-              />
-            </UFormField>
+            Loading challenges...
+          </div>
 
-            <UFormField label="Description">
-              <UTextarea
-                v-model="form.description"
-                placeholder="Challenge description"
-                :rows="3"
-              />
-            </UFormField>
+          <div
+            v-else-if="!challenges.length"
+            class="text-(--ui-text-muted) text-sm"
+          >
+            No challenges yet.
+          </div>
 
-            <UFormField label="Criteria">
-              <UTextarea
-                v-model="form.criteria"
-                placeholder="Judging criteria"
-                :rows="3"
-              />
-            </UFormField>
-
-            <UCheckbox
-              v-model="form.isPublished"
-              label="Published"
-            />
-
-            <div class="flex justify-end gap-2">
-              <UButton
-                variant="ghost"
-                @click="isModalOpen = false"
-              >
-                Cancel
-              </UButton>
-              <UButton
-                type="submit"
-                :loading="isSubmitting"
-              >
-                {{ isEditing ? 'Update' : 'Create' }}
-              </UButton>
+          <div
+            v-else
+            class="divide-y divide-(--ui-border)"
+          >
+            <div
+              v-for="challenge in challenges"
+              :key="challenge.id ?? ''"
+              class="py-2 flex items-center justify-between"
+            >
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">
+                  {{ challenge.title }}
+                </p>
+                <p class="text-xs text-(--ui-text-muted) truncate">
+                  {{ challenge.description ?? 'No description' }}
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center justify-end gap-2 ml-2">
+                <UBadge
+                  variant="subtle"
+                  size="xs"
+                  color="neutral"
+                >
+                  {{ teamCountByChallengeId.get(challenge.id ?? '') ?? 0 }} {{ teamCountByChallengeId.get(challenge.id ?? '') === 1 ? 'team' : 'teams' }}
+                </UBadge>
+                <UBadge
+                  :color="challenge.isPublished ? 'success' : 'warning'"
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ challenge.isPublished ? 'Published' : 'Draft' }}
+                </UBadge>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  icon="i-lucide-pencil"
+                  @click="openEditModal(challenge)"
+                />
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="error"
+                  icon="i-lucide-trash-2"
+                  :loading="deleteMutation.isPending.value"
+                  @click="handleDelete(challenge.id ?? '')"
+                />
+              </div>
             </div>
-          </form>
+          </div>
         </UCard>
-      </template>
-    </UModal>
-  </div>
+
+        <UModal v-model:open="isModalOpen">
+          <template #content>
+            <UCard>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-semibold">
+                    {{ isEditing ? 'Edit Challenge' : 'Create Challenge' }}
+                  </h3>
+                  <UButton
+                    variant="ghost"
+                    icon="i-lucide-x"
+                    size="xs"
+                    @click="isModalOpen = false"
+                  />
+                </div>
+              </template>
+
+              <form
+                class="space-y-4"
+                @submit.prevent="handleSubmit"
+              >
+                <UFormField label="Title">
+                  <UInput
+                    v-model="form.title"
+                    placeholder="Challenge title"
+                  />
+                </UFormField>
+
+                <UFormField label="Description">
+                  <UTextarea
+                    v-model="form.description"
+                    placeholder="Challenge description"
+                    :rows="3"
+                  />
+                </UFormField>
+
+                <UFormField label="Criteria">
+                  <UTextarea
+                    v-model="form.criteria"
+                    placeholder="Judging criteria"
+                    :rows="3"
+                  />
+                </UFormField>
+
+                <UCheckbox
+                  v-model="form.isPublished"
+                  label="Published"
+                />
+
+                <div class="flex justify-end gap-2">
+                  <UButton
+                    variant="ghost"
+                    @click="isModalOpen = false"
+                  >
+                    Cancel
+                  </UButton>
+                  <UButton
+                    type="submit"
+                    :loading="isSubmitting"
+                  >
+                    {{ isEditing ? 'Update' : 'Create' }}
+                  </UButton>
+                </div>
+              </form>
+            </UCard>
+          </template>
+        </UModal>
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>

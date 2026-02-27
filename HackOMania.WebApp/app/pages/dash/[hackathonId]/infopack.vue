@@ -289,147 +289,159 @@ function downloadParticipantEmailsExcel() {
 </script>
 
 <template>
-  <div>
-    <UCard>
-      <template #header>
-        <div class="flex flex-col gap-2">
-          <h3 class="text-sm font-semibold">
-            Info Pack
-          </h3>
-          <p class="text-xs text-(--ui-text-muted)">
-            Export useful data
-          </p>
-        </div>
-      </template>
+  <UDashboardPanel id="infopack">
+    <template #header>
+      <UDashboardNavbar title="Data Export">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <div class="space-y-4">
-        <!-- Participants Section -->
-        <div class="p-4 rounded-lg bg-elevated border border-default">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div>
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
+        <UCard>
+          <template #header>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-sm font-semibold">
+                Info Pack
+              </h3>
+              <p class="text-xs text-(--ui-text-muted)">
+                Export useful data
+              </p>
+            </div>
+          </template>
+
+          <div class="space-y-4">
+            <!-- Participants Section -->
+            <div class="p-4 rounded-lg bg-elevated border border-default">
+              <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <h4 class="text-sm font-medium">
-                    Participants
-                  </h4>
-                  <UBadge
-                    v-if="hasNewParticipants"
-                    color="primary"
-                    variant="subtle"
-                    size="xs"
-                  >
-                    New
-                  </UBadge>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="text-sm font-medium">
+                        Participants
+                      </h4>
+                      <UBadge
+                        v-if="hasNewParticipants"
+                        color="primary"
+                        variant="subtle"
+                        size="xs"
+                      >
+                        New
+                      </UBadge>
+                    </div>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      <template v-if="isLoadingParticipants">
+                        Loading...
+                      </template>
+                      <template v-else>
+                        {{ participants.length }} record{{ participants.length !== 1 ? 's' : '' }}
+                      </template>
+                    </p>
+                  </div>
                 </div>
-                <p class="text-xs text-(--ui-text-muted)">
-                  <template v-if="isLoadingParticipants">
-                    Loading...
-                  </template>
-                  <template v-else>
-                    {{ participants.length }} record{{ participants.length !== 1 ? 's' : '' }}
-                  </template>
-                </p>
+                <div class="flex gap-2">
+                  <UButton
+                    size="xs"
+                    icon="i-lucide-file-json"
+                    :disabled="isLoadingParticipants || !participants.length"
+                    @click="downloadParticipantsJSON"
+                  >
+                    JSON
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    icon="i-lucide-file-spreadsheet"
+                    :disabled="isLoadingParticipants || !participants.length"
+                    @click="downloadParticipantsExcel"
+                  >
+                    Excel
+                  </UButton>
+                </div>
               </div>
             </div>
-            <div class="flex gap-2">
-              <UButton
-                size="xs"
-                icon="i-lucide-file-json"
-                :disabled="isLoadingParticipants || !participants.length"
-                @click="downloadParticipantsJSON"
-              >
-                JSON
-              </UButton>
-              <UButton
-                size="xs"
-                icon="i-lucide-file-spreadsheet"
-                :disabled="isLoadingParticipants || !participants.length"
-                @click="downloadParticipantsExcel"
-              >
-                Excel
-              </UButton>
-            </div>
-          </div>
-        </div>
 
-        <!-- Participant Emails Section -->
-        <div class="p-4 rounded-lg bg-elevated border border-default">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div>
-                <h4 class="text-sm font-medium">
-                  Participant Emails
-                </h4>
-                <p class="text-xs text-(--ui-text-muted)">
-                  <template v-if="isLoadingParticipants">
-                    Loading...
-                  </template>
-                  <template v-else>
-                    {{ participants.length }} record{{ participants.length !== 1 ? 's' : '' }}
-                  </template>
-                </p>
-              </div>
-            </div>
-            <UButton
-              size="xs"
-              icon="i-lucide-file-spreadsheet"
-              :disabled="isLoadingParticipants || !participants.length"
-              @click="downloadParticipantEmailsExcel"
-            >
-              Excel
-            </UButton>
-          </div>
-        </div>
-
-        <!-- Teams Section -->
-        <div class="p-4 rounded-lg bg-elevated border border-default">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div>
+            <!-- Participant Emails Section -->
+            <div class="p-4 rounded-lg bg-elevated border border-default">
+              <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <h4 class="text-sm font-medium">
-                    Teams
-                  </h4>
-                  <UBadge
-                    v-if="hasNewTeams"
-                    color="primary"
-                    variant="subtle"
-                    size="xs"
-                  >
-                    New
-                  </UBadge>
+                  <div>
+                    <h4 class="text-sm font-medium">
+                      Participant Emails
+                    </h4>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      <template v-if="isLoadingParticipants">
+                        Loading...
+                      </template>
+                      <template v-else>
+                        {{ participants.length }} record{{ participants.length !== 1 ? 's' : '' }}
+                      </template>
+                    </p>
+                  </div>
                 </div>
-                <p class="text-xs text-(--ui-text-muted)">
-                  <template v-if="isLoadingTeams">
-                    Loading...
-                  </template>
-                  <template v-else>
-                    {{ teams.length }} record{{ teams.length !== 1 ? 's' : '' }}
-                  </template>
-                </p>
+                <UButton
+                  size="xs"
+                  icon="i-lucide-file-spreadsheet"
+                  :disabled="isLoadingParticipants || !participants.length"
+                  @click="downloadParticipantEmailsExcel"
+                >
+                  Excel
+                </UButton>
               </div>
             </div>
-            <div class="flex gap-2">
-              <UButton
-                size="xs"
-                icon="i-lucide-file-json"
-                :disabled="isLoadingTeams || !teams.length"
-                @click="downloadTeamsJSON"
-              >
-                JSON
-              </UButton>
-              <UButton
-                size="xs"
-                icon="i-lucide-file-spreadsheet"
-                :disabled="isLoadingTeams || !teams.length"
-                @click="downloadTeamsExcel"
-              >
-                Excel
-              </UButton>
+
+            <!-- Teams Section -->
+            <div class="p-4 rounded-lg bg-elevated border border-default">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="text-sm font-medium">
+                        Teams
+                      </h4>
+                      <UBadge
+                        v-if="hasNewTeams"
+                        color="primary"
+                        variant="subtle"
+                        size="xs"
+                      >
+                        New
+                      </UBadge>
+                    </div>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      <template v-if="isLoadingTeams">
+                        Loading...
+                      </template>
+                      <template v-else>
+                        {{ teams.length }} record{{ teams.length !== 1 ? 's' : '' }}
+                      </template>
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <UButton
+                    size="xs"
+                    icon="i-lucide-file-json"
+                    :disabled="isLoadingTeams || !teams.length"
+                    @click="downloadTeamsJSON"
+                  >
+                    JSON
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    icon="i-lucide-file-spreadsheet"
+                    :disabled="isLoadingTeams || !teams.length"
+                    @click="downloadTeamsExcel"
+                  >
+                    Excel
+                  </UButton>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </UCard>
       </div>
-    </UCard>
-  </div>
+    </template>
+  </UDashboardPanel>
 </template>

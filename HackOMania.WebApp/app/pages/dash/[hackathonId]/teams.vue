@@ -65,118 +65,132 @@ function toggleTeam(teamId: string) {
 </script>
 
 <template>
-  <UCard>
+  <UDashboardPanel id="teams">
     <template #header>
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 class="text-sm font-semibold">
-          Teams
-        </h3>
-        <UBadge
-          variant="subtle"
-          size="sm"
-        >
-          {{ teams.length }} total
-        </UBadge>
-      </div>
+      <UDashboardNavbar title="Teams">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <div
-      v-if="isLoadingTeams"
-      class="text-(--ui-text-muted) text-sm"
-    >
-      Loading teams...
-    </div>
-
-    <div
-      v-else-if="!teams.length"
-      class="text-(--ui-text-muted) text-sm"
-    >
-      No teams yet.
-    </div>
-
-    <div
-      v-else
-      v-bind="teamsContainerProps"
-      class="max-h-[40rem] overflow-y-auto"
-    >
-      <div
-        v-bind="teamsWrapperProps"
-        class="divide-y divide-(--ui-border)"
-      >
-        <div
-          v-for="{ data: team, index } in virtualTeams"
-          :key="team.id ?? index"
-          class="py-2"
-        >
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex-1 min-w-0">
-              <button
-                class="text-sm font-medium text-left hover:underline cursor-pointer text-(--ui-text-highlighted)"
-                @click="toggleTeam(team.id ?? '')"
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
+        <UCard>
+          <template #header>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h3 class="text-sm font-semibold">
+                Teams
+              </h3>
+              <UBadge
+                variant="subtle"
+                size="sm"
               >
-                {{ team.name }}
-                <UIcon
-                  :name="expandedTeamId === team.id ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
-                  class="inline-block w-4 h-4 ml-1 align-middle"
-                />
-              </button>
-              <p class="text-xs text-(--ui-text-muted)">
-                {{ team.description ?? 'No description' }}
-              </p>
+                {{ teams.length }} total
+              </UBadge>
             </div>
-            <UBadge
-              variant="subtle"
-              size="xs"
-            >
-              {{ team.memberCount }} {{ team.memberCount === 1 ? 'member' : 'members' }}
-            </UBadge>
+          </template>
+
+          <div
+            v-if="isLoadingTeams"
+            class="text-(--ui-text-muted) text-sm"
+          >
+            Loading teams...
           </div>
 
-          <!-- Expanded: Team Details -->
-          <div>
-            <div
-              v-if="expandedTeamId === team.id"
-              class="mt-3 ml-2 p-4 rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border) max-h-96 overflow-y-auto space-y-3"
-            >
-              <UFormField label="Challenge">
-                <UInput
-                  model-value="Not Selected Yet"
-                  disabled
-                  class="w-full"
-                />
-              </UFormField>
+          <div
+            v-else-if="!teams.length"
+            class="text-(--ui-text-muted) text-sm"
+          >
+            No teams yet.
+          </div>
 
-              <div>
-                <h4 class="text-xs font-semibold mb-2">
-                  Members
-                </h4>
-                <div
-                  v-if="membersByTeamId.get(team.id ?? '')?.length"
-                  class="space-y-1"
-                >
-                  <div
-                    v-for="(member, idx) in membersByTeamId.get(team.id ?? '')"
-                    :key="idx"
-                    class="text-sm flex items-center gap-2"
+          <div
+            v-else
+            v-bind="teamsContainerProps"
+            class="max-h-[40rem] overflow-y-auto"
+          >
+            <div
+              v-bind="teamsWrapperProps"
+              class="divide-y divide-(--ui-border)"
+            >
+              <div
+                v-for="{ data: team, index } in virtualTeams"
+                :key="team.id ?? index"
+                class="py-2"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex-1 min-w-0">
+                    <button
+                      class="text-sm font-medium text-left hover:underline cursor-pointer text-(--ui-text-highlighted)"
+                      @click="toggleTeam(team.id ?? '')"
+                    >
+                      {{ team.name }}
+                      <UIcon
+                        :name="expandedTeamId === team.id ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                        class="inline-block w-4 h-4 ml-1 align-middle"
+                      />
+                    </button>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      {{ team.description ?? 'No description' }}
+                    </p>
+                  </div>
+                  <UBadge
+                    variant="subtle"
+                    size="xs"
                   >
-                    <UIcon
-                      name="i-lucide-user"
-                      class="w-4 h-4 text-(--ui-text-muted)"
-                    />
-                    {{ member }}
+                    {{ team.memberCount }} {{ team.memberCount === 1 ? 'member' : 'members' }}
+                  </UBadge>
+                </div>
+
+                <!-- Expanded: Team Details -->
+                <div>
+                  <div
+                    v-if="expandedTeamId === team.id"
+                    class="mt-3 ml-2 p-4 rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border) max-h-96 overflow-y-auto space-y-3"
+                  >
+                    <UFormField label="Challenge">
+                      <UInput
+                        model-value="Not Selected Yet"
+                        disabled
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <div>
+                      <h4 class="text-xs font-semibold mb-2">
+                        Members
+                      </h4>
+                      <div
+                        v-if="membersByTeamId.get(team.id ?? '')?.length"
+                        class="space-y-1"
+                      >
+                        <div
+                          v-for="(member, idx) in membersByTeamId.get(team.id ?? '')"
+                          :key="idx"
+                          class="text-sm flex items-center gap-2"
+                        >
+                          <UIcon
+                            name="i-lucide-user"
+                            class="w-4 h-4 text-(--ui-text-muted)"
+                          />
+                          {{ member }}
+                        </div>
+                      </div>
+                      <p
+                        v-else
+                        class="text-xs text-(--ui-text-muted)"
+                      >
+                        No members found.
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <p
-                  v-else
-                  class="text-xs text-(--ui-text-muted)"
-                >
-                  No members found.
-                </p>
               </div>
             </div>
           </div>
-        </div>
+        </UCard>
       </div>
-    </div>
-  </UCard>
+    </template>
+  </UDashboardPanel>
 </template>

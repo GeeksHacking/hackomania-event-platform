@@ -61,10 +61,10 @@ const questionTypes = [
   { value: 10, label: 'Dropdown' },
 ]
 
-const updateMutation = useUpdateQuestionMutation(hackathonId.value)
+const updateMutation = useUpdateQuestionMutation(hackathonId)
 const initMutation = useInitQuestionMutation()
-const createMutation = useCreateQuestionMutation(hackathonId.value)
-const deleteMutation = useDeleteQuestionMutation(hackathonId.value)
+const createMutation = useCreateQuestionMutation(hackathonId)
+const deleteMutation = useDeleteQuestionMutation(hackathonId)
 
 async function invalidateQuestions() {
   await queryClient.invalidateQueries({

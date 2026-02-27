@@ -41,9 +41,9 @@ const teamCountByChallengeId = computed(() => {
 })
 
 // Mutations
-const createMutation = useCreateChallengeMutation(hackathonId.value)
-const updateMutation = useUpdateChallengeMutation(hackathonId.value)
-const deleteMutation = useDeleteChallengeMutation(hackathonId.value)
+const createMutation = useCreateChallengeMutation(hackathonId)
+const updateMutation = useUpdateChallengeMutation(hackathonId)
+const deleteMutation = useDeleteChallengeMutation(hackathonId)
 
 // Modal state
 const isModalOpen = ref(false)

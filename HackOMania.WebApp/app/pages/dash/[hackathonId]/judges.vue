@@ -33,8 +33,8 @@ const {
 })
 
 // Mutations
-const createMutation = useCreateJudgeMutation(hackathonId.value)
-const updateMutation = useUpdateJudgeMutation(hackathonId.value)
+const createMutation = useCreateJudgeMutation(hackathonId)
+const updateMutation = useUpdateJudgeMutation(hackathonId)
 
 // Modal state
 const isModalOpen = ref(false)

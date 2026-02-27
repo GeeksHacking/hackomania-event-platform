@@ -437,7 +437,7 @@ function toggleParticipant(participantId: string) {
 }
 
 // Review mutation
-const reviewMutation = useReviewParticipantMutation(hackathonId.value)
+const reviewMutation = useReviewParticipantMutation(hackathonId)
 
 // Modal state
 const isReviewModalOpen = ref(false)

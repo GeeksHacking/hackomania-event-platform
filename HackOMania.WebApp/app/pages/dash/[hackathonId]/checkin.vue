@@ -24,8 +24,8 @@ const selectedParticipantUserId = ref<string>('')
 const selectedParticipantName = ref<string>('')
 const isHistoryModalOpen = ref(false)
 
-const checkInMutation = useCheckInMutation(hackathonId.value)
-const checkOutMutation = useCheckOutMutation(hackathonId.value)
+const checkInMutation = useCheckInMutation(hackathonId)
+const checkOutMutation = useCheckOutMutation(hackathonId)
 const queryClient = useQueryClient()
 
 // Fetch participant details when we have a scanned user ID
@@ -117,6 +117,11 @@ const checkInTimeFormatter = new Intl.DateTimeFormat(undefined, {
 function formatCheckInTime(date: Date | null | undefined) {
   if (!date) return '—'
   return `${checkInTimeFormatter.format(date)} SGT`
+}
+
+function formatEventTime(timestamp: string | undefined) {
+  if (!timestamp) return '—'
+  return formatCheckInTime(new Date(timestamp))
 }
 
 function refreshOverview() {
@@ -228,7 +233,7 @@ const handleCheckIn = async () => {
     scanResult.value = {
       success: true,
       message: result?.isCheckedIn
-        ? `Participant successfully checked in at ${result.checkInTime?.toLocaleTimeString() || 'now'}`
+        ? `Participant successfully checked in at ${formatCheckInTime(result.checkInTime)}`
         : 'Check-in processed',
     }
     selectedParticipantName.value = participantName
@@ -255,7 +260,7 @@ const handleCheckOut = async () => {
     const result = await checkOutMutation.mutateAsync(selectedParticipantUserId.value)
     scanResult.value = {
       success: true,
-      message: `Participant checked out at ${new Date(result.checkOutTime).toLocaleTimeString()}.`,
+      message: `Participant checked out at ${formatCheckInTime(new Date(result.checkOutTime))}.`,
     }
     refreshOverview()
   }
@@ -444,7 +449,13 @@ onUnmounted(() => {
                     variant="soft"
                     size="xs"
                   >
-                    {{ participant.isCurrentlyCheckedIn ? 'Checked In' : 'Checked Out' }}
+                    {{
+                      participant.isCurrentlyCheckedIn
+                        ? 'Checked In'
+                        : participant.totalCheckIns
+                          ? 'Checked Out'
+                          : 'Absent'
+                    }}
                   </UBadge>
                 </td>
                 <td class="py-2.5 pr-3 text-(--ui-text-muted)">
@@ -492,7 +503,7 @@ onUnmounted(() => {
           class="text-(--ui-text-muted)"
         >
           <span class="font-medium text-(--ui-text)">{{ event.userName ?? 'Participant' }}</span>
-          {{ event.action ?? 'updated status' }} at {{ formatCheckInTime(event.timestamp ? new Date(event.timestamp) : null) }}
+          {{ event.action ?? 'updated status' }} at {{ formatEventTime(event.timestamp) }}
         </li>
       </ul>
     </UCard>
@@ -718,7 +729,7 @@ onUnmounted(() => {
               class="text-(--ui-text-muted)"
             >
               <span class="text-(--ui-text)">{{ event.message }}</span>
-              <span class="ml-1">at {{ formatCheckInTime(event.timestamp ? new Date(event.timestamp) : null) }}</span>
+              <span class="ml-1">at {{ formatEventTime(event.timestamp) }}</span>
             </li>
           </ul>
           <div

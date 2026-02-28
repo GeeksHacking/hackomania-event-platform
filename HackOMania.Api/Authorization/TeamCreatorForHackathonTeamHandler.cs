@@ -39,16 +39,6 @@ public class TeamCreatorForHackathonTeamHandler(MembershipService membership, IS
             return;
         }
 
-        // Check if user is root or organizer for the hackathon
-        if (
-            await membership.IsRoot(userId.Value)
-            || await membership.IsOrganizer(userId.Value, hackathon.Id)
-        )
-        {
-            context.Succeed(requirement);
-            return;
-        }
-
         // Check if user is the team creator
         var team = await sql.Queryable<Team>()
             .Where(t => t.Id == teamIdValue && t.HackathonId == hackathon.Id)

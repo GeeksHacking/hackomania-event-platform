@@ -308,6 +308,16 @@ function openHistory(userId: string, name: string) {
   isHistoryModalOpen.value = true
 }
 
+async function handleCheckOutFromList(userId: string) {
+  try {
+    await checkOutMutation.mutateAsync(userId)
+    refreshOverview()
+  }
+  catch (err) {
+    console.error('Check-out error:', err)
+  }
+}
+
 watch(isScannerOpen, (newValue) => {
   if (newValue) {
     nextTick(() => {
@@ -484,19 +494,31 @@ onUnmounted(() => {
                           ? formatCheckInTime(participant.lastCheckInTime)
                           : formatCheckInTime(participant.lastCheckOutTime)
                       }}
-                    </span>
-                    <div class="text-right">
-                      <UButton
-                        size="xs"
-                        variant="ghost"
-                        @click="openHistory(participant.userId ?? '', participant.userName ?? 'Participant')"
-                      >
-                        View history
-                      </UButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </td>
+                    <td class="py-2.5 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <UButton
+                          v-if="participant.isCurrentlyCheckedIn"
+                          size="xs"
+                          color="warning"
+                          variant="soft"
+                          :loading="checkOutMutation.isPending.value"
+                          @click="handleCheckOutFromList(participant.userId ?? '')"
+                        >
+                          Check Out
+                        </UButton>
+                        <UButton
+                          size="xs"
+                          variant="ghost"
+                          @click="openHistory(participant.userId ?? '', participant.userName ?? 'Participant')"
+                        >
+                          View history
+                        </UButton>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </UCard>

@@ -72,6 +72,9 @@ const checkedInCount = computed(() => allParticipants.value.filter(p => p.isCurr
 const checkedOutCount = computed(() => allParticipants.value.length - checkedInCount.value)
 
 const normalizedHistorySearch = computed(() => historySearchQuery.value.trim().toLowerCase())
+const participantListGridClass = 'grid grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1fr)_auto] gap-3'
+const checkInListRowHeight = 52
+const checkInListOverscan = 8
 
 const filteredParticipants = computed(() => {
   const query = normalizedHistorySearch.value
@@ -90,8 +93,8 @@ const {
   containerProps: participantListContainerProps,
   wrapperProps: participantListWrapperProps,
 } = useVirtualList(filteredParticipants, {
-  itemHeight: 52,
-  overscan: 8,
+  itemHeight: checkInListRowHeight,
+  overscan: checkInListOverscan,
 })
 
 const selectedParticipant = computed(() =>
@@ -437,7 +440,7 @@ onUnmounted(() => {
               v-else
               class="space-y-2"
             >
-              <div class="grid grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1fr)_auto] gap-3 text-left text-xs text-(--ui-text-muted) px-2">
+              <div :class="[participantListGridClass, 'text-left text-xs text-(--ui-text-muted) px-2']">
                 <span class="font-medium">Participant</span>
                 <span class="font-medium">Status</span>
                 <span class="font-medium">Last activity</span>
@@ -454,9 +457,14 @@ onUnmounted(() => {
                   <div
                     v-for="{ data: participant, index } in virtualParticipants"
                     :key="participant.userId ?? participant.participantId ?? index"
-                    class="grid grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1fr)_auto] gap-3 py-2.5 px-2 text-sm items-center"
+                    :class="[participantListGridClass, 'py-2.5 px-2 text-sm items-center']"
                   >
-                    <span class="font-medium truncate">{{ participant.userName }}</span>
+                    <span
+                      class="font-medium truncate"
+                      :title="participant.userName ?? 'Participant'"
+                    >
+                      {{ participant.userName }}
+                    </span>
                     <UBadge
                       :color="participant.isCurrentlyCheckedIn ? 'success' : 'neutral'"
                       variant="soft"

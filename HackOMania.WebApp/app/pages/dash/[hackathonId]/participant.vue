@@ -182,15 +182,7 @@ function formatReviewedDate(value: Date | string | null | undefined) {
       <template #header>
         <UDashboardNavbar :title="hackathon?.name ?? 'Hackathon'">
           <template #leading>
-            <UButton
-              to="/dash"
-              icon="i-lucide-arrow-left"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-            >
-              Back
-            </UButton>
+            <UDashboardSidebarCollapse />
           </template>
         </UDashboardNavbar>
       </template>

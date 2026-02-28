@@ -213,389 +213,403 @@ function getTypeName(type: number | null | undefined): string {
 </script>
 
 <template>
-  <UCard>
+  <UDashboardPanel id="questions">
     <template #header>
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <h3 class="text-sm font-semibold">
-            Questions
-          </h3>
-          <UBadge
-            v-if="questions.length"
-            variant="subtle"
-            size="xs"
-          >
-            {{ questions.length }}
-          </UBadge>
-        </div>
-        <div
-          v-if="questions.length && !isCreating && !editingId"
-          class="flex gap-2"
-        >
-          <UButton
-            size="xs"
-            variant="ghost"
-            color="error"
-            icon="i-lucide-trash-2"
-            :loading="deleteMutation.isPending.value"
-            @click="deleteAllQuestions"
-          >
-            Delete All
-          </UButton>
-          <UButton
-            size="xs"
-            icon="i-lucide-plus"
-            @click="startCreating"
-          >
-            Add Question
-          </UButton>
-        </div>
-      </div>
+      <UDashboardNavbar title="Questions">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <div
-      v-if="isLoading"
-      class="text-(--ui-text-muted) text-sm"
-    >
-      Loading questions...
-    </div>
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-semibold">
+                  Questions
+                </h3>
+                <UBadge
+                  v-if="questions.length"
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ questions.length }}
+                </UBadge>
+              </div>
+              <div
+                v-if="questions.length && !isCreating && !editingId"
+                class="flex gap-2"
+              >
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  color="error"
+                  icon="i-lucide-trash-2"
+                  :loading="deleteMutation.isPending.value"
+                  @click="deleteAllQuestions"
+                >
+                  Delete All
+                </UButton>
+                <UButton
+                  size="xs"
+                  icon="i-lucide-plus"
+                  @click="startCreating"
+                >
+                  Add Question
+                </UButton>
+              </div>
+            </div>
+          </template>
 
-    <div
-      v-else-if="!questions.length"
-      class="text-(--ui-text-muted) text-sm flex items-center justify-between"
-    >
-      <span>No registration questions yet.</span>
-      <UButton
-        size="xs"
-        :loading="initMutation.isPending.value"
-        :disabled="!hackathonId"
-        @click="initializeQuestions"
-      >
-        Get standard questions
-      </UButton>
-    </div>
-
-    <div
-      v-else
-      class="divide-y divide-(--ui-border)"
-    >
-      <!-- Create new question form -->
-      <div
-        v-if="isCreating"
-        class="py-2"
-      >
-        <form
-          class="space-y-3"
-          @submit.prevent="saveQuestion"
-        >
-          <UFormField label="Question Text">
-            <UTextarea
-              v-model="editForm.questionText"
-              size="sm"
-              autoresize
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Question Key">
-            <UInput
-              v-model="editForm.questionKey"
-              size="sm"
-              placeholder="e.g. email, full_name, university"
-            />
-          </UFormField>
-
-          <UFormField label="Type">
-            <USelect
-              :model-value="editForm.type"
-              :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
-              size="sm"
-              class="w-full"
-              @update:model-value="editForm.type = Number($event)"
-            />
-          </UFormField>
-
-          <!-- Options JSON editor for choice-based types -->
-          <UFormField
-            v-if="showOptions"
-            label="Options (JSON)"
-            :error="optionsJsonError"
+          <div
+            v-if="isLoading"
+            class="text-(--ui-text-muted) text-sm"
           >
-            <UTextarea
-              v-model="editForm.optionsJson"
-              size="sm"
-              :rows="6"
-              placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
-              class="w-full font-mono text-xs"
-            />
-          </UFormField>
+            Loading questions...
+          </div>
 
-          <UFormField label="Help Text">
-            <UInput
-              v-model="editForm.helpText"
-              size="sm"
-              placeholder="Optional help text"
-            />
-          </UFormField>
-
-          <UFormField label="Category">
-            <UInput
-              v-model="editForm.category"
-              size="sm"
-              placeholder="e.g. Personal Info, Preferences"
-            />
-          </UFormField>
-
-          <UFormField label="Display Order">
-            <UInput
-              v-model.number="editForm.displayOrder"
-              type="number"
-              size="sm"
-            />
-          </UFormField>
-
-          <UFormField label="Conditional Logic">
-            <UInput
-              v-model="editForm.conditionalLogic"
-              size="sm"
-              placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
-            />
-          </UFormField>
-
-          <UFormField label="Validation Rules">
-            <UInput
-              v-model="editForm.validationRules"
-              size="sm"
-              placeholder="Optional validation rules"
-            />
-          </UFormField>
-
-          <label class="flex items-center gap-2 text-sm">
-            <UCheckbox v-model="editForm.isRequired" />
-            Required
-          </label>
-
-          <div class="flex justify-end gap-2">
+          <div
+            v-else-if="!questions.length"
+            class="text-(--ui-text-muted) text-sm flex items-center justify-between"
+          >
+            <span>No registration questions yet.</span>
             <UButton
               size="xs"
-              variant="ghost"
-              @click="cancelEditing"
+              :loading="initMutation.isPending.value"
+              :disabled="!hackathonId"
+              @click="initializeQuestions"
             >
-              Cancel
-            </UButton>
-            <UButton
-              size="xs"
-              type="submit"
-              :loading="createMutation.isPending.value"
-            >
-              Create
+              Get standard questions
             </UButton>
           </div>
-        </form>
-      </div>
 
-      <div
-        v-for="question in questions"
-        :key="question.id ?? ''"
-        class="py-2"
-      >
-        <!-- View mode -->
-        <div
-          v-if="editingId !== question.id"
-          class="flex items-center justify-between"
-        >
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium">
-              {{ question.questionText }}
-              <UBadge
-                v-if="question.isRequired"
-                color="error"
-                variant="subtle"
-                size="xs"
-                class="ml-1"
-              >
-                Required
-              </UBadge>
-            </p>
-            <p
-              v-if="question.helpText"
-              class="text-xs text-(--ui-text-muted)"
-            >
-              {{ question.helpText }}
-            </p>
-            <div class="flex flex-wrap gap-2 mt-1">
-              <UBadge
-                variant="subtle"
-                size="xs"
-              >
-                {{ getTypeName(question.type) }}
-              </UBadge>
-              <UBadge
-                v-if="question.questionKey"
-                variant="outline"
-                size="xs"
-              >
-                {{ question.questionKey }}
-              </UBadge>
-              <UBadge
-                v-if="question.category"
-                variant="outline"
-                size="xs"
-              >
-                {{ question.category }}
-              </UBadge>
-              <UBadge
-                variant="outline"
-                size="xs"
-              >
-                Order: {{ question.displayOrder ?? 0 }}
-              </UBadge>
-            </div>
+          <div
+            v-else
+            class="divide-y divide-(--ui-border)"
+          >
+            <!-- Create new question form -->
             <div
-              v-if="question.options?.length"
-              class="flex flex-wrap gap-1 mt-1"
+              v-if="isCreating"
+              class="py-2"
             >
-              <UBadge
-                v-for="opt in question.options"
-                :key="opt.id ?? ''"
-                variant="subtle"
-                color="neutral"
-                size="xs"
+              <form
+                class="space-y-3"
+                @submit.prevent="saveQuestion"
               >
-                {{ opt.optionText }}
-              </UBadge>
+                <UFormField label="Question Text">
+                  <UTextarea
+                    v-model="editForm.questionText"
+                    size="sm"
+                    autoresize
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField label="Question Key">
+                  <UInput
+                    v-model="editForm.questionKey"
+                    size="sm"
+                    placeholder="e.g. email, full_name, university"
+                  />
+                </UFormField>
+
+                <UFormField label="Type">
+                  <USelect
+                    :model-value="editForm.type"
+                    :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
+                    size="sm"
+                    class="w-full"
+                    @update:model-value="editForm.type = Number($event)"
+                  />
+                </UFormField>
+
+                <!-- Options JSON editor for choice-based types -->
+                <UFormField
+                  v-if="showOptions"
+                  label="Options (JSON)"
+                  :error="optionsJsonError"
+                >
+                  <UTextarea
+                    v-model="editForm.optionsJson"
+                    size="sm"
+                    :rows="6"
+                    placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
+                    class="w-full font-mono text-xs"
+                  />
+                </UFormField>
+
+                <UFormField label="Help Text">
+                  <UInput
+                    v-model="editForm.helpText"
+                    size="sm"
+                    placeholder="Optional help text"
+                  />
+                </UFormField>
+
+                <UFormField label="Category">
+                  <UInput
+                    v-model="editForm.category"
+                    size="sm"
+                    placeholder="e.g. Personal Info, Preferences"
+                  />
+                </UFormField>
+
+                <UFormField label="Display Order">
+                  <UInput
+                    v-model.number="editForm.displayOrder"
+                    type="number"
+                    size="sm"
+                  />
+                </UFormField>
+
+                <UFormField label="Conditional Logic">
+                  <UInput
+                    v-model="editForm.conditionalLogic"
+                    size="sm"
+                    placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
+                  />
+                </UFormField>
+
+                <UFormField label="Validation Rules">
+                  <UInput
+                    v-model="editForm.validationRules"
+                    size="sm"
+                    placeholder="Optional validation rules"
+                  />
+                </UFormField>
+
+                <label class="flex items-center gap-2 text-sm">
+                  <UCheckbox v-model="editForm.isRequired" />
+                  Required
+                </label>
+
+                <div class="flex justify-end gap-2">
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    @click="cancelEditing"
+                  >
+                    Cancel
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    type="submit"
+                    :loading="createMutation.isPending.value"
+                  >
+                    Create
+                  </UButton>
+                </div>
+              </form>
+            </div>
+
+            <div
+              v-for="question in questions"
+              :key="question.id ?? ''"
+              class="py-2"
+            >
+              <!-- View mode -->
+              <div
+                v-if="editingId !== question.id"
+                class="flex items-center justify-between"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium">
+                    {{ question.questionText }}
+                    <UBadge
+                      v-if="question.isRequired"
+                      color="error"
+                      variant="subtle"
+                      size="xs"
+                      class="ml-1"
+                    >
+                      Required
+                    </UBadge>
+                  </p>
+                  <p
+                    v-if="question.helpText"
+                    class="text-xs text-(--ui-text-muted)"
+                  >
+                    {{ question.helpText }}
+                  </p>
+                  <div class="flex flex-wrap gap-2 mt-1">
+                    <UBadge
+                      variant="subtle"
+                      size="xs"
+                    >
+                      {{ getTypeName(question.type) }}
+                    </UBadge>
+                    <UBadge
+                      v-if="question.questionKey"
+                      variant="outline"
+                      size="xs"
+                    >
+                      {{ question.questionKey }}
+                    </UBadge>
+                    <UBadge
+                      v-if="question.category"
+                      variant="outline"
+                      size="xs"
+                    >
+                      {{ question.category }}
+                    </UBadge>
+                    <UBadge
+                      variant="outline"
+                      size="xs"
+                    >
+                      Order: {{ question.displayOrder ?? 0 }}
+                    </UBadge>
+                  </div>
+                  <div
+                    v-if="question.options?.length"
+                    class="flex flex-wrap gap-1 mt-1"
+                  >
+                    <UBadge
+                      v-for="opt in question.options"
+                      :key="opt.id ?? ''"
+                      variant="subtle"
+                      color="neutral"
+                      size="xs"
+                    >
+                      {{ opt.optionText }}
+                    </UBadge>
+                  </div>
+                </div>
+                <div class="flex gap-1">
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    icon="i-lucide-pencil"
+                    @click="startEditing(question)"
+                  />
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    icon="i-lucide-trash-2"
+                    color="error"
+                    :loading="deleteMutation.isPending.value"
+                    @click="deleteQuestion(question.id ?? '')"
+                  />
+                </div>
+              </div>
+
+              <!-- Edit mode -->
+              <form
+                v-else
+                class="space-y-3"
+                @submit.prevent="saveQuestion"
+              >
+                <UFormField label="Question Text">
+                  <UTextarea
+                    v-model="editForm.questionText"
+                    size="sm"
+                    autoresize
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField label="Question Key">
+                  <UInput
+                    v-model="editForm.questionKey"
+                    size="sm"
+                    disabled
+                    placeholder="Cannot be changed after creation"
+                  />
+                </UFormField>
+
+                <UFormField label="Type">
+                  <USelect
+                    :model-value="editForm.type"
+                    :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
+                    size="sm"
+                    class="w-full"
+                    @update:model-value="editForm.type = Number($event)"
+                  />
+                </UFormField>
+
+                <!-- Options JSON editor for choice-based types -->
+                <UFormField
+                  v-if="showOptions"
+                  label="Options (JSON)"
+                  :error="optionsJsonError"
+                >
+                  <UTextarea
+                    v-model="editForm.optionsJson"
+                    size="sm"
+                    :rows="6"
+                    placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
+                    class="w-full font-mono text-xs"
+                  />
+                </UFormField>
+
+                <UFormField label="Help Text">
+                  <UInput
+                    v-model="editForm.helpText"
+                    size="sm"
+                    placeholder="Optional help text"
+                  />
+                </UFormField>
+
+                <UFormField label="Category">
+                  <UInput
+                    v-model="editForm.category"
+                    size="sm"
+                    placeholder="e.g. Personal Info, Preferences"
+                  />
+                </UFormField>
+
+                <UFormField label="Display Order">
+                  <UInput
+                    v-model.number="editForm.displayOrder"
+                    type="number"
+                    size="sm"
+                  />
+                </UFormField>
+
+                <UFormField label="Conditional Logic">
+                  <UInput
+                    v-model="editForm.conditionalLogic"
+                    size="sm"
+                    placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
+                  />
+                </UFormField>
+
+                <UFormField label="Validation Rules">
+                  <UInput
+                    v-model="editForm.validationRules"
+                    size="sm"
+                    placeholder="Optional validation rules"
+                  />
+                </UFormField>
+
+                <label class="flex items-center gap-2 text-sm">
+                  <UCheckbox v-model="editForm.isRequired" />
+                  Required
+                </label>
+
+                <div class="flex justify-end gap-2">
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    @click="cancelEditing"
+                  >
+                    Cancel
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    type="submit"
+                    :loading="updateMutation.isPending.value"
+                  >
+                    Save
+                  </UButton>
+                </div>
+              </form>
             </div>
           </div>
-          <div class="flex gap-1">
-            <UButton
-              size="xs"
-              variant="ghost"
-              icon="i-lucide-pencil"
-              @click="startEditing(question)"
-            />
-            <UButton
-              size="xs"
-              variant="ghost"
-              icon="i-lucide-trash-2"
-              color="error"
-              :loading="deleteMutation.isPending.value"
-              @click="deleteQuestion(question.id ?? '')"
-            />
-          </div>
-        </div>
-
-        <!-- Edit mode -->
-        <form
-          v-else
-          class="space-y-3"
-          @submit.prevent="saveQuestion"
-        >
-          <UFormField label="Question Text">
-            <UTextarea
-              v-model="editForm.questionText"
-              size="sm"
-              autoresize
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField label="Question Key">
-            <UInput
-              v-model="editForm.questionKey"
-              size="sm"
-              disabled
-              placeholder="Cannot be changed after creation"
-            />
-          </UFormField>
-
-          <UFormField label="Type">
-            <USelect
-              :model-value="editForm.type"
-              :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
-              size="sm"
-              class="w-full"
-              @update:model-value="editForm.type = Number($event)"
-            />
-          </UFormField>
-
-          <!-- Options JSON editor for choice-based types -->
-          <UFormField
-            v-if="showOptions"
-            label="Options (JSON)"
-            :error="optionsJsonError"
-          >
-            <UTextarea
-              v-model="editForm.optionsJson"
-              size="sm"
-              :rows="6"
-              placeholder="[{ &quot;optionText&quot;: &quot;Label&quot;, &quot;optionValue&quot;: &quot;value&quot;, &quot;displayOrder&quot;: 0 }]"
-              class="w-full font-mono text-xs"
-            />
-          </UFormField>
-
-          <UFormField label="Help Text">
-            <UInput
-              v-model="editForm.helpText"
-              size="sm"
-              placeholder="Optional help text"
-            />
-          </UFormField>
-
-          <UFormField label="Category">
-            <UInput
-              v-model="editForm.category"
-              size="sm"
-              placeholder="e.g. Personal Info, Preferences"
-            />
-          </UFormField>
-
-          <UFormField label="Display Order">
-            <UInput
-              v-model.number="editForm.displayOrder"
-              type="number"
-              size="sm"
-            />
-          </UFormField>
-
-          <UFormField label="Conditional Logic">
-            <UInput
-              v-model="editForm.conditionalLogic"
-              size="sm"
-              placeholder="e.g. {&quot;questionKey&quot;: &quot;value&quot;}"
-            />
-          </UFormField>
-
-          <UFormField label="Validation Rules">
-            <UInput
-              v-model="editForm.validationRules"
-              size="sm"
-              placeholder="Optional validation rules"
-            />
-          </UFormField>
-
-          <label class="flex items-center gap-2 text-sm">
-            <UCheckbox v-model="editForm.isRequired" />
-            Required
-          </label>
-
-          <div class="flex justify-end gap-2">
-            <UButton
-              size="xs"
-              variant="ghost"
-              @click="cancelEditing"
-            >
-              Cancel
-            </UButton>
-            <UButton
-              size="xs"
-              type="submit"
-              :loading="updateMutation.isPending.value"
-            >
-              Save
-            </UButton>
-          </div>
-        </form>
+        </UCard>
       </div>
-    </div>
-  </UCard>
+    </template>
+  </UDashboardPanel>
 </template>

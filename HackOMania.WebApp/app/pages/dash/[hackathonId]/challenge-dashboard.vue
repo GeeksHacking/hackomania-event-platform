@@ -212,15 +212,7 @@ function hasChart(challengeId: string | null | undefined): boolean {
     <template #header>
       <UDashboardNavbar :title="hackathon?.name ? `${hackathon.name} — Challenges` : 'Challenge Dashboard'">
         <template #leading>
-          <UButton
-            :to="`/dash/${hackathonIdOrShortCode}`"
-            icon="i-lucide-arrow-left"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-          >
-            Back
-          </UButton>
+          <UDashboardSidebarCollapse />
         </template>
 
         <template #trailing>

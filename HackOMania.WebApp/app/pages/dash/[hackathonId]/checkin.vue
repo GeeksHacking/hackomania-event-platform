@@ -313,375 +313,322 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Scanner Card -->
-    <UCard>
-      <template #header>
-        <div class="flex flex-col gap-3">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 class="text-sm font-semibold">
-                Check-In Scanner
-              </h3>
-              <p class="text-xs text-(--ui-text-muted) mt-1">
-                Scan participant QR codes and choose check-in/check-out actions
-              </p>
-            </div>
-            <UButton
-              icon="i-lucide-qr-code"
-              size="sm"
-              class="w-full sm:w-auto"
-              @click="openScanner"
-            >
-              Open Scanner
-            </UButton>
-          </div>
-        </div>
-      </template>
+  <UDashboardPanel id="checkin">
+    <template #header>
+      <UDashboardNavbar title="Check Ins">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <div class="text-sm text-(--ui-text-muted)">
-        <p class="mt-2">
-          Participants should present their unique QR code for check-in.
-        </p>
-      </div>
-    </UCard>
-
-    <!-- Live Check-In History -->
-    <UCard>
-      <template #header>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 class="text-sm font-semibold">
-              Live Check-In History
-            </h3>
-            <p class="text-xs text-(--ui-text-muted) mt-1">
-              <span v-if="!isLoadingOverview">
-                {{ checkedInCount }} checked in · {{ checkedOutCount }} checked out · {{ allParticipants.length }} total
-                <span
-                  v-if="dataUpdatedAt"
-                  class="ml-1"
-                >
-                  · Updated {{ new Date(dataUpdatedAt).toLocaleTimeString() }}
-                </span>
-              </span>
-              <span v-else>Loading...</span>
-            </p>
-          </div>
-          <UButton
-            icon="i-lucide-refresh-cw"
-            size="sm"
-            variant="soft"
-            color="neutral"
-            class="w-full sm:w-auto"
-            :loading="isLoadingOverview"
-            @click="refreshOverview"
-          >
-            Refresh
-          </UButton>
-        </div>
-      </template>
-
-      <div class="space-y-3">
-        <!-- Search -->
-        <UInput
-          v-model="historySearchQuery"
-          icon="i-lucide-search"
-          placeholder="Search by participant name..."
-          size="sm"
-        />
-
-        <!-- Loading state -->
-        <div
-          v-if="isLoadingOverview && !allParticipants.length"
-          class="text-sm text-(--ui-text-muted) py-4 text-center"
-        >
-          Loading check-in history...
-        </div>
-
-        <!-- Empty state -->
-        <div
-          v-else-if="!isLoadingOverview && !allParticipants.length"
-          class="text-sm text-(--ui-text-muted) py-4 text-center"
-        >
-          No participants found.
-        </div>
-
-        <!-- No search results -->
-        <div
-          v-else-if="filteredParticipants.length === 0"
-          class="text-sm text-(--ui-text-muted) py-4 text-center"
-        >
-          No participants matching "{{ historySearchQuery }}".
-        </div>
-
-        <div
-          v-else
-          class="overflow-x-auto"
-        >
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-left text-(--ui-text-muted)">
-                <th class="pb-2 pr-3 font-medium">
-                  Participant
-                </th>
-                <th class="pb-2 pr-3 font-medium">
-                  Status
-                </th>
-                <th class="pb-2 pr-3 font-medium">
-                  Last activity
-                </th>
-                <th class="pb-2 text-right font-medium">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-(--ui-border)">
-              <tr
-                v-for="(participant, index) in filteredParticipants"
-                :key="participant.userId ?? participant.participantId ?? index"
-              >
-                <td class="py-2.5 pr-3 font-medium">
-                  {{ participant.userName }}
-                </td>
-                <td class="py-2.5 pr-3">
-                  <UBadge
-                    :color="participant.isCurrentlyCheckedIn ? 'success' : 'neutral'"
-                    variant="soft"
-                    size="xs"
-                  >
-                    {{
-                      participant.isCurrentlyCheckedIn
-                        ? 'Checked In'
-                        : participant.totalCheckIns
-                          ? 'Checked Out'
-                          : 'Absent'
-                    }}
-                  </UBadge>
-                </td>
-                <td class="py-2.5 pr-3 text-(--ui-text-muted)">
-                  {{
-                    participant.isCurrentlyCheckedIn
-                      ? formatCheckInTime(participant.lastCheckInTime)
-                      : formatCheckInTime(participant.lastCheckOutTime)
-                  }}
-                </td>
-                <td class="py-2.5 text-right">
-                  <UButton
-                    size="xs"
-                    variant="ghost"
-                    @click="openHistory(participant.userId ?? '', participant.userName ?? 'Participant')"
-                  >
-                    View history
-                  </UButton>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </UCard>
-
-    <UCard>
-      <template #header>
-        <h3 class="text-sm font-semibold">
-          Live Audit Trail
-        </h3>
-      </template>
-      <div
-        v-if="!auditTrail.length"
-        class="text-sm text-(--ui-text-muted)"
-      >
-        No check-in events yet.
-      </div>
-      <ul
-        v-else
-        class="space-y-2 text-sm"
-      >
-        <li
-          v-for="(event, index) in auditTrail"
-          :key="`${event.userId ?? index}-${event.timestamp ?? index}`"
-          class="text-(--ui-text-muted)"
-        >
-          <span class="font-medium text-(--ui-text)">{{ event.userName ?? 'Participant' }}</span>
-          {{ event.action ?? 'updated status' }} at {{ formatEventTime(event.timestamp) }}
-        </li>
-      </ul>
-    </UCard>
-
-    <!-- Scanner Modal -->
-    <UModal v-model:open="isScannerOpen">
-      <template #content>
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
+        <!-- Scanner Card -->
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-base font-semibold">
-                Scan Participant QR Code
-              </h3>
-              <UButton
-                variant="ghost"
-                icon="i-lucide-x"
-                size="xs"
-                @click="closeScanner"
-              />
+            <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold">
+                    Check-In Scanner
+                  </h3>
+                  <p class="text-xs text-(--ui-text-muted) mt-1">
+                    Scan participant QR codes and choose check-in/check-out actions
+                  </p>
+                </div>
+                <UButton
+                  icon="i-lucide-qr-code"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  @click="openScanner"
+                >
+                  Open Scanner
+                </UButton>
+              </div>
             </div>
           </template>
 
-          <div class="space-y-4">
-            <!-- QR Scanner View -->
-            <div
-              v-if="!scanResult"
-              class="space-y-4"
-            >
-              <div class="relative">
-                <div
-                  id="qr-reader"
-                  class="w-full rounded-lg overflow-hidden"
-                />
-              </div>
+          <div class="text-sm text-(--ui-text-muted)">
+            <p class="mt-2">
+              Participants should present their unique QR code for check-in.
+            </p>
+          </div>
+        </UCard>
 
-              <div
-                v-if="error"
-                class="p-4 bg-red-100 dark:bg-red-900/20 rounded-lg space-y-2"
-              >
-                <p class="text-sm text-red-800 dark:text-red-200">
-                  {{ error }}
-                </p>
-                <details
-                  v-if="rawQrData"
-                  class="text-xs"
-                >
-                  <summary class="cursor-pointer text-red-700 dark:text-red-300">
-                    Show raw QR data
-                  </summary>
-                  <pre class="mt-2 p-2 bg-red-50 dark:bg-red-950 rounded overflow-auto text-red-900 dark:text-red-100">{{ rawQrData }}</pre>
-                </details>
-              </div>
-
-              <div
-                v-if="checkInMutation.isPending.value || checkOutMutation.isPending.value"
-                class="flex items-center justify-center p-4"
-              >
-                <div class="flex items-center gap-2">
-                  <UIcon
-                    name="i-lucide-loader-2"
-                    class="animate-spin"
-                  />
-                  <span class="text-sm text-(--ui-text-muted)">Processing action...</span>
-                </div>
-              </div>
-
-              <div
-                v-if="selectedParticipantUserId && !scanResult"
-                class="rounded-lg border border-(--ui-border) p-3 space-y-3"
-              >
-                <p class="text-sm">
-                  <span class="font-medium">{{ selectedParticipantName || participantDetail?.name || selectedParticipant?.userName || 'Participant' }}</span>
-                  <span class="text-(--ui-text-muted) ml-1">({{ selectedParticipantUserId }})</span>
-                </p>
-                <div class="flex flex-wrap items-center gap-2">
-                  <UBadge
-                    :color="selectedParticipant?.isCurrentlyCheckedIn ? 'success' : 'neutral'"
-                    variant="soft"
-                    size="xs"
-                  >
-                    {{ selectedParticipant?.isCurrentlyCheckedIn ? 'Currently checked in' : 'Currently checked out' }}
-                  </UBadge>
-                  <span class="text-xs text-(--ui-text-muted)">
-                    Check-ins: {{ selectedParticipant?.totalCheckIns ?? 0 }}
+        <!-- Live Check-In History -->
+        <UCard>
+          <template #header>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 class="text-sm font-semibold">
+                  Live Check-In History
+                </h3>
+                <p class="text-xs text-(--ui-text-muted) mt-1">
+                  <span v-if="!isLoadingOverview">
+                    {{ checkedInCount }} checked in · {{ checkedOutCount }} checked out · {{ allParticipants.length }} total
+                    <span
+                      v-if="dataUpdatedAt"
+                      class="ml-1"
+                    >
+                      · Updated {{ new Date(dataUpdatedAt).toLocaleTimeString() }}
+                    </span>
                   </span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <UButton
-                    size="sm"
-                    :disabled="selectedParticipant?.isCurrentlyCheckedIn"
-                    :loading="checkInMutation.isPending.value"
-                    @click="handleCheckIn"
-                  >
-                    Check In
-                  </UButton>
-                  <UButton
-                    size="sm"
-                    color="warning"
-                    variant="soft"
-                    :disabled="!selectedParticipant?.isCurrentlyCheckedIn"
-                    :loading="checkOutMutation.isPending.value"
-                    @click="handleCheckOut"
-                  >
-                    Check Out
-                  </UButton>
-                  <UButton
-                    size="sm"
-                    color="neutral"
-                    variant="soft"
-                    @click="openHistory(selectedParticipantUserId, selectedParticipantName || participantDetail?.name || selectedParticipant?.userName || 'Participant')"
-                  >
-                    View History
-                  </UButton>
-                  <UButton
-                    size="sm"
-                    variant="ghost"
-                    @click="resetAndScanAgain"
-                  >
-                    Scan another
-                  </UButton>
-                </div>
+                  <span v-else>Loading...</span>
+                </p>
               </div>
+              <UButton
+                icon="i-lucide-refresh-cw"
+                size="sm"
+                variant="soft"
+                color="neutral"
+                class="w-full sm:w-auto"
+                :loading="isLoadingOverview"
+                @click="refreshOverview"
+              >
+                Refresh
+              </UButton>
+            </div>
+          </template>
+
+          <div class="space-y-3">
+            <!-- Search -->
+            <UInput
+              v-model="historySearchQuery"
+              icon="i-lucide-search"
+              placeholder="Search by participant name..."
+              size="sm"
+            />
+
+            <!-- Loading state -->
+            <div
+              v-if="isLoadingOverview && !allParticipants.length"
+              class="text-sm text-(--ui-text-muted) py-4 text-center"
+            >
+              Loading check-in history...
             </div>
 
-            <!-- Scan Result View -->
+            <!-- Empty state -->
+            <div
+              v-else-if="!isLoadingOverview && !allParticipants.length"
+              class="text-sm text-(--ui-text-muted) py-4 text-center"
+            >
+              No participants found.
+            </div>
+
+            <!-- No search results -->
+            <div
+              v-else-if="filteredParticipants.length === 0"
+              class="text-sm text-(--ui-text-muted) py-4 text-center"
+            >
+              No participants matching "{{ historySearchQuery }}".
+            </div>
+
             <div
               v-else
-              class="space-y-4"
+              class="overflow-x-auto"
             >
-              <div
-                :class="[
-                  'p-4 rounded-lg',
-                  scanResult.success
-                    ? 'bg-green-100 dark:bg-green-900/20'
-                    : 'bg-red-100 dark:bg-red-900/20',
-                ]"
-              >
-                <div class="flex items-start gap-3">
-                  <UIcon
-                    :name="scanResult.success ? 'i-lucide-check-circle' : 'i-lucide-x-circle'"
-                    :class="[
-                      'w-5 h-5 flex-shrink-0 mt-0.5',
-                      scanResult.success
-                        ? 'text-green-800 dark:text-green-200'
-                        : 'text-red-800 dark:text-red-200',
-                    ]"
-                  />
-                  <div class="flex-1">
-                    <p
-                      :class="[
-                        'text-sm font-medium',
-                        scanResult.success
-                          ? 'text-green-800 dark:text-green-200'
-                          : 'text-red-800 dark:text-red-200',
-                      ]"
-                    >
-                      {{ scanResult.success ? 'Action Successful!' : 'Action Failed' }}
-                    </p>
-                    <p
-                      :class="[
-                        'text-sm mt-1',
-                        scanResult.success
-                          ? 'text-green-700 dark:text-green-300'
-                          : 'text-red-700 dark:text-red-300',
-                      ]"
-                    >
-                      {{ scanResult.message }}
-                    </p>
-                    <div class="mt-3 flex gap-2">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-(--ui-text-muted)">
+                    <th class="pb-2 pr-3 font-medium">
+                      Participant
+                    </th>
+                    <th class="pb-2 pr-3 font-medium">
+                      Status
+                    </th>
+                    <th class="pb-2 pr-3 font-medium">
+                      Last activity
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-(--ui-border)">
+                  <tr
+                    v-for="(participant, index) in filteredParticipants"
+                    :key="participant.userId ?? participant.participantId ?? index"
+                  >
+                    <td class="py-2.5 pr-3 font-medium">
+                      {{ participant.userName }}
+                    </td>
+                    <td class="py-2.5 pr-3">
+                      <UBadge
+                        :color="participant.isCurrentlyCheckedIn ? 'success' : 'neutral'"
+                        variant="soft"
+                        size="xs"
+                      >
+                        {{
+                          participant.isCurrentlyCheckedIn
+                            ? 'Checked In'
+                            : participant.totalCheckIns
+                              ? 'Checked Out'
+                              : 'Absent'
+                        }}
+                      </UBadge>
+                    </td>
+                    <td class="py-2.5 pr-3 text-(--ui-text-muted)">
+                      {{
+                        participant.isCurrentlyCheckedIn
+                          ? formatCheckInTime(participant.lastCheckInTime)
+                          : formatCheckInTime(participant.lastCheckOutTime)
+                      }}
+                    </td>
+                    <td class="py-2.5 text-right">
                       <UButton
                         size="xs"
-                        variant="soft"
-                        @click="scanResult = null"
+                        variant="ghost"
+                        @click="openHistory(participant.userId ?? '', participant.userName ?? 'Participant')"
                       >
-                        Back
+                        View history
+                      </UButton>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h3 class="text-sm font-semibold">
+              Live Audit Trail
+            </h3>
+          </template>
+          <div
+            v-if="!auditTrail.length"
+            class="text-sm text-(--ui-text-muted)"
+          >
+            No check-in events yet.
+          </div>
+          <ul
+            v-else
+            class="space-y-2 text-sm"
+          >
+            <li
+              v-for="(event, index) in auditTrail"
+              :key="`${event.userId ?? index}-${event.timestamp ?? index}`"
+              class="text-(--ui-text-muted)"
+            >
+              <span class="font-medium text-(--ui-text)">{{ event.userName ?? 'Participant' }}</span>
+              {{ event.action ?? 'updated status' }} at {{ formatEventTime(event.timestamp) }}
+            </li>
+          </ul>
+        </UCard>
+
+        <!-- Scanner Modal -->
+        <UModal v-model:open="isScannerOpen">
+          <template #content>
+            <UCard>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-semibold">
+                    Scan Participant QR Code
+                  </h3>
+                  <UButton
+                    variant="ghost"
+                    icon="i-lucide-x"
+                    size="xs"
+                    @click="closeScanner"
+                  />
+                </div>
+              </template>
+
+              <div class="space-y-4">
+                <!-- QR Scanner View -->
+                <div
+                  v-if="!scanResult"
+                  class="space-y-4"
+                >
+                  <div class="relative">
+                    <div
+                      id="qr-reader"
+                      class="w-full rounded-lg overflow-hidden"
+                    />
+                  </div>
+
+                  <div
+                    v-if="error"
+                    class="p-4 bg-red-100 dark:bg-red-900/20 rounded-lg space-y-2"
+                  >
+                    <p class="text-sm text-red-800 dark:text-red-200">
+                      {{ error }}
+                    </p>
+                    <details
+                      v-if="rawQrData"
+                      class="text-xs"
+                    >
+                      <summary class="cursor-pointer text-red-700 dark:text-red-300">
+                        Show raw QR data
+                      </summary>
+                      <pre class="mt-2 p-2 bg-red-50 dark:bg-red-950 rounded overflow-auto text-red-900 dark:text-red-100">{{ rawQrData }}</pre>
+                    </details>
+                  </div>
+
+                  <div
+                    v-if="checkInMutation.isPending.value || checkOutMutation.isPending.value"
+                    class="flex items-center justify-center p-4"
+                  >
+                    <div class="flex items-center gap-2">
+                      <UIcon
+                        name="i-lucide-loader-2"
+                        class="animate-spin"
+                      />
+                      <span class="text-sm text-(--ui-text-muted)">Processing action...</span>
+                    </div>
+                  </div>
+
+                  <div
+                    v-if="selectedParticipantUserId && !scanResult"
+                    class="rounded-lg border border-(--ui-border) p-3 space-y-3"
+                  >
+                    <p class="text-sm">
+                      <span class="font-medium">{{ selectedParticipantName || participantDetail?.name || selectedParticipant?.userName || 'Participant' }}</span>
+                      <span class="text-(--ui-text-muted) ml-1">({{ selectedParticipantUserId }})</span>
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <UBadge
+                        :color="selectedParticipant?.isCurrentlyCheckedIn ? 'success' : 'neutral'"
+                        variant="soft"
+                        size="xs"
+                      >
+                        {{ selectedParticipant?.isCurrentlyCheckedIn ? 'Currently checked in' : 'Currently checked out' }}
+                      </UBadge>
+                      <span class="text-xs text-(--ui-text-muted)">
+                        Check-ins: {{ selectedParticipant?.totalCheckIns ?? 0 }}
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <UButton
+                        size="sm"
+                        :disabled="selectedParticipant?.isCurrentlyCheckedIn"
+                        :loading="checkInMutation.isPending.value"
+                        @click="handleCheckIn"
+                      >
+                        Check In
                       </UButton>
                       <UButton
-                        size="xs"
+                        size="sm"
+                        color="warning"
+                        variant="soft"
+                        :disabled="!selectedParticipant?.isCurrentlyCheckedIn"
+                        :loading="checkOutMutation.isPending.value"
+                        @click="handleCheckOut"
+                      >
+                        Check Out
+                      </UButton>
+                      <UButton
+                        size="sm"
+                        color="neutral"
+                        variant="soft"
+                        @click="openHistory(selectedParticipantUserId, selectedParticipantName || participantDetail?.name || selectedParticipant?.userName || 'Participant')"
+                      >
+                        View History
+                      </UButton>
+                      <UButton
+                        size="sm"
                         variant="ghost"
                         @click="resetAndScanAgain"
                       >
@@ -690,56 +637,121 @@ onUnmounted(() => {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </UCard>
-      </template>
-    </UModal>
 
-    <UModal v-model:open="isHistoryModalOpen">
-      <template #content>
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-base font-semibold">
-                {{ selectedParticipantName || participantHistory?.userName || 'Participant' }} · Check-In History
-              </h3>
-              <UButton
-                variant="ghost"
-                icon="i-lucide-x"
-                size="xs"
-                @click="isHistoryModalOpen = false"
-              />
-            </div>
+                <!-- Scan Result View -->
+                <div
+                  v-else
+                  class="space-y-4"
+                >
+                  <div
+                    :class="[
+                      'p-4 rounded-lg',
+                      scanResult.success
+                        ? 'bg-green-100 dark:bg-green-900/20'
+                        : 'bg-red-100 dark:bg-red-900/20',
+                    ]"
+                  >
+                    <div class="flex items-start gap-3">
+                      <UIcon
+                        :name="scanResult.success ? 'i-lucide-check-circle' : 'i-lucide-x-circle'"
+                        :class="[
+                          'w-5 h-5 flex-shrink-0 mt-0.5',
+                          scanResult.success
+                            ? 'text-green-800 dark:text-green-200'
+                            : 'text-red-800 dark:text-red-200',
+                        ]"
+                      />
+                      <div class="flex-1">
+                        <p
+                          :class="[
+                            'text-sm font-medium',
+                            scanResult.success
+                              ? 'text-green-800 dark:text-green-200'
+                              : 'text-red-800 dark:text-red-200',
+                          ]"
+                        >
+                          {{ scanResult.success ? 'Action Successful!' : 'Action Failed' }}
+                        </p>
+                        <p
+                          :class="[
+                            'text-sm mt-1',
+                            scanResult.success
+                              ? 'text-green-700 dark:text-green-300'
+                              : 'text-red-700 dark:text-red-300',
+                          ]"
+                        >
+                          {{ scanResult.message }}
+                        </p>
+                        <div class="mt-3 flex gap-2">
+                          <UButton
+                            size="xs"
+                            variant="soft"
+                            @click="scanResult = null"
+                          >
+                            Back
+                          </UButton>
+                          <UButton
+                            size="xs"
+                            variant="ghost"
+                            @click="resetAndScanAgain"
+                          >
+                            Scan another
+                          </UButton>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </UCard>
           </template>
-          <div
-            v-if="isLoadingParticipantHistory"
-            class="text-sm text-(--ui-text-muted)"
-          >
-            Loading history...
-          </div>
-          <ul
-            v-else-if="participantHistoryEvents.length"
-            class="space-y-2 text-sm"
-          >
-            <li
-              v-for="(event, index) in participantHistoryEvents"
-              :key="`${event.timestamp}-${index}`"
-              class="text-(--ui-text-muted)"
-            >
-              <span class="text-(--ui-text)">{{ event.message }}</span>
-              <span class="ml-1">at {{ formatEventTime(event.timestamp) }}</span>
-            </li>
-          </ul>
-          <div
-            v-else
-            class="text-sm text-(--ui-text-muted)"
-          >
-            No history available.
-          </div>
-        </UCard>
-      </template>
-    </UModal>
-  </div>
+        </UModal>
+
+        <UModal v-model:open="isHistoryModalOpen">
+          <template #content>
+            <UCard>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-semibold">
+                    {{ selectedParticipantName || participantHistory?.userName || 'Participant' }} · Check-In History
+                  </h3>
+                  <UButton
+                    variant="ghost"
+                    icon="i-lucide-x"
+                    size="xs"
+                    @click="isHistoryModalOpen = false"
+                  />
+                </div>
+              </template>
+              <div
+                v-if="isLoadingParticipantHistory"
+                class="text-sm text-(--ui-text-muted)"
+              >
+                Loading history...
+              </div>
+              <ul
+                v-else-if="participantHistoryEvents.length"
+                class="space-y-2 text-sm"
+              >
+                <li
+                  v-for="(event, index) in participantHistoryEvents"
+                  :key="`${event.timestamp}-${index}`"
+                  class="text-(--ui-text-muted)"
+                >
+                  <span class="text-(--ui-text)">{{ event.message }}</span>
+                  <span class="ml-1">at {{ formatEventTime(event.timestamp) }}</span>
+                </li>
+              </ul>
+              <div
+                v-else
+                class="text-sm text-(--ui-text-muted)"
+              >
+                No history available.
+              </div>
+            </UCard>
+          </template>
+        </UModal>
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>

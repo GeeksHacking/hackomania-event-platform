@@ -42,65 +42,79 @@ function formatDate(date: Date | null | undefined): string {
 </script>
 
 <template>
-  <UCard>
+  <UDashboardPanel id="submissions">
     <template #header>
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 class="text-sm font-semibold">
-          Submissions
-        </h3>
-        <UBadge
-          variant="subtle"
-          size="sm"
-        >
-          {{ submissions.length }} total
-        </UBadge>
-      </div>
+      <UDashboardNavbar title="Submissions">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
     </template>
 
-    <div
-      v-if="isLoadingSubmissions"
-      class="text-(--ui-text-muted) text-sm"
-    >
-      Loading submissions...
-    </div>
+    <template #body>
+      <div class="p-4 space-y-4 overflow-y-auto">
+        <UCard>
+          <template #header>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h3 class="text-sm font-semibold">
+                Submissions
+              </h3>
+              <UBadge
+                variant="subtle"
+                size="sm"
+              >
+                {{ submissions.length }} total
+              </UBadge>
+            </div>
+          </template>
 
-    <div
-      v-else-if="!submissions.length"
-      class="text-(--ui-text-muted) text-sm"
-    >
-      No submissions yet.
-    </div>
-
-    <div
-      v-else
-      v-bind="submissionsContainerProps"
-      class="max-h-[36rem] overflow-y-auto"
-    >
-      <div
-        v-bind="submissionsWrapperProps"
-        class="divide-y divide-(--ui-border)"
-      >
-        <div
-          v-for="{ data: submission, index } in virtualSubmissions"
-          :key="submission.id ?? index"
-          class="py-2 flex items-center justify-between gap-2"
-        >
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium">
-              {{ submission.title }}
-            </p>
-            <p class="text-xs text-(--ui-text-muted)">
-              {{ submission.teamName }} - {{ submission.challengeTitle }}
-            </p>
-          </div>
-          <UBadge
-            variant="subtle"
-            size="xs"
+          <div
+            v-if="isLoadingSubmissions"
+            class="text-(--ui-text-muted) text-sm"
           >
-            {{ formatDate(submission.submittedAt) }}
-          </UBadge>
-        </div>
+            Loading submissions...
+          </div>
+
+          <div
+            v-else-if="!submissions.length"
+            class="text-(--ui-text-muted) text-sm"
+          >
+            No submissions yet.
+          </div>
+
+          <div
+            v-else
+            v-bind="submissionsContainerProps"
+            class="max-h-[36rem] overflow-y-auto"
+          >
+            <div
+              v-bind="submissionsWrapperProps"
+              class="divide-y divide-(--ui-border)"
+            >
+              <div
+                v-for="{ data: submission, index } in virtualSubmissions"
+                :key="submission.id ?? index"
+                class="py-2 flex items-center justify-between gap-2"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium">
+                    {{ submission.title }}
+                  </p>
+                  <p class="text-xs text-(--ui-text-muted)">
+                    {{ submission.teamName }} - {{ submission.challengeTitle }}
+                  </p>
+                </div>
+                <UBadge
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ formatDate(submission.submittedAt) }}
+                </UBadge>
+              </div>
+            </div>
+          </div>
+        </UCard>
       </div>
-    </div>
-  </UCard>
+    </template>
+  </UDashboardPanel>
 </template>

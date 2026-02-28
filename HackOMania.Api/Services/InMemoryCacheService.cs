@@ -21,8 +21,8 @@ public class InMemoryCacheService : ICacheService
 
     public void Add<TV>(string key, TV value, int cacheDurationInSeconds)
     {
-        // SqlSugar's auto-invalidation handles cache clearing on writes,
-        // so TTL-based expiry is not critical. Store directly.
+        // TTL is not implemented because SqlSugar's auto-invalidation
+        // (IsAutoRemoveDataCache = true) handles cache clearing on writes.
         if (value != null)
         {
             _cache[key] = value;
@@ -46,6 +46,9 @@ public class InMemoryCacheService : ICacheService
 
     public IEnumerable<string> GetAllKey<TV>()
     {
+        // This cache is exclusively used by SqlSugar (DataInfoCacheService),
+        // so all keys belong to SqlSugar. The TV type parameter is unused
+        // by SqlSugar's internal cache invalidation logic.
         return _cache.Keys.ToList();
     }
 

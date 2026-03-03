@@ -6,5 +6,7 @@ riderModule.iml
 .idea/
 *.db
 *.DotSettings.user
+*.csproj.user
 node_modules/
 HackOMania.WebApp/package-lock.json
+.vs

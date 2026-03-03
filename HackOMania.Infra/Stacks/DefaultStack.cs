@@ -232,7 +232,7 @@ public class DefaultStack : Stack
                 Template = new ServiceTemplateArgs
                 {
                     ServiceAccount = cloudRunServiceAccount.Email,
-                    MaxInstanceRequestConcurrency = 128,
+                    MaxInstanceRequestConcurrency = 512,
                     Containers = new[]
                     {
                         new ServiceTemplateContainerArgs
@@ -247,7 +247,7 @@ public class DefaultStack : Stack
                             {
                                 // With min instances = 1, CPU is always allocated.
                                 CpuIdle = false,
-                                Limits = { { "cpu", "0.5" }, { "memory", "2Gi" } },
+                                Limits = { { "cpu", "0.2" }, { "memory", "2Gi" } },
                             },
                             StartupProbe = new ServiceTemplateContainerStartupProbeArgs
                             {

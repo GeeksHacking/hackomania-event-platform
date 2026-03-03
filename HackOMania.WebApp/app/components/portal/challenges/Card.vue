@@ -64,7 +64,7 @@ watch(() => props.title, () => {
       :class="headerClass"
       :style="headerStyle"
     >
-      <span class="font-['Zalando_Sans_Expanded'] text-black uppercase text-base lg:text-2xl break-words">
+      <span class="font-['Zalando_Sans_Expanded'] text-black uppercase text-lg lg:text-xl break-words">
         {{ title }}
       </span>
     </div>

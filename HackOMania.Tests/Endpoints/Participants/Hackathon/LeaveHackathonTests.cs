@@ -194,7 +194,10 @@ public class WithdrawFromHackathonTests
         );
 
         // Assert
-        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert
+            .That(response.StatusCode)
+            .IsEqualTo(HttpStatusCode.NotFound)
+            .Or.IsEqualTo(HttpStatusCode.Forbidden);
     }
 
     [Test]

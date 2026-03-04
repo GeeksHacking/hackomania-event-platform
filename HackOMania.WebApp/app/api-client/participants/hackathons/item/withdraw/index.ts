@@ -11,13 +11,13 @@ import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type Requ
  */
 export interface WithdrawRequestBuilder extends BaseRequestBuilder<WithdrawRequestBuilder> {
     /**
-     * Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing.
+     * Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing. Historical records are preserved.
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<HackOManiaApiEndpointsParticipantsHackathonWithdrawResponse>}
      */
      post(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<HackOManiaApiEndpointsParticipantsHackathonWithdrawResponse | undefined>;
     /**
-     * Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing.
+     * Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing. Historical records are preserved.
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
      */

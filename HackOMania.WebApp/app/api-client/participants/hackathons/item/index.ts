@@ -8,8 +8,6 @@ import { ChallengesRequestBuilderNavigationMetadata, ChallengesRequestBuilderReq
 // @ts-ignore
 import { JoinRequestBuilderRequestsMetadata, type JoinRequestBuilder } from './join/index.js';
 // @ts-ignore
-import { WithdrawRequestBuilderRequestsMetadata, type WithdrawRequestBuilder } from './leave/index.js';
-// @ts-ignore
 import { RegistrationRequestBuilderNavigationMetadata, type RegistrationRequestBuilder } from './registration/index.js';
 // @ts-ignore
 import { ResourcesRequestBuilderRequestsMetadata, type ResourcesRequestBuilder } from './resources/index.js';
@@ -23,6 +21,8 @@ import { TeamsRequestBuilderNavigationMetadata, TeamsRequestBuilderRequestsMetad
 import { TimelineRequestBuilderRequestsMetadata, type TimelineRequestBuilder } from './timeline/index.js';
 // @ts-ignore
 import { type VenueRequestBuilder, VenueRequestBuilderNavigationMetadata } from './venue/index.js';
+// @ts-ignore
+import { type WithdrawRequestBuilder, WithdrawRequestBuilderRequestsMetadata } from './withdraw/index.js';
 // @ts-ignore
 import { type WorkshopsRequestBuilder, WorkshopsRequestBuilderNavigationMetadata, WorkshopsRequestBuilderRequestsMetadata } from './workshops/index.js';
 // @ts-ignore
@@ -40,10 +40,6 @@ export interface HackathonIdOrShortCodeItemRequestBuilder extends BaseRequestBui
      * The join property
      */
     get join(): JoinRequestBuilder;
-    /**
-     * The withdraw property
-     */
-    get withdraw(): WithdrawRequestBuilder;
     /**
      * The registration property
      */
@@ -72,6 +68,10 @@ export interface HackathonIdOrShortCodeItemRequestBuilder extends BaseRequestBui
      * The venue property
      */
     get venue(): VenueRequestBuilder;
+    /**
+     * The withdraw property
+     */
+    get withdraw(): WithdrawRequestBuilder;
     /**
      * The workshops property
      */
@@ -104,9 +104,6 @@ export const HackathonIdOrShortCodeItemRequestBuilderNavigationMetadata: Record<
     join: {
         requestsMetadata: JoinRequestBuilderRequestsMetadata,
     },
-    withdraw: {
-        requestsMetadata: WithdrawRequestBuilderRequestsMetadata,
-    },
     registration: {
         navigationMetadata: RegistrationRequestBuilderNavigationMetadata,
     },
@@ -128,6 +125,9 @@ export const HackathonIdOrShortCodeItemRequestBuilderNavigationMetadata: Record<
     },
     venue: {
         navigationMetadata: VenueRequestBuilderNavigationMetadata,
+    },
+    withdraw: {
+        requestsMetadata: WithdrawRequestBuilderRequestsMetadata,
     },
     workshops: {
         requestsMetadata: WorkshopsRequestBuilderRequestsMetadata,

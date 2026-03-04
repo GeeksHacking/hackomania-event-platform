@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { computed, ref, watch } from 'vue'
-import { useJoinHackathonMutation } from '~/composables/hackathon'
 import { hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
-import { fetchQuestions, useInitQuestionMutation } from '~/composables/question'
 
 const props = defineProps<{
   hackathonId?: string | null

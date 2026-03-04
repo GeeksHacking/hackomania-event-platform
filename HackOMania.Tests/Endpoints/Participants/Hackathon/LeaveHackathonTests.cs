@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
 using HackOMania.Tests.Data;
 using HackOMania.Tests.Models;
+using System.Net.Http.Json;
 
 namespace HackOMania.Tests.Endpoints.Participants.Hackathon;
 

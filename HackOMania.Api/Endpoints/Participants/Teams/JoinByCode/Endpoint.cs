@@ -75,7 +75,38 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
         else
         {
-            // User is already a participant, check if they're already in a team
+            var openWithdrawal = await sql.Queryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == participant.Id && w.RejoinedAt == null)
+                .OrderByDescending(w => w.WithdrawnAt)
+                .FirstAsync(ct);
+
+            if (openWithdrawal is not null)
+            {
+                var latestRejoinReview = await sql.Queryable<ParticipantReview>()
+                    .Where(r =>
+                        r.ParticipantId == participant.Id && r.CreatedAt > openWithdrawal.WithdrawnAt
+                    )
+                    .OrderByDescending(r => r.CreatedAt)
+                    .FirstAsync(ct);
+
+                if (latestRejoinReview?.Status != ParticipantReview.ParticipantReviewStatus.Accepted)
+                {
+                    AddError(r => r.JoinCode, "You must be accepted in a new review before re-joining this hackathon.");
+                    await Send.ErrorsAsync(cancellation: ct);
+                    return;
+                }
+
+                // Close the open withdrawal record to re-activate the participant
+                var now = DateTimeOffset.UtcNow;
+                await sql.Updateable<ParticipantWithdrawal>()
+                    .SetColumns(w => w.RejoinedAt == now)
+                    .Where(w => w.ParticipantId == participant.Id && w.RejoinedAt == null)
+                    .ExecuteCommandAsync(ct);
+
+                autoJoinedHackathon = true;
+            }
+
+            // Check if they're already in a team
             if (participant.TeamId.HasValue)
             {
                 AddError(r => r.JoinCode, "You are already in a team for this hackathon.");
@@ -83,9 +114,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 return;
             }
 
-            // Update the participant's team
+            // Assign the participant to the team
             participant.TeamId = team.Id;
-            await sql.Updateable(participant).ExecuteCommandAsync(ct);
+            await sql.Updateable(participant)
+                .UpdateColumns(p => p.TeamId)
+                .ExecuteCommandAsync(ct);
         }
 
         await Send.OkAsync(

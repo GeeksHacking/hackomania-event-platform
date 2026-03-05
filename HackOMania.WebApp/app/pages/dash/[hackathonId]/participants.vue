@@ -14,7 +14,11 @@ import {
   HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject,
   HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject,
 } from '~/api-client/models'
-import { participantOrganizerQueries, useReviewParticipantMutation } from '~/composables/participants'
+import {
+  participantOrganizerQueries,
+  useReviewParticipantMutation,
+  useWithdrawParticipantMutation,
+} from '~/composables/participants'
 import { registrationQuestionQueries } from '~/composables/question'
 import { registrationPageConfig } from '~/config/registration-pages'
 
@@ -70,11 +74,29 @@ const sortOptions = [
 const tableVirtualizeOptions = { estimateSize: 65, overscan: 12 } as const
 
 // Filter state
-type FilterStatus = 'all' | 'incomplete' | 'pending' | 'approved' | 'rejected'
+type FilterStatus = 'all' | 'active' | 'withdrawn' | 'incomplete' | 'pending' | 'approved' | 'rejected'
 const activeFilter = ref<FilterStatus>('all')
 
 function isIncomplete(p: ParticipantItem) {
   return !p.registrationSubmissions?.length
+}
+
+function getWithdrawnDate(participant: ParticipantItem): Date | null {
+  const withdrawnAt = (participant as { withdrawnAt?: Date | string | null }).withdrawnAt
+  if (!withdrawnAt)
+    return null
+  const parsed = withdrawnAt instanceof Date ? withdrawnAt : new Date(withdrawnAt)
+  if (Number.isNaN(parsed.getTime()))
+    return null
+  return parsed
+}
+
+function isWithdrawn(participant: ParticipantItem) {
+  return getWithdrawnDate(participant) !== null
+}
+
+function hasPreviouslyWithdrawn(participant: ParticipantItem) {
+  return !!(participant as unknown as { hasPreviouslyWithdrawn?: boolean }).hasPreviouslyWithdrawn
 }
 
 function isPendingStatus(status: ParticipantConcludedStatus | null | undefined) {
@@ -86,7 +108,7 @@ function isPendingStatus(status: ParticipantConcludedStatus | null | undefined) 
 }
 
 function isPendingParticipant(participant: ParticipantItem) {
-  return !isIncomplete(participant) && isPendingStatus(participant.concludedStatus)
+  return !isWithdrawn(participant) && !isIncomplete(participant) && isPendingStatus(participant.concludedStatus)
 }
 
 function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
@@ -123,10 +145,15 @@ function getReviewPriorityBucket(participant: ParticipantItem) {
 
 const statusFilteredParticipants = computed(() => {
   const all = participants.value
-  const complete = all.filter(p => !isIncomplete(p))
+  const active = all.filter(p => !isWithdrawn(p))
+  const complete = active.filter(p => !isIncomplete(p))
   switch (activeFilter.value) {
+    case 'active':
+      return active
+    case 'withdrawn':
+      return all.filter(p => isWithdrawn(p))
     case 'incomplete':
-      return all.filter(p => isIncomplete(p))
+      return active.filter(p => isIncomplete(p))
     case 'pending':
       return complete.filter(p => isPendingStatus(p.concludedStatus))
     case 'approved':
@@ -142,7 +169,7 @@ const statusFilteredParticipants = computed(() => {
           === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected,
       )
     default:
-      return complete
+      return all
   }
 })
 
@@ -189,10 +216,13 @@ const sortedParticipants = computed(() => {
 
 const filterCounts = computed(() => {
   const all = participants.value
-  const complete = all.filter(p => !isIncomplete(p))
+  const active = all.filter(p => !isWithdrawn(p))
+  const complete = active.filter(p => !isIncomplete(p))
   return {
-    all: complete.length,
-    incomplete: all.filter(p => isIncomplete(p)).length,
+    all: all.length,
+    active: active.length,
+    withdrawn: all.filter(p => isWithdrawn(p)).length,
+    incomplete: active.filter(p => isIncomplete(p)).length,
     pending: complete.filter(p => isPendingStatus(p.concludedStatus)).length,
     approved: complete.filter(
       p =>
@@ -213,6 +243,9 @@ const emptyMessage = computed(() => {
   }
   if (activeFilter.value === 'all') {
     return 'No participants found.'
+  }
+  if (activeFilter.value === 'withdrawn') {
+    return 'No withdrawn participants.'
   }
   return `No ${activeFilter.value} participants.`
 })
@@ -458,6 +491,7 @@ function toggleParticipant(participantId: string) {
 
 // Review mutation
 const reviewMutation = useReviewParticipantMutation(hackathonId)
+const withdrawParticipantMutation = useWithdrawParticipantMutation(hackathonId)
 
 // Modal state
 const isReviewModalOpen = ref(false)
@@ -507,6 +541,55 @@ const isReReview = computed(() => {
 const hasNoExpandedData = computed(() => {
   return !participantDetail.value?.reviews?.length && !sortedSubmissions.value.length
 })
+
+const isWithdrawModalOpen = ref(false)
+const withdrawingParticipantId = ref<string | null>(null)
+
+const withdrawingParticipant = computed(() => {
+  if (!withdrawingParticipantId.value)
+    return null
+  return participants.value.find(p => p.id === withdrawingParticipantId.value) ?? null
+})
+
+function openWithdrawModal(participantId: string) {
+  if (!participantId)
+    return
+  withdrawingParticipantId.value = participantId
+  isWithdrawModalOpen.value = true
+}
+
+function closeWithdrawModal() {
+  isWithdrawModalOpen.value = false
+  withdrawingParticipantId.value = null
+}
+
+async function handleWithdrawParticipant() {
+  if (!withdrawingParticipantId.value)
+    return
+
+  try {
+    await withdrawParticipantMutation.mutateAsync(withdrawingParticipantId.value)
+    await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'participants', 'organizer'] })
+    closeWithdrawModal()
+    toast.add({
+      title: 'Participant withdrawn',
+      description: 'The participant has been withdrawn from this hackathon.',
+      color: 'success',
+    })
+  }
+  catch (error) {
+    const statusCode = getErrorStatusCode(error)
+    const description = statusCode === 404
+      ? 'Participant was not found or is already withdrawn.'
+      : 'Please try again.'
+
+    toast.add({
+      title: 'Could not withdraw participant',
+      description,
+      color: 'error',
+    })
+  }
+}
 
 const reviewModalTitle = computed(() => {
   return isReReview.value ? 'Re-review Participant' : 'Review Participant'
@@ -702,6 +785,22 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                   </UButton>
                   <UButton
                     size="xs"
+                    :variant="activeFilter === 'active' ? 'solid' : 'ghost'"
+                    :color="activeFilter === 'active' ? 'primary' : 'neutral'"
+                    @click="activeFilter = 'active'"
+                  >
+                    Active ({{ filterCounts.active }})
+                  </UButton>
+                  <UButton
+                    size="xs"
+                    :variant="activeFilter === 'withdrawn' ? 'solid' : 'ghost'"
+                    :color="activeFilter === 'withdrawn' ? 'neutral' : 'neutral'"
+                    @click="activeFilter = 'withdrawn'"
+                  >
+                    Withdrawn ({{ filterCounts.withdrawn }})
+                  </UButton>
+                  <UButton
+                    size="xs"
                     :variant="activeFilter === 'incomplete' ? 'solid' : 'ghost'"
                     :color="activeFilter === 'incomplete' ? 'neutral' : 'neutral'"
                     @click="activeFilter = 'incomplete'"
@@ -807,15 +906,38 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                       <p class="text-xs text-(--ui-text-muted)">
                         Applied: {{ formatDateTime(getParticipantApplicationDate(participant)) }}
                       </p>
+                      <p
+                        v-if="isWithdrawn(participant)"
+                        class="text-xs text-(--ui-text-muted)"
+                      >
+                        Withdrawn: {{ formatDateTime(getWithdrawnDate(participant)) }}
+                      </p>
                     </div>
                     <div class="flex items-center gap-2 ml-2">
-                      <template v-if="!isIncomplete(participant)">
+                      <template v-if="isWithdrawn(participant)">
+                        <UBadge
+                          color="neutral"
+                          variant="subtle"
+                          size="xs"
+                        >
+                          Withdrawn
+                        </UBadge>
+                      </template>
+                      <template v-else-if="!isIncomplete(participant)">
                         <UBadge
                           :color="getStatusColor(participant.concludedStatus)"
                           variant="subtle"
                           size="xs"
                         >
                           {{ getStatusLabel(participant.concludedStatus) }}
+                        </UBadge>
+                        <UBadge
+                          v-if="hasPreviouslyWithdrawn(participant)"
+                          color="warning"
+                          variant="subtle"
+                          size="xs"
+                        >
+                          Re-joined
                         </UBadge>
                         <UBadge
                           v-if="isReviewOverdue(participant)"
@@ -843,6 +965,18 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                       >
                         Incomplete
                       </UBadge>
+                      <UTooltip
+                        v-if="!isWithdrawn(participant)"
+                        text="Withdraw participant"
+                      >
+                        <UButton
+                          size="xs"
+                          color="error"
+                          variant="ghost"
+                          icon="i-lucide-user-minus"
+                          @click="openWithdrawModal(participant.id ?? '')"
+                        />
+                      </UTooltip>
                     </div>
                   </div>
 
@@ -972,13 +1106,31 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                 </template>
 
                 <template #status-cell="{ row }">
-                  <template v-if="!isIncomplete(row.original)">
+                  <template v-if="isWithdrawn(row.original)">
+                    <UBadge
+                      color="neutral"
+                      variant="subtle"
+                      size="xs"
+                    >
+                      Withdrawn
+                    </UBadge>
+                  </template>
+                  <template v-else-if="!isIncomplete(row.original)">
                     <UBadge
                       :color="getStatusColor(row.original.concludedStatus)"
                       variant="subtle"
                       size="xs"
                     >
                       {{ getStatusLabel(row.original.concludedStatus) }}
+                    </UBadge>
+                    <UBadge
+                      v-if="hasPreviouslyWithdrawn(row.original)"
+                      color="warning"
+                      variant="subtle"
+                      size="xs"
+                      class="ml-1"
+                    >
+                      Re-joined
                     </UBadge>
                     <UBadge
                       v-if="isReviewOverdue(row.original)"
@@ -1002,10 +1154,11 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
 
                 <template #actions-cell="{ row }">
                   <div
-                    v-if="!isIncomplete(row.original)"
+                    v-if="!isWithdrawn(row.original)"
                     class="flex items-center gap-1"
                   >
                     <UButton
+                      v-if="!isIncomplete(row.original)"
                       size="xs"
                       :variant="isPendingParticipant(row.original) ? 'soft' : 'ghost'"
                       :color="isPendingParticipant(row.original) ? 'warning' : 'neutral'"
@@ -1014,6 +1167,15 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                     >
                       {{ isPendingParticipant(row.original) ? 'Review' : 'Re-review' }}
                     </UButton>
+                    <UTooltip text="Withdraw participant">
+                      <UButton
+                        size="xs"
+                        color="error"
+                        variant="ghost"
+                        icon="i-lucide-user-minus"
+                        @click="openWithdrawModal(row.original.id ?? '')"
+                      />
+                    </UTooltip>
                   </div>
                   <span
                     v-else
@@ -1067,6 +1229,21 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                           {{ getStatusLabel(reviewingParticipant.concludedStatus) }}
                         </UBadge>
                       </p>
+                    </div>
+
+                    <div
+                      v-if="hasPreviouslyWithdrawn(reviewingParticipant)"
+                      class="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3"
+                    >
+                      <div class="flex items-start gap-2">
+                        <UIcon
+                          name="i-lucide-alert-triangle"
+                          class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                        />
+                        <p class="text-xs text-amber-700 dark:text-amber-300">
+                          This participant previously withdrew and has re-joined. A new review is required before they regain access.
+                        </p>
+                      </div>
                     </div>
 
                     <div v-if="reviewingParticipantReviews.length > 0">
@@ -1167,6 +1344,97 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
                       @click="handleReview('accept')"
                     >
                       Approve
+                    </UButton>
+                  </div>
+                </div>
+              </UCard>
+            </div>
+          </template>
+        </UModal>
+
+        <UModal
+          v-model:open="isWithdrawModalOpen"
+          title="Withdraw participant"
+          description="This removes participant access while preserving historical data."
+        >
+          <template #content>
+            <div class="overflow-auto max-h-[80vh]">
+              <UCard>
+                <template #header>
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-base font-semibold">
+                      Withdraw Participant
+                    </h3>
+                    <UButton
+                      variant="ghost"
+                      icon="i-lucide-x"
+                      size="xs"
+                      @click="closeWithdrawModal"
+                    />
+                  </div>
+                </template>
+
+                <div class="space-y-4">
+                  <div
+                    v-if="withdrawingParticipant"
+                    class="rounded-lg border border-default p-3 text-sm space-y-1"
+                  >
+                    <p>
+                      <strong>Name:</strong> {{ withdrawingParticipant.name ?? withdrawingParticipant.id }}
+                    </p>
+                    <p>
+                      <strong>Team:</strong> {{ withdrawingParticipant.teamName ?? 'No team' }}
+                    </p>
+                    <p>
+                      <strong>Status:</strong>
+                      <UBadge
+                        v-if="isWithdrawn(withdrawingParticipant)"
+                        color="neutral"
+                        variant="subtle"
+                        size="xs"
+                        class="ml-1"
+                      >
+                        Withdrawn
+                      </UBadge>
+                      <UBadge
+                        v-else
+                        :color="getStatusColor(withdrawingParticipant.concludedStatus)"
+                        variant="subtle"
+                        size="xs"
+                        class="ml-1"
+                      >
+                        {{ getStatusLabel(withdrawingParticipant.concludedStatus) }}
+                      </UBadge>
+                    </p>
+                  </div>
+
+                  <div class="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3">
+                    <div class="flex items-start gap-2">
+                      <UIcon
+                        name="i-lucide-alert-triangle"
+                        class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                      />
+                      <p class="text-xs text-amber-700 dark:text-amber-300">
+                        This will remove the participant from their team (if any) and revoke their access. Historical data such as reviews and submissions will be preserved.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end gap-2">
+                    <UButton
+                      variant="ghost"
+                      :disabled="withdrawParticipantMutation.isPending.value"
+                      @click="closeWithdrawModal"
+                    >
+                      Cancel
+                    </UButton>
+                    <UButton
+                      color="error"
+                      icon="i-lucide-user-minus"
+                      :loading="withdrawParticipantMutation.isPending.value"
+                      @click="handleWithdrawParticipant"
+                    >
+                      Withdraw participant
                     </UButton>
                   </div>
                 </div>

@@ -134,6 +134,121 @@ public class TeamsTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task JoinTeamByCode_WhenWithdrawnWithoutReReview_ReturnsBadRequest(
+        AuthenticatedHttpClientDataClass organizerClient
+    )
+    {
+        // Arrange - Organizer creates hackathon and a team
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(organizerClient);
+        var createTeamResponse = await organizerClient.HttpClient.PostAsJsonAsync(
+            $"/participants/hackathons/{hackathonId}/teams",
+            new { Name = "Rejoin Team", Description = "Team for withdrawn rejoin test" }
+        );
+        var team = await createTeamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
+
+        var secondUser = new AuthenticatedHttpClientDataClass
+        {
+            GitHubId = 9996,
+            GitHubLogin = "withdrawn-user-no-review",
+            FirstName = "Withdrawn",
+            LastName = "NoReview",
+            Email = "withdrawn-no-review@example.com",
+        };
+        await secondUser.InitializeAsync();
+
+        try
+        {
+            // Join hackathon and then withdraw
+            await secondUser.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
+            await secondUser.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathonId}/withdraw",
+                null
+            );
+
+            // Act - Try to rejoin directly through team join code without new review
+            var response = await secondUser.HttpClient.PostAsJsonAsync(
+                "/participants/teams/join",
+                new { team!.JoinCode }
+            );
+
+            // Assert
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+        }
+        finally
+        {
+            await secondUser.DisposeAsync();
+        }
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task JoinTeamByCode_WhenWithdrawnAfterAcceptedReview_ReturnsOk(
+        AuthenticatedHttpClientDataClass organizerClient
+    )
+    {
+        // Arrange - Organizer creates hackathon and a team
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(organizerClient);
+        var createTeamResponse = await organizerClient.HttpClient.PostAsJsonAsync(
+            $"/participants/hackathons/{hackathonId}/teams",
+            new { Name = "Rejoin Team Approved", Description = "Team for approved rejoin test" }
+        );
+        var team = await createTeamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
+
+        var secondUser = new AuthenticatedHttpClientDataClass
+        {
+            GitHubId = 9995,
+            GitHubLogin = "withdrawn-user-reviewed",
+            FirstName = "Withdrawn",
+            LastName = "Reviewed",
+            Email = "withdrawn-reviewed@example.com",
+        };
+        await secondUser.InitializeAsync();
+
+        try
+        {
+            var secondWhoAmI = await secondUser.HttpClient.GetFromJsonAsync<WhoAmIResponse>("/auth/whoami");
+            await Assert.That(secondWhoAmI).IsNotNull();
+
+            // Join hackathon and withdraw
+            await secondUser.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
+            await secondUser.HttpClient.PostAsync(
+                $"/participants/hackathons/{hackathonId}/withdraw",
+                null
+            );
+
+            // Organizer approves rejoin via a new review
+            var reviewResponse = await organizerClient.HttpClient.PostAsJsonAsync(
+                $"/organizers/hackathons/{hackathonId}/participants/{secondWhoAmI!.Id}/review",
+                new ParticipantReviewRequest
+                {
+                    Decision = "accept",
+                    Reason = "Rejoin approved",
+                }
+            );
+            await Assert.That(reviewResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+            // Act - Rejoin through team join code
+            var response = await secondUser.HttpClient.PostAsJsonAsync(
+                "/participants/teams/join",
+                new { team!.JoinCode }
+            );
+            var result = await response.Content.ReadFromJsonAsync<JoinTeamByCodeResponse>();
+
+            // Assert
+            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+            await Assert.That(result).IsNotNull();
+            await Assert.That(result!.TeamId).IsEqualTo(team.Id);
+            await Assert.That(result.HackathonId).IsEqualTo(hackathonId);
+            await Assert.That(result.AutoJoinedHackathon).IsTrue();
+        }
+        finally
+        {
+            await secondUser.DisposeAsync();
+        }
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task GetMyTeam_AfterCreating_ReturnsTeam(AuthenticatedHttpClientDataClass client)
     {
         // Arrange

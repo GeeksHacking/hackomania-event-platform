@@ -134,6 +134,41 @@ public class ParticipantsManagementTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task WithdrawParticipant_AsOrganizer_WithdrawsAndReflectsInParticipantsList(
+        AuthenticatedHttpClientDataClass organizerClient
+    )
+    {
+        // Arrange
+        var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
+            organizerClient
+        );
+
+        // Act
+        var withdrawResponse = await organizerClient.HttpClient.PostAsync(
+            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/withdraw",
+            null
+        );
+
+        // Assert
+        await Assert.That(withdrawResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var listResponse = await organizerClient.HttpClient.GetAsync(
+            $"/organizers/hackathons/{hackathonId}/participants"
+        );
+        var participants = await listResponse.Content.ReadFromJsonAsync<ParticipantsListResponse>();
+        await Assert.That(listResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(participants).IsNotNull();
+
+        var withdrawnParticipant = participants!.Participants?.FirstOrDefault(p =>
+            p.Id == participantUserId
+        );
+        await Assert.That(withdrawnParticipant).IsNotNull();
+        await Assert.That(withdrawnParticipant!.IsWithdrawn).IsTrue();
+        await Assert.That(withdrawnParticipant.WithdrawnAt).IsNotNull();
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task ReviewParticipant_WithConcurrentRequests_BothReviewsAreSaved(
         AuthenticatedHttpClientDataClass organizerClient
     )

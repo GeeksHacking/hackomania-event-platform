@@ -11,6 +11,9 @@ public class ParticipantsListResponse
 
 public class ParticipantItem
 {
+    public DateTimeOffset? WithdrawnAt { get; set; }
+    public bool IsWithdrawn { get; set; }
+    public bool HasPreviouslyWithdrawn { get; set; }
     public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public Guid? TeamId { get; set; }

@@ -60,10 +60,34 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
 
             await sql.Insertable(existing).ExecuteCommandAsync(ct);
         }
-        else if (existing.WithdrawnAt is not null)
+        else
         {
-            existing.WithdrawnAt = null;
-            await sql.Updateable(existing).ExecuteCommandAsync(ct);
+            var openWithdrawal = await sql.Queryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == existing.Id && w.RejoinedAt == null)
+                .OrderByDescending(w => w.WithdrawnAt)
+                .FirstAsync(ct);
+
+            if (openWithdrawal is not null)
+            {
+                var latestRejoinReview = await sql.Queryable<ParticipantReview>()
+                    .Where(r => r.ParticipantId == existing.Id && r.CreatedAt > openWithdrawal.WithdrawnAt)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .FirstAsync(ct);
+
+                if (latestRejoinReview?.Status != ParticipantReview.ParticipantReviewStatus.Accepted)
+                {
+                    AddError("You must be accepted in a new review before re-joining this hackathon.");
+                    await Send.ErrorsAsync(cancellation: ct);
+                    return;
+                }
+
+                // Close the open withdrawal record to re-activate the participant
+                var now = DateTimeOffset.UtcNow;
+                await sql.Updateable<ParticipantWithdrawal>()
+                    .SetColumns(w => w.RejoinedAt == now)
+                    .Where(w => w.ParticipantId == existing.Id && w.RejoinedAt == null)
+                    .ExecuteCommandAsync(ct);
+            }
         }
 
         await Send.OkAsync(

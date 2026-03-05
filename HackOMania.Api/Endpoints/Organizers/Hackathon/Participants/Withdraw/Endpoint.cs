@@ -41,9 +41,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var participant = await sql.Queryable<Participant>()
             .Where(p =>
                 p.HackathonId == hackathon.Id
-                && p.UserId == req.UserId
-                && p.WithdrawnAt == null
-            )
+                && p.UserId == req.UserId)
+            .Where(p => !SqlFunc.Subqueryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == p.Id && w.RejoinedAt == null)
+                .Any())
             .FirstAsync(ct);
 
         if (participant is null)
@@ -53,8 +54,16 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         participant.TeamId = null;
-        participant.WithdrawnAt = DateTimeOffset.UtcNow;
-        await sql.Updateable(participant).ExecuteCommandAsync(ct);
+        await sql.Updateable(participant)
+            .UpdateColumns(p => p.TeamId)
+            .ExecuteCommandAsync(ct);
+
+        await sql.Insertable(new ParticipantWithdrawal
+        {
+            Id = Guid.NewGuid(),
+            ParticipantId = participant.Id,
+            WithdrawnAt = DateTimeOffset.UtcNow,
+        }).ExecuteCommandAsync(ct);
 
         await Send.OkAsync(
             new Response { Message = "Participant has been withdrawn from the hackathon" },

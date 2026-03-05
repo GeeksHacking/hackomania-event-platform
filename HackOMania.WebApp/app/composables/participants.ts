@@ -51,6 +51,22 @@ export function useReviewParticipantMutation(hackathonId: MaybeRefOrGetter<strin
   })
 }
 
+export function useWithdrawParticipantMutation(hackathonId: MaybeRefOrGetter<string>) {
+  return useMutation({
+    async mutationFn(participantUserId: string) {
+      const id = toValue(hackathonId)
+      if (!id || !participantUserId)
+        throw new Error('Missing hackathon or participant ID')
+
+      const config = useRuntimeConfig()
+      return await $fetch(`${config.public.api}/organizers/hackathons/${id}/participants/${participantUserId}/withdraw`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+    },
+  })
+}
+
 export function useWithdrawFromHackathon(hackathonId: MaybeRefOrGetter<string | null>) {
   return useMutation({
     async mutationFn() {

@@ -59,12 +59,31 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             _ => ParticipantConcludedStatus.Pending,
         };
 
+        var withdrawals = await sql.Queryable<ParticipantWithdrawal>()
+            .Where(w => w.ParticipantId == participant.Id)
+            .OrderByDescending(w => w.WithdrawnAt)
+            .ToListAsync(ct);
+        var latestOpenWithdrawal = withdrawals.FirstOrDefault(w => w.RejoinedAt is null);
+        var hasRejoinedBefore = withdrawals.Any(w => w.RejoinedAt is not null);
+        var lastWithdrawalAt = withdrawals
+            .Select(w => w.WithdrawnAt)
+            .DefaultIfEmpty(default)
+            .Max();
+
+        if (lastWithdrawalAt != default
+            && (participantReviews.Count == 0
+                || participantReviews.OrderByDescending(r => r.CreatedAt).First().CreatedAt < lastWithdrawalAt))
+        {
+            concludedStatus = ParticipantConcludedStatus.Pending;
+        }
+
         await Send.OkAsync(
             new Response
             {
                 CreatedAt = participant.JoinedAt,
-                WithdrawnAt = participant.WithdrawnAt,
-                IsWithdrawn = participant.WithdrawnAt is not null,
+                WithdrawnAt = latestOpenWithdrawal?.WithdrawnAt,
+                IsWithdrawn = latestOpenWithdrawal is not null,
+                HasPreviouslyWithdrawn = hasRejoinedBefore,
                 Id = participant.UserId,
                 Name = userName,
                 Email = user?.Email,

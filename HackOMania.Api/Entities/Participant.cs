@@ -9,11 +9,11 @@ public class Participant : HackathonUser
 
     public DateTimeOffset JoinedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    [SugarColumn(IsNullable = true)]
-    public DateTimeOffset? WithdrawnAt { get; set; }
-
     [Navigate(NavigateType.ManyToOne, nameof(TeamId), nameof(Team.Id))]
     public Team? Team { get; set; } = null!;
+
+    [Navigate(NavigateType.OneToMany, nameof(ParticipantWithdrawal.ParticipantId))]
+    public List<ParticipantWithdrawal> Withdrawals { get; set; } = [];
 
     [Navigate(NavigateType.OneToMany, nameof(ParticipantReview.ParticipantId))]
     public List<ParticipantReview> ParticipantReviews { get; set; } = [];

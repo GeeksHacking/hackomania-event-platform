@@ -6,7 +6,7 @@ import { authQueries } from '~/composables/auth'
 import { useJoinHackathonMutation } from '~/composables/hackathon'
 import { formatParticipantStatus, hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
 import { organizerQueries } from '~/composables/organizers'
-import { useReviewParticipantMutation, useWithdrawFromHackathon } from '~/composables/participants'
+import { useReviewParticipantMutation, useWithdrawFromHackathon, useWithdrawParticipantMutation } from '~/composables/participants'
 
 const route = useRoute()
 const toast = useToast()
@@ -56,38 +56,39 @@ const { data: organizersData } = useQuery(
   })),
 )
 
+async function withdrawFromHackathon() {
+  try {
+    await withdrawMutation.mutateAsync()
+    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(resolvedHackathonId.value ?? '').queryKey })
+    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
+    await queryClient.invalidateQueries({ queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'] })
+    isWithdrawModalOpen.value = false
+    toast.add({
+      title: 'Withdrawn',
+      description: 'You have withdrawn from this hackathon.',
+      color: 'success',
+    })
+  }
+  catch (error) {
+    console.error('[DASH] Failed to withdraw from hackathon', error)
+    const statusCode = getErrorStatusCode(error)
+    const description = statusCode === 400
+      ? 'Leave your team before withdrawing from this hackathon.'
+      : 'Please try again in a moment.'
+
+    toast.add({
+      title: 'Could not withdraw',
+      description,
+      color: 'error',
+    })
+  }
+}
+
 const isOrganizer = computed(() => {
   if (!user.value?.id) {
     return false
   }
 
-  async function withdrawFromHackathon() {
-    try {
-      await withdrawMutation.mutateAsync()
-      await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(resolvedHackathonId.value ?? '').queryKey })
-      await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
-      await queryClient.invalidateQueries({ queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'] })
-      isWithdrawModalOpen.value = false
-      toast.add({
-        title: 'Withdrawn',
-        description: 'You have withdrawn from this hackathon.',
-        color: 'success',
-      })
-    }
-    catch (error) {
-      console.error('[DASH] Failed to withdraw from hackathon', error)
-      const statusCode = getErrorStatusCode(error)
-      const description = statusCode === 400
-        ? 'Leave your team before withdrawing from this hackathon.'
-        : 'Please try again in a moment.'
-
-      toast.add({
-        title: 'Could not withdraw',
-        description,
-        color: 'error',
-      })
-    }
-  }
   if (user.value.isRoot)
     return true
   if (organizersData.value?.organizers) {
@@ -103,6 +104,37 @@ const reviewForm = ref({
   decision: 'accept',
   reason: '',
 })
+
+// Organizer withdraw functionality
+const withdrawParticipantMutation = useWithdrawParticipantMutation(resolvedHackathonId.value ?? '')
+const isOrganizerWithdrawModalOpen = ref(false)
+
+async function handleOrganizerWithdraw() {
+  if (!participantUserId.value)
+    return
+  try {
+    await withdrawParticipantMutation.mutateAsync(participantUserId.value)
+    await queryClient.invalidateQueries({ queryKey: ['hackathons', resolvedHackathonId.value, 'participants'] })
+    isOrganizerWithdrawModalOpen.value = false
+    toast.add({
+      title: 'Participant withdrawn',
+      description: 'The participant has been withdrawn from this hackathon.',
+      color: 'success',
+    })
+  }
+  catch (error) {
+    console.error('[DASH] Failed to withdraw participant', error)
+    const statusCode = getErrorStatusCode(error)
+    const description = statusCode === 404
+      ? 'Participant was not found or is already withdrawn.'
+      : 'Please try again.'
+    toast.add({
+      title: 'Could not withdraw participant',
+      description,
+      color: 'error',
+    })
+  }
+}
 
 function openReviewModal(decision: string) {
   reviewForm.value = { decision, reason: '' }
@@ -346,16 +378,22 @@ function formatReviewedDate(value: Date | string | null | undefined) {
                 >
                   Review notes: {{ statusData.reviewReason }}
                 </p>
-                <div class="mt-3">
-                  <UButton
-                    size="sm"
-                    color="error"
-                    variant="soft"
-                    icon="i-lucide-user-minus"
-                    @click="isWithdrawModalOpen = true"
-                  >
-                    Withdraw from hackathon
-                  </UButton>
+                <div class="mt-4 rounded-lg border border-(--ui-border) bg-(--ui-bg-elevated)/60 p-3">
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-xs text-(--ui-text-muted)">
+                      Need to leave this hackathon? You can withdraw anytime before it ends.
+                    </p>
+                    <UButton
+                      size="xs"
+                      color="error"
+                      variant="soft"
+                      icon="i-lucide-user-minus"
+                      class="sm:shrink-0"
+                      @click="isWithdrawModalOpen = true"
+                    >
+                      Withdraw
+                    </UButton>
+                  </div>
                 </div>
               </template>
             </UCard>

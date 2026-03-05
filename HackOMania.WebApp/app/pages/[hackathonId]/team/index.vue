@@ -72,6 +72,91 @@ watch(
     >
       <PortalSubmissionSection />
     </div>
+    <div class="mx-auto max-w-7xl px-4 py-8">
+      <div class="rounded-lg border border-(--ui-border) bg-(--ui-bg-elevated)/60 p-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm font-medium text-(--ui-text)">
+              Withdraw from hackathon
+            </p>
+            <p class="text-xs text-(--ui-text-muted)">
+              Leave your team first, then withdraw. This can be done anytime before the event ends.
+            </p>
+          </div>
+          <UButton
+            size="xs"
+            color="error"
+            variant="soft"
+            icon="i-lucide-user-minus"
+            class="sm:shrink-0"
+            @click="isWithdrawModalOpen = true"
+          >
+            Withdraw
+          </UButton>
+        </div>
+      </div>
+    </div>
     <AppFooter />
+
+    <UModal
+      v-model:open="isWithdrawModalOpen"
+      title="Withdraw from hackathon"
+      description="This removes your participant access for this hackathon."
+    >
+      <template #content>
+        <div class="overflow-auto max-h-[80vh]">
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold">
+                  Withdraw from hackathon
+                </h3>
+                <UButton
+                  variant="ghost"
+                  icon="i-lucide-x"
+                  size="xs"
+                  @click="isWithdrawModalOpen = false"
+                />
+              </div>
+            </template>
+
+            <div class="space-y-4">
+              <div class="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3">
+                <div class="flex items-start gap-2">
+                  <UIcon
+                    name="i-lucide-alert-triangle"
+                    class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                  />
+                  <p class="text-xs text-amber-700 dark:text-amber-300">
+                    You must leave your team before withdrawing. This will revoke your participant access for this hackathon.
+                  </p>
+                </div>
+              </div>
+
+              <p class="text-sm text-(--ui-text-muted)">
+                Are you sure you want to withdraw?
+              </p>
+
+              <div class="flex justify-end gap-2">
+                <UButton
+                  variant="ghost"
+                  @click="isWithdrawModalOpen = false"
+                >
+                  Cancel
+                </UButton>
+                <UButton
+                  color="error"
+                  icon="i-lucide-user-minus"
+                  :loading="withdrawMutation.isPending.value"
+                  @click="withdrawFromHackathon"
+                >
+                  Withdraw
+                </UButton>
+              </div>
+            </div>
+          </UCard>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

@@ -79,7 +79,10 @@ public class MembershipService(ISqlSugarClient sql, IOptions<AppOptions> appOpti
     )
     {
         return await sql.Queryable<Participant>()
-            .Where(p => p.UserId == userId && p.HackathonId == hackathonId && p.WithdrawnAt == null)
+            .Where(p => p.UserId == userId && p.HackathonId == hackathonId)
+            .Where(p => !SqlFunc.Subqueryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == p.Id && w.RejoinedAt == null)
+                .Any())
             .FirstAsync(ct);
     }
 
@@ -90,6 +93,10 @@ public class MembershipService(ISqlSugarClient sql, IOptions<AppOptions> appOpti
     )
     {
         return await sql.Queryable<Participant>()
-            .AnyAsync(p => p.UserId == userId && p.HackathonId == hackathonId && p.WithdrawnAt == null, ct);
+            .Where(p => p.UserId == userId && p.HackathonId == hackathonId)
+            .Where(p => !SqlFunc.Subqueryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == p.Id && w.RejoinedAt == null)
+                .Any())
+            .AnyAsync(ct);
     }
 }

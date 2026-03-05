@@ -41,7 +41,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .WithCache()
             .FirstAsync(ct);
 
-        if (participant is null || participant.WithdrawnAt is not null)
+        var isWithdrawn = participant is not null
+            && await sql.Queryable<ParticipantWithdrawal>()
+                .Where(w => w.ParticipantId == participant.Id && w.RejoinedAt == null)
+                .WithCache()
+                .AnyAsync(ct);
+
+        if (participant is null || isWithdrawn)
         {
             await Send.OkAsync(
                 new Response
@@ -76,14 +82,27 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .WithCache()
             .FirstAsync(ct);
 
-        var status = latestReview switch
-        {
-            { Status: ParticipantReview.ParticipantReviewStatus.Accepted } =>
-                ParticipantStatus.Accepted,
-            { Status: ParticipantReview.ParticipantReviewStatus.Rejected } =>
-                ParticipantStatus.Rejected,
-            _ => ParticipantStatus.Pending,
-        };
+        // Participant must have a review newer than their latest withdrawal.
+        var lastWithdrawalAt = await sql.Queryable<ParticipantWithdrawal>()
+            .Where(w => w.ParticipantId == participant.Id)
+            .OrderByDescending(w => w.WithdrawnAt)
+            .Select(w => w.WithdrawnAt)
+            .WithCache()
+            .FirstAsync(ct);
+
+        var needsReReview = lastWithdrawalAt != default
+            && (latestReview is null || latestReview.CreatedAt < lastWithdrawalAt);
+
+        var status = needsReReview
+            ? ParticipantStatus.Pending
+            : latestReview switch
+            {
+                { Status: ParticipantReview.ParticipantReviewStatus.Accepted } =>
+                    ParticipantStatus.Accepted,
+                { Status: ParticipantReview.ParticipantReviewStatus.Rejected } =>
+                    ParticipantStatus.Rejected,
+                _ => ParticipantStatus.Pending,
+            };
 
         await Send.OkAsync(
             new Response

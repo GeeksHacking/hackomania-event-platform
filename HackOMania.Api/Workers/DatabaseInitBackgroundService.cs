@@ -20,6 +20,7 @@ public class DatabaseInitBackgroundService(
         sql.CodeFirst.InitTables<Organizer>();
         sql.CodeFirst.InitTables<Participant>();
         sql.CodeFirst.InitTables<ParticipantReview>();
+        sql.CodeFirst.InitTables<ParticipantWithdrawal>();
         sql.CodeFirst.InitTables<ParticipantEmailDelivery>();
         sql.CodeFirst.InitTables<Challenge>();
         sql.CodeFirst.InitTables<ChallengeSubmission>();

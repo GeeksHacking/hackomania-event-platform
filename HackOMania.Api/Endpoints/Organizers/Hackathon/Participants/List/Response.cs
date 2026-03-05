@@ -14,6 +14,7 @@ public class ParticipantItem
     public required DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset? WithdrawnAt { get; init; }
     public required bool IsWithdrawn { get; init; }
+    public required bool HasPreviouslyWithdrawn { get; init; }
     public required Guid Id { get; init; }
     public required string Name { get; init; }
     public string? Email { get; init; }

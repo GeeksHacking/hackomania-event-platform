@@ -40,7 +40,6 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 UserId = p.UserId,
                 TeamId = p.TeamId,
                 JoinedAt = p.JoinedAt,
-                WithdrawnAt = p.WithdrawnAt,
             })
             .ToListAsync(ct);
 
@@ -130,6 +129,15 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .GroupBy(e => e.ParticipantId)
             .ToDictionary(g => g.Key, g => g.ToList());
 
+        var withdrawalsList = await sql.Queryable<ParticipantWithdrawal>()
+            .Where(w => participantIds.Contains(w.ParticipantId))
+            .OrderByDescending(w => w.WithdrawnAt)
+            .WithCache()
+            .ToListAsync(ct);
+        var withdrawalsByParticipant = withdrawalsList
+            .GroupBy(w => w.ParticipantId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         var participantResponses = participants
             .Select(p =>
             {
@@ -137,20 +145,36 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 var reviews = reviewsByParticipant.GetValueOrDefault(p.Id) ?? [];
                 var deliveryLogs = emailDeliveriesByParticipant.GetValueOrDefault(p.Id) ?? [];
                 var latestDelivery = deliveryLogs.FirstOrDefault();
-                var concludedStatus = reviews.FirstOrDefault()?.Status switch
-                {
-                    ParticipantReview.ParticipantReviewStatus.Accepted =>
-                        ParticipantConcludedStatus.Accepted,
-                    ParticipantReview.ParticipantReviewStatus.Rejected =>
-                        ParticipantConcludedStatus.Rejected,
-                    _ => ParticipantConcludedStatus.Pending,
-                };
+                var withdrawals = withdrawalsByParticipant.GetValueOrDefault(p.Id) ?? [];
+                var latestOpenWithdrawal = withdrawals.FirstOrDefault(w => w.RejoinedAt is null);
+                var hasRejoinedBefore = withdrawals.Any(w => w.RejoinedAt is not null);
+                var lastWithdrawalAt = withdrawals
+                    .Select(w => w.WithdrawnAt)
+                    .DefaultIfEmpty(default)
+                    .Max();
+
+                // A re-joined participant needs re-review if their latest review
+                // predates the most recent withdrawal.
+                var needsReReview = lastWithdrawalAt != default
+                    && (reviews.Count == 0 || reviews[0].CreatedAt < lastWithdrawalAt);
+
+                var concludedStatus = needsReReview
+                    ? ParticipantConcludedStatus.Pending
+                    : reviews.FirstOrDefault()?.Status switch
+                    {
+                        ParticipantReview.ParticipantReviewStatus.Accepted =>
+                            ParticipantConcludedStatus.Accepted,
+                        ParticipantReview.ParticipantReviewStatus.Rejected =>
+                            ParticipantConcludedStatus.Rejected,
+                        _ => ParticipantConcludedStatus.Pending,
+                    };
 
                 return new ParticipantItem
                 {
                     CreatedAt = p.JoinedAt,
-                    WithdrawnAt = p.WithdrawnAt,
-                    IsWithdrawn = p.WithdrawnAt is not null,
+                    WithdrawnAt = latestOpenWithdrawal?.WithdrawnAt,
+                    IsWithdrawn = latestOpenWithdrawal is not null,
+                    HasPreviouslyWithdrawn = hasRejoinedBefore,
                     Id = p.UserId,
                     Name = userInfo.Name ?? "Unknown",
                     Email = userInfo.Email,

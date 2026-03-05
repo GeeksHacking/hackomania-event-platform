@@ -144,7 +144,7 @@ public class WithdrawFromHackathonTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public async Task WithdrawFromHackathon_ThenRejoin_ReturnsParticipant(
+    public async Task WithdrawFromHackathon_ThenRejoinWithoutReview_ReturnsBadRequest(
         AuthenticatedHttpClientDataClass client
     )
     {
@@ -164,6 +164,50 @@ public class WithdrawFromHackathonTests
         var afterWithdraw =
             await afterWithdrawStatus.Content.ReadFromJsonAsync<ParticipantStatusResponse>();
         await Assert.That(afterWithdraw!.IsParticipant).IsFalse();
+
+        // Act - Rejoin hackathon without a re-review
+        var rejoinResponse = await client.HttpClient.PostAsync(
+            $"/participants/hackathons/{hackathonId}/join",
+            null
+        );
+        await Assert.That(rejoinResponse.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+
+        // Assert - Still not a participant
+        var afterFailedRejoinStatus = await client.HttpClient.GetAsync(
+            $"/participants/hackathons/{hackathonId}/status"
+        );
+        var afterFailedRejoin =
+            await afterFailedRejoinStatus.Content.ReadFromJsonAsync<ParticipantStatusResponse>();
+        await Assert.That(afterFailedRejoin!.IsParticipant).IsFalse();
+    }
+
+    [Test]
+    [ClassDataSource<AuthenticatedHttpClientDataClass>]
+    public async Task WithdrawFromHackathon_ThenRejoinAfterAcceptedReview_ReturnsParticipant(
+        AuthenticatedHttpClientDataClass client
+    )
+    {
+        // Arrange
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var whoAmI = await client.HttpClient.GetFromJsonAsync<WhoAmIResponse>("/auth/whoami");
+        await Assert.That(whoAmI).IsNotNull();
+
+        // Withdraw from hackathon
+        await client.HttpClient.PostAsync(
+            $"/participants/hackathons/{hackathonId}/withdraw",
+            null
+        );
+
+        // Review (accepted) after withdrawal
+        var reviewResponse = await client.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/participants/{whoAmI!.Id}/review",
+            new ParticipantReviewRequest
+            {
+                Decision = "accept",
+                Reason = "Rejoin approved",
+            }
+        );
+        await Assert.That(reviewResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act - Rejoin hackathon
         var rejoinResponse = await client.HttpClient.PostAsync(

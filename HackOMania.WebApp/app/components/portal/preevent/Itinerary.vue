@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import type { ItineraryItem } from '~/data/preevent'
 
-defineProps<{
+withDefaults(defineProps<{
   items: ItineraryItem[]
-}>()
+  title?: string
+}>(), {
+  title: 'Itinerary',
+})
 </script>
 
 <template>
   <div>
     <h3 class="font-['Zalando_Sans_Expanded'] font-bold uppercase text-3xl mb-8">
-      Itinerary
+      {{ title }}
     </h3>
     <div class="flex flex-col gap-6">
       <PortalPreeventItineraryCard

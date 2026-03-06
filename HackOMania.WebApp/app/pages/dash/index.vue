@@ -59,6 +59,16 @@ function openCreateHackathonModal() {
   isHackathonModalOpen.value = true
 }
 
+function toLocalDateTimeString(value: string | Date): string {
+  const date = new Date(value)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 function openEditHackathonModal(hackathon: typeof hackathons.value[number]) {
   hackathonForm.value = {
     name: hackathon.name ?? '',
@@ -66,12 +76,12 @@ function openEditHackathonModal(hackathon: typeof hackathons.value[number]) {
     description: hackathon.description ?? '',
     venue: hackathon.venue ?? '',
     homepageUri: hackathon.homepageUri ?? '',
-    eventStartDate: hackathon.eventStartDate ? new Date(hackathon.eventStartDate).toISOString().slice(0, 16) : '',
-    eventEndDate: hackathon.eventEndDate ? new Date(hackathon.eventEndDate).toISOString().slice(0, 16) : '',
-    submissionsStartDate: hackathon.submissionsStartDate ? new Date(hackathon.submissionsStartDate).toISOString().slice(0, 16) : '',
-    submissionsEndDate: hackathon.submissionsEndDate ? new Date(hackathon.submissionsEndDate).toISOString().slice(0, 16) : '',
-    judgingStartDate: hackathon.judgingStartDate ? new Date(hackathon.judgingStartDate).toISOString().slice(0, 16) : '',
-    judgingEndDate: hackathon.judgingEndDate ? new Date(hackathon.judgingEndDate).toISOString().slice(0, 16) : '',
+    eventStartDate: hackathon.eventStartDate ? toLocalDateTimeString(hackathon.eventStartDate) : '',
+    eventEndDate: hackathon.eventEndDate ? toLocalDateTimeString(hackathon.eventEndDate) : '',
+    submissionsStartDate: hackathon.submissionsStartDate ? toLocalDateTimeString(hackathon.submissionsStartDate) : '',
+    submissionsEndDate: hackathon.submissionsEndDate ? toLocalDateTimeString(hackathon.submissionsEndDate) : '',
+    judgingStartDate: hackathon.judgingStartDate ? toLocalDateTimeString(hackathon.judgingStartDate) : '',
+    judgingEndDate: hackathon.judgingEndDate ? toLocalDateTimeString(hackathon.judgingEndDate) : '',
     isPublished: hackathon.isPublished ?? false,
   }
   isEditingHackathon.value = true

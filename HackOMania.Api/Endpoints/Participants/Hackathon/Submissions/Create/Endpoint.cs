@@ -90,7 +90,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // Evaluate SelectionCriteriaStmt using Jint
         using var engine = new Engine(options =>
         {
-            options.LimitMemory(4_000_000);
+            options.LimitMemory(128_000_000);
             options.TimeoutInterval(TimeSpan.FromSeconds(5));
             options.CancellationToken(ct);
         });

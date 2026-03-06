@@ -232,7 +232,7 @@ public class DefaultStack : Stack
                 Template = new ServiceTemplateArgs
                 {
                     ServiceAccount = cloudRunServiceAccount.Email,
-                    MaxInstanceRequestConcurrency = 512,
+                    MaxInstanceRequestConcurrency = 128,
                     Containers = new[]
                     {
                         new ServiceTemplateContainerArgs

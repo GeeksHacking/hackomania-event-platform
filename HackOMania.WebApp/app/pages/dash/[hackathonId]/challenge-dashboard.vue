@@ -284,7 +284,7 @@ function hasChart(challengeId: string | null | undefined): boolean {
 
         <!-- Challenge grid -->
         <template v-else>
-          <p class="text-gray-900 font-bold text-7xl uppercase tracking-widest mb-6 text-center">
+          <p class="text-gray-900 font-bold text-5xl uppercase tracking-widest mb-6 text-center">
             Challenge Distribution
           </p>
           <div

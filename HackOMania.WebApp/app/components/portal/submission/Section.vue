@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 const hackathonId = useResolvedHackathonId()
 const hackathon = useRouteHackathon()
@@ -68,9 +68,9 @@ const existingSubmission = computed(() => {
   return submissionsData.value?.submissions?.[0] ?? null
 })
 
-// Form disabled when not open OR already submitted
+// Form disabled when submissions not open
 const isFormDisabled = computed(() =>
-  submissionStatus.value !== 'open' || hasExistingSubmissions.value,
+  submissionStatus.value !== 'open',
 )
 
 // Confirmation modal state
@@ -97,19 +97,6 @@ function isValidUrl(url: string): boolean {
     return false
   }
 }
-
-// Populate form from existing submission (for display when already submitted)
-watch(existingSubmission, (submission) => {
-  if (submission) {
-    title.value = submission.title ?? ''
-    summary.value = submission.summary ?? ''
-    repoUri.value = submission.repoUri ?? ''
-    demoUri.value = submission.demoUri ?? ''
-    slidesUri.value = submission.slidesUri ?? ''
-    devpostUri.value = submission.devpostUri ?? ''
-    location.value = submission.location ?? ''
-  }
-}, { immediate: true })
 
 // Mutation to create submission
 const createSubmissionMutation = useCreateSubmission(hackathonId, teamId)
@@ -236,18 +223,84 @@ function confirmSubmit() {
       class="flex flex-col items-center p-8 lg:py-16 lg:px-28 mx-auto lg:max-w-300"
     >
       <div class="w-full text-black text-left">
-        <!-- Already submitted message -->
-        <div
-          v-if="hasExistingSubmissions"
-          class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg"
-        >
-          <p class="font-['Raleway'] text-base lg:text-xl text-green-800">
-            Your team has already submitted a project.
-          </p>
-        </div>
+        <!-- Submitted: show submission details -->
+        <template v-if="hasExistingSubmissions">
+          <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+            <UIcon name="i-lucide-circle-check" class="text-green-600 size-5 shrink-0" />
+            <p class="font-['Raleway'] text-base lg:text-xl text-green-800">
+              Your team has successfully submitted a project.
+            </p>
+          </div>
 
-        <!-- Status messages (only show if not already submitted) -->
-        <template v-if="!hasExistingSubmissions">
+          <div class="mt-8 space-y-5">
+            <div>
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Project Title
+              </h3>
+              <p class="font-['Raleway'] text-base lg:text-xl">
+                {{ existingSubmission?.title }}
+              </p>
+            </div>
+
+            <div v-if="existingSubmission?.summary">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Summary
+              </h3>
+              <p class="font-['Raleway'] text-base lg:text-xl whitespace-pre-line">
+                {{ existingSubmission.summary }}
+              </p>
+            </div>
+
+            <div v-if="existingSubmission?.repoUri">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Repository URL
+              </h3>
+              <a :href="existingSubmission.repoUri" target="_blank" rel="noopener noreferrer" class="font-['Raleway'] text-base lg:text-xl text-blue-600 underline break-all">
+                {{ existingSubmission.repoUri }}
+              </a>
+            </div>
+
+            <div v-if="existingSubmission?.slidesUri">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Slides URL
+              </h3>
+              <a :href="existingSubmission.slidesUri" target="_blank" rel="noopener noreferrer" class="font-['Raleway'] text-base lg:text-xl text-blue-600 underline break-all">
+                {{ existingSubmission.slidesUri }}
+              </a>
+            </div>
+
+            <div v-if="existingSubmission?.demoUri">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Demo URL
+              </h3>
+              <a :href="existingSubmission.demoUri" target="_blank" rel="noopener noreferrer" class="font-['Raleway'] text-base lg:text-xl text-blue-600 underline break-all">
+                {{ existingSubmission.demoUri }}
+              </a>
+            </div>
+
+            <div v-if="existingSubmission?.devpostUri">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Devpost URL
+              </h3>
+              <a :href="existingSubmission.devpostUri" target="_blank" rel="noopener noreferrer" class="font-['Raleway'] text-base lg:text-xl text-blue-600 underline break-all">
+                {{ existingSubmission.devpostUri }}
+              </a>
+            </div>
+
+            <div v-if="existingSubmission?.location">
+              <h3 class="font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-1">
+                Location
+              </h3>
+              <p class="font-['Raleway'] text-base lg:text-xl">
+                {{ existingSubmission.location }}
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <!-- Not yet submitted -->
+        <template v-else>
+          <!-- Status messages -->
           <div
             v-if="submissionStatus === 'upcoming'"
             class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
@@ -275,122 +328,119 @@ function confirmSubmit() {
               Please select a challenge statement in the Team section above before submitting.
             </p>
           </div>
+
+          <!-- Submission form -->
+          <div class="mt-8 space-y-6">
+            <!-- Title -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Project Title *
+              </label>
+              <input
+                v-model="title"
+                type="text"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Enter your project title"
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Summary -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Summary
+              </label>
+              <textarea
+                v-model="summary"
+                rows="3"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Describe your project briefly..."
+                :disabled="isFormDisabled"
+              />
+            </div>
+
+            <!-- Repository URL -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Repository URL
+              </label>
+              <input
+                v-model="repoUri"
+                type="url"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="https://github.com/your-repo"
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Slides URL -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Slides URL
+              </label>
+              <input
+                v-model="slidesUri"
+                type="url"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="https://slides.google.com/..."
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Demo URL -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Demo URL <span class="font-normal text-black/50">(optional)</span>
+              </label>
+              <input
+                v-model="demoUri"
+                type="url"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="https://your-demo-link.com"
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Devpost URL -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Devpost URL <span class="font-normal text-black/50">(optional)</span>
+              </label>
+              <input
+                v-model="devpostUri"
+                type="url"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="https://devpost.com/software/..."
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
+                Location
+              </label>
+              <input
+                v-model="location"
+                type="text"
+                class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="e.g., Event Hall 2-1"
+                :disabled="isFormDisabled"
+              >
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex gap-4 mt-8">
+              <button
+                class="flex-1 py-3 bg-linear-to-r from-[#4B8BF5] via-[#7DB4FF] to-[#AAD4FF] text-black rounded font-['Zalando_Sans_Expanded'] text-base lg:text-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="isFormDisabled || isSubmitting || !challengeId"
+                @click="openConfirmModal"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
         </template>
-
-        <!-- Submission form -->
-        <div class="mt-8 space-y-6">
-          <!-- Title -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Project Title *
-            </label>
-            <input
-              v-model="title"
-              type="text"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="Enter your project title"
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Summary -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Summary
-            </label>
-            <textarea
-              v-model="summary"
-              rows="3"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="Describe your project briefly..."
-              :disabled="isFormDisabled"
-            />
-          </div>
-
-          <!-- Repository URL -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Repository URL
-            </label>
-            <input
-              v-model="repoUri"
-              type="url"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="https://github.com/your-repo"
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Demo URL -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Demo URL
-            </label>
-            <input
-              v-model="demoUri"
-              type="url"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="https://your-demo-link.com"
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Slides URL -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Slides URL
-            </label>
-            <input
-              v-model="slidesUri"
-              type="url"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="https://slides.google.com/..."
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Devpost URL -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Devpost URL
-            </label>
-            <input
-              v-model="devpostUri"
-              type="url"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="https://devpost.com/software/..."
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Location -->
-          <div>
-            <label class="block font-['Zalando_Sans_Expanded'] text-base lg:text-xl font-bold mb-2">
-              Location
-            </label>
-            <input
-              v-model="location"
-              type="text"
-              class="w-full bg-transparent border border-black/20 rounded px-4 py-3 font-['Raleway'] text-base lg:text-xl focus:outline-none focus:border-black/40 disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="e.g., Table 5, Room A"
-              :disabled="isFormDisabled"
-            >
-          </div>
-
-          <!-- Submit Button (only show if not already submitted) -->
-          <div
-            v-if="!hasExistingSubmissions"
-            class="flex gap-4 mt-8"
-          >
-            <button
-              class="flex-1 py-3 bg-linear-to-r from-[#4B8BF5] via-[#7DB4FF] to-[#AAD4FF] text-black rounded font-['Zalando_Sans_Expanded'] text-base lg:text-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="isFormDisabled || isSubmitting || !challengeId"
-              @click="openConfirmModal"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -401,12 +451,15 @@ function confirmSubmit() {
           <h3 class="font-['Zalando_Sans_Expanded'] text-lg font-bold mb-2">
             Confirm Submission
           </h3>
-          <p class="font-['Raleway'] text-base mb-4 text-gray-600">
-            Please review your submission details carefully. This cannot be changed after submission.
+          <p class="font-['Raleway'] text-base mb-1 text-gray-600">
+            Please review your submission details carefully.
+          </p>
+          <p class="font-['Raleway'] text-base mb-4 text-red-600">
+            This cannot be changed after submission.
           </p>
 
           <!-- Submission Details -->
-          <div class="space-y-3 mb-6 font-['Raleway'] text-sm">
+          <div class="space-y-3 mb-6 font-['Raleway'] text-sm break-all">
             <div>
               <span class="font-bold">Project Title:</span> {{ title }}
             </div>
@@ -416,11 +469,11 @@ function confirmSubmit() {
             <div v-if="repoUri">
               <span class="font-bold">Repository:</span> {{ repoUri }}
             </div>
-            <div v-if="demoUri">
-              <span class="font-bold">Demo:</span> {{ demoUri }}
-            </div>
             <div v-if="slidesUri">
               <span class="font-bold">Slides:</span> {{ slidesUri }}
+            </div>
+            <div v-if="demoUri">
+              <span class="font-bold">Demo:</span> {{ demoUri }}
             </div>
             <div v-if="devpostUri">
               <span class="font-bold">Devpost:</span> {{ devpostUri }}

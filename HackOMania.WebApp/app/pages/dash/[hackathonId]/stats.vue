@@ -8,6 +8,7 @@ import type {
 } from '~/composables/resources'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
+import * as XLSX from 'xlsx'
 import { HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject } from '~/api-client/models'
 import { challengeOrganizerQueries } from '~/composables/challenges'
 import { participantOrganizerQueries } from '~/composables/participants'
@@ -92,6 +93,7 @@ const { data: resourcesData, isLoading: isLoadingResources } = useQuery(
 
 const selectedResourceStatsId = ref(ALL_RESOURCES_VALUE)
 const resourceBreakdownSearch = ref('')
+const resourceRedemptionMemberThreshold = ref(3)
 
 const organizerResources = computed<OrganizerResourceItem[]>(() => resourcesData.value?.resources ?? [])
 
@@ -183,6 +185,29 @@ function summarizeParticipantResources(teamParticipant: OrganizerResourceStatist
 
   return `${resourceNames.slice(0, 2).join(', ')} +${resourceNames.length - 2} more`
 }
+
+function getResourceTeamRedeemerGap(team: OrganizerResourceStatisticsTeamItem) {
+  return Math.max((team.memberCount ?? 0) - team.redeemerCount, 0)
+}
+
+function createExportFilename(extension: 'csv' | 'xlsx') {
+  const dateStamp = new Date().toISOString().split('T')[0]
+  const scopeName = selectedResourceStatsResource.value?.name || 'all-resources'
+  const normalizedScope = scopeName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'resource-redemptions'
+
+  return `resource-redemptions-${normalizedScope}-${dateStamp}.${extension}`
+}
+
+const normalizedResourceRedemptionMemberThreshold = computed(() => {
+  const parsedValue = Math.trunc(Number(resourceRedemptionMemberThreshold.value))
+  if (!Number.isFinite(parsedValue) || parsedValue < 1)
+    return 1
+
+  return parsedValue
+})
 
 const activeParticipants = computed(() => participants.value.filter(participant => !isWithdrawn(participant)))
 const completeActiveParticipants = computed(() => activeParticipants.value.filter(participant => !isIncomplete(participant)))
@@ -580,8 +605,207 @@ const hasMultipleResourceScope = computed(() => (resourceStatistics.value?.resou
 const recentResourceActivity = computed<OrganizerResourceStatisticsRecentActivityItem[]>(() => resourceStatistics.value?.recentActivity ?? [])
 const normalizedResourceBreakdownSearch = computed(() => resourceBreakdownSearch.value.trim().toLowerCase())
 
+const resourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamItem[]>(() => {
+  const teamBreakdown = resourceStatistics.value?.teamBreakdown ?? []
+  const teamBreakdownById = new Map(
+    teamBreakdown
+      .filter((team): team is OrganizerResourceStatisticsTeamItem & { teamId: string } => !!team.teamId)
+      .map(team => [team.teamId, team] as const),
+  )
+  const noTeamBreakdown = teamBreakdown.find(team => !team.teamId)
+
+  const mergedTeams = teams.value.map((team) => {
+    const existingTeam = team.id ? teamBreakdownById.get(team.id) : undefined
+
+    return {
+      teamId: team.id ?? null,
+      teamName: team.name ?? 'Unnamed team',
+      memberCount: team.memberCount ?? existingTeam?.memberCount ?? 0,
+      redeemerCount: existingTeam?.redeemerCount ?? 0,
+      totalRedemptions: existingTeam?.totalRedemptions ?? 0,
+      distinctResourcesRedeemed: existingTeam?.distinctResourcesRedeemed ?? 0,
+      lastRedeemedAt: existingTeam?.lastRedeemedAt ?? null,
+      participants: existingTeam?.participants ?? [],
+    }
+  })
+
+  const rows = noTeamBreakdown ? [...mergedTeams, noTeamBreakdown] : mergedTeams
+
+  return rows.sort((a, b) => {
+    const flaggedDelta = Number(isResourceTeamFlagged(b)) - Number(isResourceTeamFlagged(a))
+    if (flaggedDelta !== 0)
+      return flaggedDelta
+
+    if (b.totalRedemptions !== a.totalRedemptions)
+      return b.totalRedemptions - a.totalRedemptions
+
+    const lastRedeemedDelta = (parseHackathonDateTimeValue(b.lastRedeemedAt)?.getTime() ?? 0)
+      - (parseHackathonDateTimeValue(a.lastRedeemedAt)?.getTime() ?? 0)
+
+    if (lastRedeemedDelta !== 0)
+      return lastRedeemedDelta
+
+    return a.teamName.localeCompare(b.teamName, undefined, { sensitivity: 'base' })
+  })
+})
+
+const flaggedResourceTeams = computed(() =>
+  resourceTeamBreakdown.value.filter(team => isResourceTeamFlagged(team)),
+)
+
+const flaggedResourceTeamSummary = computed(() => {
+  const threshold = normalizedResourceRedemptionMemberThreshold.value
+  const count = flaggedResourceTeams.value.length
+  if (!count)
+    return `No teams are below the ${threshold}-member redemption threshold.`
+
+  return `${count} team${count === 1 ? '' : 's'} below the ${threshold}-member redemption threshold.`
+})
+
+function isResourceTeamFlagged(team: OrganizerResourceStatisticsTeamItem) {
+  return !!team.teamId && team.redeemerCount < normalizedResourceRedemptionMemberThreshold.value
+}
+
+const resourceExportSummaryRows = computed(() => {
+  const stats = resourceStatistics.value
+  if (!stats)
+    return []
+
+  return [
+    { Metric: 'Scope', Value: selectedResourceStatsResource.value?.name || 'All resources' },
+    { Metric: 'Resources in Scope', Value: stats.resourceCount },
+    { Metric: 'Redeemed Resources', Value: stats.resourcesWithRedemptions },
+    { Metric: 'Resources Without Redemptions', Value: stats.resourcesWithoutRedemptions },
+    { Metric: 'Total Participants', Value: stats.totalParticipants },
+    { Metric: 'Participants Redeemed', Value: stats.participantsWithRedemptions },
+    { Metric: 'Participants Without Redemption', Value: stats.participantsWithoutRedemptions },
+    { Metric: 'Teams Represented', Value: stats.teamsWithRedemptions },
+    { Metric: 'No-Team Redeemers', Value: stats.redeemersWithoutTeam },
+    { Metric: 'Total Redemptions', Value: stats.totalRedemptions },
+    { Metric: 'Average Redemptions Per Redeemer', Value: stats.averageRedemptionsPerRedeemer },
+    { Metric: 'First Redemption', Value: formatResourceStatsTime(stats.firstRedeemedAt) },
+    { Metric: 'Latest Redemption', Value: formatResourceStatsTime(stats.lastRedeemedAt) },
+    { Metric: 'Highlight Threshold', Value: normalizedResourceRedemptionMemberThreshold.value },
+    { Metric: 'Flagged Teams', Value: flaggedResourceTeams.value.length },
+  ]
+})
+
+const resourceExportResourceRows = computed(() =>
+  resourceLeaderboard.value.map(resource => ({
+    'Resource Name': resource.resourceName,
+    'Published': resource.isPublished ? 'Yes' : 'No',
+    'Total Redemptions': resource.totalRedemptions,
+    'Unique Redeemers': resource.uniqueRedeemers,
+    'Last Redeemed': formatResourceStatsTime(resource.lastRedeemedAt),
+  })),
+)
+
+const resourceExportTeamRows = computed(() =>
+  resourceTeamBreakdown.value.map(team => ({
+    'Team Name': team.teamName,
+    'Team Type': team.teamId ? 'Team' : 'No team',
+    'Member Count': team.memberCount,
+    'Redeemer Count': team.redeemerCount,
+    'Total Redemptions': team.totalRedemptions,
+    'Distinct Resources Redeemed': team.distinctResourcesRedeemed,
+    'Missing Redeemers': getResourceTeamRedeemerGap(team),
+    'Flagged Below Threshold': isResourceTeamFlagged(team) ? 'Yes' : 'No',
+    'Latest Redemption': formatResourceStatsTime(team.lastRedeemedAt),
+  })),
+)
+
+const resourceExportParticipantRows = computed(() =>
+  resourceTeamBreakdown.value.flatMap(team =>
+    team.participants.map(participant => ({
+      'Team Name': team.teamName,
+      'Participant Name': participant.userName,
+      'User ID': participant.userId,
+      'Member Count': team.memberCount,
+      'Redeemer Count': team.redeemerCount,
+      'Participant Redemption Count': participant.redemptionCount,
+      'Distinct Resources Redeemed': participant.distinctResourcesRedeemed,
+      'First Redeemed': formatResourceStatsTime(participant.firstRedeemedAt),
+      'Latest Redeemed': formatResourceStatsTime(participant.lastRedeemedAt),
+      'Resources': summarizeParticipantResources(participant),
+      'Flagged Team': isResourceTeamFlagged(team) ? 'Yes' : 'No',
+      'Timeline': participant.redemptions
+        .map((redemption) => {
+          const timestamp = formatResourceStatsTime(redemption.timestamp)
+          return hasMultipleResourceScope.value ? `${redemption.resourceName}: ${timestamp}` : timestamp
+        })
+        .join(' | '),
+    })),
+  ),
+)
+
+const resourceExportActivityRows = computed(() =>
+  recentResourceActivity.value.map(activity => ({
+    'Team Name': activity.teamName,
+    'Participant Name': activity.userName,
+    'User ID': activity.userId,
+    'Resource Name': activity.resourceName,
+    'Redeemed At': formatResourceStatsTime(activity.timestamp),
+  })),
+)
+
+function downloadCsv(filename: string, rows: Record<string, string | number>[]) {
+  if (!rows.length || typeof window === 'undefined')
+    return
+
+  const worksheet = XLSX.utils.json_to_sheet(rows)
+  const csvContent = XLSX.utils.sheet_to_csv(worksheet)
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+function exportResourceStatsCsv() {
+  downloadCsv(createExportFilename('csv'), resourceExportParticipantRows.value)
+}
+
+function exportResourceStatsExcel() {
+  if (typeof window === 'undefined')
+    return
+
+  const workbook = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(resourceExportSummaryRows.value),
+    'Summary',
+  )
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(resourceExportResourceRows.value),
+    'Resources',
+  )
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(resourceExportTeamRows.value),
+    'Teams',
+  )
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(resourceExportParticipantRows.value),
+    'Participants',
+  )
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.json_to_sheet(resourceExportActivityRows.value),
+    'Recent Activity',
+  )
+
+  XLSX.writeFile(workbook, createExportFilename('xlsx'))
+}
+
 const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamItem[]>(() => {
-  const groups = resourceStatistics.value?.teamBreakdown ?? []
+  const groups = resourceTeamBreakdown.value
   const query = normalizedResourceBreakdownSearch.value
 
   if (!query)
@@ -715,16 +939,40 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                     />
                   </UFormField>
 
-                  <UButton
-                    icon="i-lucide-refresh-cw"
-                    size="sm"
-                    variant="soft"
-                    color="neutral"
-                    :loading="isLoadingResourceStatistics"
-                    @click="refetchResourceStatistics()"
-                  >
-                    Refresh
-                  </UButton>
+                  <div class="flex flex-wrap gap-2">
+                    <UButton
+                      icon="i-lucide-file-spreadsheet"
+                      size="sm"
+                      variant="soft"
+                      color="primary"
+                      :disabled="!resourceStatistics"
+                      @click="exportResourceStatsExcel"
+                    >
+                      Excel
+                    </UButton>
+
+                    <UButton
+                      icon="i-lucide-file-text"
+                      size="sm"
+                      variant="soft"
+                      color="neutral"
+                      :disabled="!resourceExportParticipantRows.length"
+                      @click="exportResourceStatsCsv"
+                    >
+                      CSV
+                    </UButton>
+
+                    <UButton
+                      icon="i-lucide-refresh-cw"
+                      size="sm"
+                      variant="soft"
+                      color="neutral"
+                      :loading="isLoadingResourceStatistics"
+                      @click="refetchResourceStatistics()"
+                    >
+                      Refresh
+                    </UButton>
+                  </div>
                 </div>
               </div>
             </template>
@@ -920,11 +1168,42 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                     />
                   </div>
 
+                  <div class="grid gap-3 lg:grid-cols-[minmax(0,16rem)_1fr] lg:items-end">
+                    <UFormField label="Highlight teams with fewer than">
+                      <UInput
+                        :model-value="String(normalizedResourceRedemptionMemberThreshold)"
+                        type="number"
+                        min="1"
+                        size="sm"
+                        @update:model-value="resourceRedemptionMemberThreshold = Math.max(1, Number($event || 1))"
+                      />
+                    </UFormField>
+
+                    <div
+                      class="rounded-lg border p-3 text-sm"
+                      :class="flaggedResourceTeams.length ? 'border-amber-300 bg-amber-50/70 text-amber-900 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-100' : 'border-(--ui-border) bg-(--ui-bg-elevated) text-(--ui-text-muted)'"
+                    >
+                      <div class="flex flex-wrap items-center gap-2">
+                        <UIcon
+                          :name="flaggedResourceTeams.length ? 'i-lucide-triangle-alert' : 'i-lucide-badge-check'"
+                          class="h-4 w-4 shrink-0"
+                        />
+                        <span class="font-medium">{{ flaggedResourceTeamSummary }}</span>
+                      </div>
+                      <p
+                        v-if="flaggedResourceTeams.length"
+                        class="mt-1 text-xs"
+                      >
+                        Missing redeemers are calculated against current team member count in this hackathon.
+                      </p>
+                    </div>
+                  </div>
+
                   <div
-                    v-if="!resourceStatistics.teamBreakdown.length"
+                    v-if="!resourceTeamBreakdown.length"
                     class="mt-4 text-sm text-(--ui-text-muted)"
                   >
-                    No participants have redeemed in this scope yet.
+                    No teams found for this hackathon.
                   </div>
 
                   <div
@@ -941,9 +1220,13 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                     <section
                       v-for="team in filteredResourceTeamBreakdown"
                       :key="team.teamId ?? team.teamName"
-                      class="rounded-lg border border-(--ui-border)"
+                      class="rounded-lg border"
+                      :class="isResourceTeamFlagged(team) ? 'border-amber-300 bg-amber-50/30 dark:border-amber-700 dark:bg-amber-900/10' : 'border-(--ui-border)'"
                     >
-                      <div class="border-b border-(--ui-border) bg-(--ui-bg-elevated) p-4">
+                      <div
+                        class="border-b border-(--ui-border) p-4"
+                        :class="isResourceTeamFlagged(team) ? 'bg-amber-50/80 dark:bg-amber-900/20' : 'bg-(--ui-bg-elevated)'"
+                      >
                         <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                           <div>
                             <div class="flex flex-wrap items-center gap-2">
@@ -965,11 +1248,25 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                               >
                                 {{ pluralize(team.distinctResourcesRedeemed, 'resource') }}
                               </UBadge>
+                              <UBadge
+                                v-if="isResourceTeamFlagged(team)"
+                                size="xs"
+                                variant="soft"
+                                color="warning"
+                              >
+                                Below threshold
+                              </UBadge>
                             </div>
                             <p class="mt-1 text-xs text-(--ui-text-muted)">
                               {{ pluralize(team.redeemerCount, 'redeemer') }} ·
                               {{ pluralize(team.totalRedemptions, 'redemption') }} ·
                               {{ pluralize(team.memberCount, 'member') }}
+                            </p>
+                            <p
+                              v-if="isResourceTeamFlagged(team)"
+                              class="mt-1 text-xs text-amber-800 dark:text-amber-200"
+                            >
+                              {{ pluralize(getResourceTeamRedeemerGap(team), 'member') }} still without a redemption in this scope.
                             </p>
                           </div>
 
@@ -1004,6 +1301,14 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                             </tr>
                           </thead>
                           <tbody class="divide-y divide-(--ui-border)">
+                            <tr v-if="!team.participants.length">
+                              <td
+                                colspan="6"
+                                class="px-4 py-4 text-sm text-(--ui-text-muted)"
+                              >
+                                No one in this team has redeemed within the selected resource scope yet.
+                              </td>
+                            </tr>
                             <tr
                               v-for="participant in team.participants"
                               :key="participant.userId"

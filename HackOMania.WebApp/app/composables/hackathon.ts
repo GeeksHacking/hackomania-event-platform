@@ -1,6 +1,6 @@
 import { queryOptions, useMutation } from '@tanstack/vue-query'
 
-type HackathonMutationPayload = {
+interface HackathonMutationPayload {
   name?: string
   description?: string
   venue?: string

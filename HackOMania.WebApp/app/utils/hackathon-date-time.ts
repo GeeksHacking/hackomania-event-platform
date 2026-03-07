@@ -1,6 +1,7 @@
 export const HACKATHON_TIME_ZONE = 'Asia/Singapore'
 export const HACKATHON_TIME_ZONE_LABEL = 'SGT'
 const HACKATHON_TIME_ZONE_OFFSET = '+08:00'
+const DATE_TIME_OFFSET_PATTERN = /(?:Z|[+-]\d{2}:\d{2})$/i
 
 const hackathonDateTimeFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: HACKATHON_TIME_ZONE,
@@ -29,12 +30,22 @@ function getHackathonDateTimeParts(date: Date) {
   }
 }
 
-export function formatHackathonDateTimeInput(value: Date | string | null | undefined): string {
+export function parseHackathonDateTimeValue(value: Date | string | null | undefined): Date | undefined {
   if (!value)
-    return ''
+    return undefined
 
-  const date = value instanceof Date ? value : new Date(value)
-  if (Number.isNaN(date.getTime()))
+  if (value instanceof Date)
+    return Number.isNaN(value.getTime()) ? undefined : value
+
+  const normalizedValue = DATE_TIME_OFFSET_PATTERN.test(value) ? value : `${value}Z`
+  const date = new Date(normalizedValue)
+
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+export function formatHackathonDateTimeInput(value: Date | string | null | undefined): string {
+  const date = parseHackathonDateTimeValue(value)
+  if (!date)
     return ''
 
   const { year, month, day, hour, minute } = getHackathonDateTimeParts(date)
@@ -49,11 +60,8 @@ export function serializeHackathonDateTimeInput(value: string | null | undefined
 }
 
 export function formatHackathonDate(value: Date | string | null | undefined): string {
-  if (!value)
-    return 'TBC'
-
-  const date = value instanceof Date ? value : new Date(value)
-  if (Number.isNaN(date.getTime()))
+  const date = parseHackathonDateTimeValue(value)
+  if (!date)
     return 'TBC'
 
   return hackathonDateFormatter.format(date)

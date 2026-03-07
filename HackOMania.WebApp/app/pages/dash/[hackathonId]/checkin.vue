@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { HackOManiaApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto } from '~/api-client/models'
+import type { ParticipantCheckInDto, VenueAuditTrailItem } from '~/composables/venue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { Html5Qrcode } from 'html5-qrcode'
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { participantOrganizerQueries } from '~/composables/participants'
 import { useCheckInMutation, useCheckOutMutation, venueHistoryQueries, venueOverviewQueries } from '~/composables/venue'
+import { HACKATHON_TIME_ZONE, HACKATHON_TIME_ZONE_LABEL, parseHackathonDateTimeValue } from '~/utils/hackathon-date-time'
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -51,21 +52,10 @@ const { data: venueOverview, isLoading: isLoadingOverview, dataUpdatedAt } = use
   })),
 )
 
-type ParticipantCheckInDto = HackOManiaApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto
-interface VenueAuditTrailItem {
-  participantId?: string
-  userId?: string
-  userName?: string
-  action?: string
-  timestamp?: string
-}
-
 const historySearchQuery = ref('')
 
 const allParticipants = computed<ParticipantCheckInDto[]>(() => venueOverview.value?.participants ?? [])
-const auditTrail = computed<VenueAuditTrailItem[]>(
-  () => ((venueOverview.value as { auditTrail?: VenueAuditTrailItem[] } | undefined)?.auditTrail ?? []),
-)
+const auditTrail = computed<VenueAuditTrailItem[]>(() => venueOverview.value?.auditTrail ?? [])
 
 const checkedInCount = computed(() => allParticipants.value.filter(p => p.isCurrentlyCheckedIn).length)
 const checkedOutCount = computed(() => allParticipants.value.length - checkedInCount.value)
@@ -106,25 +96,28 @@ const participantHistoryEvents = computed(() => {
       })
     }
     return events
-  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  }).sort(
+    (a, b) =>
+      (parseHackathonDateTimeValue(b.timestamp)?.getTime() ?? 0)
+      - (parseHackathonDateTimeValue(a.timestamp)?.getTime() ?? 0),
+  )
 })
 
 const checkInTimeFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium',
   timeStyle: 'short',
-  timeZone: 'Asia/Singapore',
+  timeZone: HACKATHON_TIME_ZONE,
 })
 
-function formatCheckInTime(date: Date | null | undefined) {
+function formatCheckInTime(value: Date | string | null | undefined) {
+  const date = parseHackathonDateTimeValue(value)
   if (!date)
     return '—'
-  return `${checkInTimeFormatter.format(date)} SGT`
+  return `${checkInTimeFormatter.format(date)} ${HACKATHON_TIME_ZONE_LABEL}`
 }
 
-function formatEventTime(timestamp: string | undefined) {
-  if (!timestamp)
-    return '—'
-  return formatCheckInTime(new Date(timestamp))
+function formatEventTime(timestamp: Date | string | null | undefined) {
+  return formatCheckInTime(timestamp)
 }
 
 function refreshOverview() {
@@ -156,16 +149,11 @@ async function startScanner() {
         isScanning.value = false
         rawQrData.value = decodedText
 
-        console.log('QR Code detected! Raw data:', decodedText)
-
         try {
-          console.log('Attempting to parse JSON...')
           const trimmedText = decodedText.trim()
           const data = JSON.parse(trimmedText)
-          console.log('Parsed data:', data)
 
           const userId = data.userId
-          console.log('Extracted userId:', userId)
 
           if (!userId) {
             throw new Error('QR code does not contain a userId')
@@ -263,7 +251,7 @@ async function handleCheckOut() {
     const result = await checkOutMutation.mutateAsync(selectedParticipantUserId.value)
     scanResult.value = {
       success: true,
-      message: `Participant checked out at ${formatCheckInTime(new Date(result.checkOutTime))}.`,
+      message: `Participant checked out at ${formatCheckInTime(result.checkOutTime)}.`,
     }
     refreshOverview()
   }

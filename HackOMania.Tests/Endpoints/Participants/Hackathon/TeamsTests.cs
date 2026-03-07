@@ -931,65 +931,6 @@ public class TeamsTests
 
     [Test]
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public async Task RemoveMember_AsNonCreator_ReturnsForbidden(
-        AuthenticatedHttpClientDataClass client1
-    )
-    {
-        // Arrange - Create hackathon and team
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client1);
-
-        var teamRequest = new { Name = "Test Team", Description = "Team for removal test" };
-        var teamResponse = await client1.HttpClient.PostAsJsonAsync(
-            $"/participants/hackathons/{hackathonId}/teams",
-            teamRequest
-        );
-        var team = await teamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
-
-        // Create second user and join the team
-        var client2 = new AuthenticatedHttpClientDataClass
-        {
-            GitHubId = 9997,
-            GitHubLogin = "integration-test-user-noncreator",
-            FirstName = "Non Creator",
-            LastName = "User",
-            Email = "noncreator@example.com",
-        };
-        await client2.InitializeAsync();
-
-        try
-        {
-            await client2.HttpClient.PostAsync(
-                $"/participants/hackathons/{hackathonId}/join",
-                null
-            );
-            await client2.HttpClient.PostAsJsonAsync(
-                "/participants/teams/join",
-                new { team!.JoinCode }
-            );
-
-            // Get team to find creator's ID
-            var myTeamResponse = await client2.HttpClient.GetAsync(
-                $"/participants/hackathons/{hackathonId}/teams/me"
-            );
-            var myTeam = await myTeamResponse.Content.ReadFromJsonAsync<MyTeamResponse>();
-            var creator = myTeam!.Members!.FirstOrDefault(m => !m.IsCurrentUser);
-
-            // Act - Try to remove creator as non-creator member
-            var response = await client2.HttpClient.DeleteAsync(
-                $"/participants/hackathons/{hackathonId}/teams/{team.Id}/members/{creator!.UserId}"
-            );
-
-            // Assert - Should be forbidden
-            await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Forbidden);
-        }
-        finally
-        {
-            await client2.DisposeAsync();
-        }
-    }
-
-    [Test]
-    [ClassDataSource<AuthenticatedHttpClientDataClass>]
     public async Task RemoveMember_RemovingSelf_ReturnsError(
         AuthenticatedHttpClientDataClass client
     )

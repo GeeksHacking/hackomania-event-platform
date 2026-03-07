@@ -287,6 +287,16 @@ function openHistory(userId: string, name: string) {
   isHistoryModalOpen.value = true
 }
 
+async function handleCheckInFromList(userId: string) {
+  try {
+    await checkInMutation.mutateAsync(userId)
+    refreshOverview()
+  }
+  catch (err) {
+    console.error('Check-in error:', err)
+  }
+}
+
 async function handleCheckOutFromList(userId: string) {
   try {
     await checkOutMutation.mutateAsync(userId)
@@ -478,6 +488,16 @@ onUnmounted(() => {
                     </td>
                     <td class="py-2.5 text-right">
                       <div class="flex items-center justify-end gap-1">
+                        <UButton
+                          v-if="!participant.isCurrentlyCheckedIn"
+                          size="xs"
+                          color="success"
+                          variant="soft"
+                          :loading="checkInMutation.isPending.value"
+                          @click="handleCheckInFromList(participant.userId ?? '')"
+                        >
+                          Check In
+                        </UButton>
                         <UButton
                           v-if="participant.isCurrentlyCheckedIn"
                           size="xs"

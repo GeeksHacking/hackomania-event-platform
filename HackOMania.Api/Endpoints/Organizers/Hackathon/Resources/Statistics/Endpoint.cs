@@ -153,12 +153,15 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     .ToList();
 
                 var teamId = group.Key;
-                var isKnownTeam = teamId.HasValue && teamById.TryGetValue(teamId.Value, out var team);
+                var teamName = "No team";
+
+                if (teamId.HasValue && teamById.TryGetValue(teamId.Value, out var knownTeam))
+                    teamName = knownTeam.Name;
 
                 return new TeamBreakdownItem
                 {
                     TeamId = teamId,
-                    TeamName = isKnownTeam ? team!.Name : "No team",
+                    TeamName = teamName,
                     MemberCount = teamId.HasValue ? memberCountByTeamId.GetValueOrDefault(teamId.Value) : participants.Count(participant => !participant.TeamId.HasValue),
                     RedeemerCount = participantsInGroup.Count,
                     TotalRedemptions = participantsInGroup.Sum(item => item.RedemptionCount),
@@ -203,7 +206,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     return null;
 
                 var teamId = participant.TeamId;
-                var hasTeam = teamId.HasValue && teamById.TryGetValue(teamId.Value, out var team);
+                var teamName = "No team";
+
+                if (teamId.HasValue && teamById.TryGetValue(teamId.Value, out var knownTeam))
+                    teamName = knownTeam.Name;
 
                 return new RecentRedemptionItem
                 {
@@ -214,7 +220,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     UserId = participant.UserId,
                     UserName = BuildUserName(participant.FirstName, participant.LastName),
                     TeamId = teamId,
-                    TeamName = hasTeam ? team!.Name : "No team",
+                    TeamName = teamName,
                     Timestamp = redemption.CreatedAt.AssumeStoredAsUtc(),
                 };
             })

@@ -13,13 +13,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         Delete(
             "participants/hackathons/{HackathonId:guid}/teams/{TeamId:guid}/members/{UserId:guid}"
         );
-        Policies(PolicyNames.TeamCreatorForHackathonTeam);
+        Policies(PolicyNames.TeamMemberForHackathonTeam);
         Description(b => b.WithTags("Participants", "Teams"));
         Summary(s =>
         {
             s.Summary = "Remove a member from the team";
             s.Description =
-                "Allows the team creator to remove another member from the team. Cannot remove yourself (use leave endpoint instead). If no members remain after removal, the team will be deleted.";
+                "Allows the team member to remove another member from the team. Cannot remove yourself (use leave endpoint instead). If no members remain after removal, the team will be deleted.";
         });
     }
 

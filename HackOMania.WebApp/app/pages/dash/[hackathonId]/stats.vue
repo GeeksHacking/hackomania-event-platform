@@ -182,12 +182,12 @@ const teamFormationRate = computed(() => {
   return ((inTeamParticipants.value.length / activeParticipants.value.length) * 100).toFixed(1)
 })
 
-const memberCheckInByParticipantId = computed(() => {
+const memberCheckInByUserId = computed(() => {
   const entries = checkInParticipants.value.flatMap((participant) => {
-    if (!participant.participantId)
+    if (!participant.userId)
       return []
 
-    return [[participant.participantId, participant] as const]
+    return [[participant.userId, participant] as const]
   })
 
   return new Map(entries)
@@ -196,7 +196,8 @@ const memberCheckInByParticipantId = computed(() => {
 const activeParticipantsWithCheckIn = computed(() =>
   activeParticipants.value.map(participant => ({
     participant,
-    checkIn: participant.id ? memberCheckInByParticipantId.value.get(participant.id) : undefined,
+    // Organizer participant list uses userId as the public Id field.
+    checkIn: participant.id ? memberCheckInByUserId.value.get(participant.id) : undefined,
   })),
 )
 
@@ -300,7 +301,7 @@ const teamCheckInSummary = computed(() => {
 
       const members = activeTeamMembersByTeamId.value.get(team.id) ?? []
       const checkedInMemberCount = members.reduce((count, participant) => {
-        const checkIn = participant.id ? memberCheckInByParticipantId.value.get(participant.id) : undefined
+        const checkIn = participant.id ? memberCheckInByUserId.value.get(participant.id) : undefined
         return count + (checkIn?.isCurrentlyCheckedIn ? 1 : 0)
       }, 0)
 

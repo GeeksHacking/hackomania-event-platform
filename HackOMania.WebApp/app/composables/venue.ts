@@ -1,55 +1,23 @@
 import type { MaybeRefOrGetter } from 'vue'
+import type {
+  HackOManiaApiEndpointsOrganizersHackathonVenueCheckInResponse,
+  HackOManiaApiEndpointsOrganizersHackathonVenueCheckOutResponse,
+  HackOManiaApiEndpointsOrganizersHackathonVenueHistoryHistoryItemDto,
+  HackOManiaApiEndpointsOrganizersHackathonVenueHistoryResponse,
+  HackOManiaApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto,
+  HackOManiaApiEndpointsOrganizersHackathonVenueOverviewResponse,
+  HackOManiaApiEndpointsOrganizersHackathonVenueOverviewVenueAuditTrailItemDto,
+} from '~/api-client/models'
 import { queryOptions, useMutation } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 
-export interface VenueCheckInResponse {
-  id: string
-  checkInTime: string
-  isCheckedIn: boolean
-}
-
-export interface VenueCheckOutResponse {
-  id: string
-  checkOutTime: string
-  isCheckedIn: boolean
-}
-
-export interface VenueHistoryItem {
-  checkInTime: string
-  checkOutTime?: string | null
-  isCheckedIn: boolean
-}
-
-export interface VenueHistoryResponse {
-  participantId: string
-  userId: string
-  userName: string
-  isCurrentlyCheckedIn: boolean
-  history: VenueHistoryItem[]
-}
-
-export interface ParticipantCheckInDto {
-  participantId: string
-  userId: string
-  userName: string
-  isCurrentlyCheckedIn: boolean
-  lastCheckInTime?: string | null
-  lastCheckOutTime?: string | null
-  totalCheckIns: number
-}
-
-export interface VenueAuditTrailItem {
-  participantId: string
-  userId: string
-  userName: string
-  action: string
-  timestamp: string
-}
-
-export interface VenueOverviewResponse {
-  participants: ParticipantCheckInDto[]
-  auditTrail: VenueAuditTrailItem[]
-}
+export type VenueCheckInResponse = HackOManiaApiEndpointsOrganizersHackathonVenueCheckInResponse
+export type VenueCheckOutResponse = HackOManiaApiEndpointsOrganizersHackathonVenueCheckOutResponse
+export type VenueHistoryItem = HackOManiaApiEndpointsOrganizersHackathonVenueHistoryHistoryItemDto
+export type VenueHistoryResponse = HackOManiaApiEndpointsOrganizersHackathonVenueHistoryResponse
+export type ParticipantCheckInDto = HackOManiaApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto
+export type VenueAuditTrailItem = HackOManiaApiEndpointsOrganizersHackathonVenueOverviewVenueAuditTrailItemDto
+export type VenueOverviewResponse = HackOManiaApiEndpointsOrganizersHackathonVenueOverviewResponse
 
 export const venueOverviewQueries = {
   overview: (hackathonId: string) =>
@@ -57,13 +25,14 @@ export const venueOverviewQueries = {
       queryKey: ['hackathons', hackathonId, 'venue', 'overview'],
       refetchInterval: 15_000,
       async queryFn() {
-        const { public: { api } } = useRuntimeConfig()
-        return await $fetch<VenueOverviewResponse>(
-          `${api}/organizers/hackathons/${hackathonId}/venue/overview`,
-          {
-            credentials: 'include',
-          },
-        )
+        return await useNuxtApp()
+          .$apiClient
+          .organizers
+          .hackathons
+          .byHackathonId(hackathonId)
+          .venue
+          .overview
+          .get()
       },
     }),
 }
@@ -71,14 +40,21 @@ export const venueOverviewQueries = {
 export function useCheckInMutation(hackathonId: MaybeRefOrGetter<string>) {
   return useMutation({
     async mutationFn(participantUserId: string) {
-      const { public: { api } } = useRuntimeConfig()
-      return await $fetch<VenueCheckInResponse>(
-        `${api}/organizers/hackathons/${toValue(hackathonId)}/participants/${participantUserId}/venue/check-in`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        },
-      )
+      const response = await useNuxtApp()
+        .$apiClient
+        .organizers
+        .hackathons
+        .byHackathonId(toValue(hackathonId))
+        .participants
+        .byParticipantUserId(participantUserId)
+        .venue
+        .checkIn
+        .post()
+
+      if (!response)
+        throw new Error('No check-in response returned.')
+
+      return response
     },
   })
 }
@@ -86,14 +62,21 @@ export function useCheckInMutation(hackathonId: MaybeRefOrGetter<string>) {
 export function useCheckOutMutation(hackathonId: MaybeRefOrGetter<string>) {
   return useMutation({
     async mutationFn(participantUserId: string) {
-      const { public: { api } } = useRuntimeConfig()
-      return await $fetch<VenueCheckOutResponse>(
-        `${api}/organizers/hackathons/${toValue(hackathonId)}/participants/${participantUserId}/venue/check-out`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        },
-      )
+      const response = await useNuxtApp()
+        .$apiClient
+        .organizers
+        .hackathons
+        .byHackathonId(toValue(hackathonId))
+        .participants
+        .byParticipantUserId(participantUserId)
+        .venue
+        .checkOut
+        .post()
+
+      if (!response)
+        throw new Error('No check-out response returned.')
+
+      return response
     },
   })
 }
@@ -103,13 +86,16 @@ export const venueHistoryQueries = {
     queryOptions({
       queryKey: ['hackathons', hackathonId, 'venue', 'history', participantUserId],
       async queryFn() {
-        const { public: { api } } = useRuntimeConfig()
-        return await $fetch<VenueHistoryResponse>(
-          `${api}/organizers/hackathons/${hackathonId}/participants/${participantUserId}/venue/history`,
-          {
-            credentials: 'include',
-          },
-        )
+        return await useNuxtApp()
+          .$apiClient
+          .organizers
+          .hackathons
+          .byHackathonId(hackathonId)
+          .participants
+          .byParticipantUserId(participantUserId)
+          .venue
+          .history
+          .get()
       },
     }),
 }

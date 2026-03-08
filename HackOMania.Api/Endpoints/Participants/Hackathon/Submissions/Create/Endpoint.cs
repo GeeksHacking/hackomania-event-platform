@@ -72,7 +72,6 @@ public class Endpoint(ISqlSugarClient sql, IGitHubRepositoryAutomationService gi
         // Get all submissions for this challenge
         var challengeSubmissions = await sql.Queryable<ChallengeSubmission>()
             .Where(s => s.ChallengeId == challenge.Id)
-            .Includes(s => s.TeamId)
             .ToListAsync(ct);
 
         // Get team information with members

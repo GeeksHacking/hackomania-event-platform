@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directories:
+      - "/HackOMania.Api"
+      - "/HackOMania.AppHost"
+      - "/HackOMania.Infra"
+      - "/HackOMania.ServiceDefaults"
+      - "/HackOMania.Tests"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
+    groups:
+      minor-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+      major-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
+    groups:
+      minor-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+      major-updates:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "major"

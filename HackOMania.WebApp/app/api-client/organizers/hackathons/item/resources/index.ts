@@ -4,7 +4,9 @@
 // @ts-ignore
 import { createHackOManiaApiEndpointsOrganizersHackathonResourcesCreateResponseFromDiscriminatorValue, createHackOManiaApiEndpointsOrganizersHackathonResourcesListResponseFromDiscriminatorValue, serializeHackOManiaApiEndpointsOrganizersHackathonResourcesCreateRequest, serializeHackOManiaApiEndpointsOrganizersHackathonResourcesCreateResponse, type HackOManiaApiEndpointsOrganizersHackathonResourcesCreateRequest, type HackOManiaApiEndpointsOrganizersHackathonResourcesCreateResponse, type HackOManiaApiEndpointsOrganizersHackathonResourcesListResponse } from '../../../../models/index.js';
 // @ts-ignore
-import { type WithResourceItemRequestBuilder, WithResourceItemRequestBuilderRequestsMetadata } from './item/index.js';
+import { type WithResourceItemRequestBuilder, WithResourceItemRequestBuilderNavigationMetadata, WithResourceItemRequestBuilderRequestsMetadata } from './item/index.js';
+// @ts-ignore
+import { StatisticsRequestBuilderRequestsMetadata, type StatisticsRequestBuilder } from './statistics/index.js';
 // @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
@@ -12,6 +14,10 @@ import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type 
  * Builds and executes requests for operations under /organizers/hackathons/{hackathonId}/resources
  */
 export interface ResourcesRequestBuilder extends BaseRequestBuilder<ResourcesRequestBuilder> {
+    /**
+     * The statistics property
+     */
+    get statistics(): StatisticsRequestBuilder;
     /**
      * Gets an item from the ApiSdk.organizers.hackathons.item.resources.item collection
      * @param resourceId Unique identifier of the item
@@ -51,7 +57,11 @@ export const ResourcesRequestBuilderUriTemplate = "{+baseurl}/organizers/hackath
 export const ResourcesRequestBuilderNavigationMetadata: Record<Exclude<keyof ResourcesRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     byResourceId: {
         requestsMetadata: WithResourceItemRequestBuilderRequestsMetadata,
+        navigationMetadata: WithResourceItemRequestBuilderNavigationMetadata,
         pathParametersMappings: ["resourceId"],
+    },
+    statistics: {
+        requestsMetadata: StatisticsRequestBuilderRequestsMetadata,
     },
 };
 /**

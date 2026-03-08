@@ -4,12 +4,18 @@
 // @ts-ignore
 import { createHackOManiaApiEndpointsOrganizersHackathonResourcesUpdateResponseFromDiscriminatorValue, serializeHackOManiaApiEndpointsOrganizersHackathonResourcesUpdateRequest, serializeHackOManiaApiEndpointsOrganizersHackathonResourcesUpdateResponse, type HackOManiaApiEndpointsOrganizersHackathonResourcesUpdateRequest, type HackOManiaApiEndpointsOrganizersHackathonResourcesUpdateResponse } from '../../../../../models/index.js';
 // @ts-ignore
-import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
+import { OverviewRequestBuilderRequestsMetadata, type OverviewRequestBuilder } from './overview/index.js';
+// @ts-ignore
+import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
  * Builds and executes requests for operations under /organizers/hackathons/{hackathonId}/resources/{resourceId}
  */
 export interface WithResourceItemRequestBuilder extends BaseRequestBuilder<WithResourceItemRequestBuilder> {
+    /**
+     * The overview property
+     */
+    get overview(): OverviewRequestBuilder;
     /**
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      */
@@ -36,6 +42,14 @@ export interface WithResourceItemRequestBuilder extends BaseRequestBuilder<WithR
  * Uri template for the request builder.
  */
 export const WithResourceItemRequestBuilderUriTemplate = "{+baseurl}/organizers/hackathons/{hackathonId}/resources/{resourceId}";
+/**
+ * Metadata for all the navigation properties in the request builder.
+ */
+export const WithResourceItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithResourceItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+    overview: {
+        requestsMetadata: OverviewRequestBuilderRequestsMetadata,
+    },
+};
 /**
  * Metadata for all the requests in the request builder.
  */

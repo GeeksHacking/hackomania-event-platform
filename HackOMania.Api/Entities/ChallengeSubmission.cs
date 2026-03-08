@@ -12,13 +12,13 @@ public class ChallengeSubmission
     [SugarColumn(ColumnDataType = "longtext")]
     public string Description { get; set; } = string.Empty;
 
-    [SugarColumn(ColumnDataType = "nvarchar(64)", SqlParameterDbType = typeof(UriConverter))]
+    [SugarColumn(ColumnDataType = "longtext", SqlParameterDbType = typeof(UriConverter))]
     public Uri RepositoryUri { get; set; } = null!;
 
-    [SugarColumn(ColumnDataType = "nvarchar(64)", SqlParameterDbType = typeof(UriConverter))]
+    [SugarColumn(ColumnDataType = "longtext", SqlParameterDbType = typeof(UriConverter))]
     public Uri DemoUri { get; set; } = null!;
 
-    [SugarColumn(ColumnDataType = "nvarchar(64)", SqlParameterDbType = typeof(UriConverter))]
+    [SugarColumn(ColumnDataType = "longtext", SqlParameterDbType = typeof(UriConverter))]
     public Uri SlidesUri { get; set; } = null!;
 
     public DateTimeOffset SubmittedAt { get; set; } = DateTimeOffset.UtcNow;

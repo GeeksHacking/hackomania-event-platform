@@ -1,5 +1,6 @@
 using HackOMania.Api.Entities;
 using Octokit;
+using System.Text;
 
 namespace HackOMania.Api.Services;
 
@@ -9,6 +10,7 @@ public class GitHubRepositoryAutomationService(
 {
     public async Task ValidateAndMaybeForkAsync(
         HackathonGitHubRepositorySettings? settings,
+        string teamName,
         Uri repositoryUri,
         CancellationToken ct = default
     )
@@ -145,13 +147,11 @@ public class GitHubRepositoryAutomationService(
             );
         }
 
-        var prefix = settings.RepositoryPrefix?.Trim();
-        if (string.IsNullOrWhiteSpace(prefix))
-        {
-            return;
-        }
-
-        var targetName = $"{prefix}{repository.Name}";
+        var targetName = BuildTargetRepositoryName(
+            settings.RepositoryPrefix,
+            teamName,
+            repository.Name
+        );
         if (string.Equals(fork.Name, targetName, StringComparison.Ordinal))
         {
             return;
@@ -198,6 +198,58 @@ public class GitHubRepositoryAutomationService(
         var client = new GitHubClient(new ProductHeaderValue("HackOMania"));
         client.Credentials = new Credentials(apiKey);
         return client;
+    }
+
+    private static string BuildTargetRepositoryName(
+        string? prefix,
+        string teamName,
+        string repositoryName
+    )
+    {
+        var parts = new[] { prefix, teamName, repositoryName }
+            .Select(SanitizeRepositoryNamePart)
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .ToArray();
+
+        if (parts.Length == 0)
+        {
+            throw new GitHubRepositoryAutomationException(
+                "GitHub could not derive a valid name for the forked repository."
+            );
+        }
+
+        return string.Join("-", parts);
+    }
+
+    private static string? SanitizeRepositoryNamePart(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var builder = new StringBuilder(value.Length);
+        var previousWasSeparator = false;
+
+        foreach (var character in value.Trim())
+        {
+            if (char.IsLetterOrDigit(character) || character is '-' or '_' or '.')
+            {
+                builder.Append(character);
+                previousWasSeparator = false;
+                continue;
+            }
+
+            if (previousWasSeparator)
+            {
+                continue;
+            }
+
+            builder.Append('-');
+            previousWasSeparator = true;
+        }
+
+        return builder.ToString().Trim('-', '.', '_');
     }
 
     private static (string Owner, string Name) ParseRepositoryCoordinates(Uri repositoryUri)

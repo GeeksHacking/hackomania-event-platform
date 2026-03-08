@@ -122,6 +122,7 @@ public class Endpoint(ISqlSugarClient sql, IGitHubRepositoryAutomationService gi
         {
             await gitHubRepositoryAutomation.ValidateAndMaybeForkAsync(
                 gitHubRepositorySettings,
+                team.Name,
                 req.RepoUri!,
                 ct
             );

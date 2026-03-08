@@ -6,6 +6,7 @@ public interface IGitHubRepositoryAutomationService
 {
     Task ValidateAndMaybeForkAsync(
         HackathonGitHubRepositorySettings? settings,
+        string teamName,
         Uri repositoryUri,
         CancellationToken ct = default
     );

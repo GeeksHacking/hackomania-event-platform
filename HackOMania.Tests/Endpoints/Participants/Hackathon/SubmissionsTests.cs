@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
 using HackOMania.Tests.Data;
 using HackOMania.Tests.Models;
+using System.Net.Http.Json;
 
 namespace HackOMania.Tests.Endpoints.Participants.Hackathon;
 
@@ -100,10 +100,12 @@ public class SubmissionsTests
         var (hackathonId, teamId, challengeId) = await CreateHackathonWithTeamAndChallengeAsync(
             client
         );
+        var title = "Test Submission";
+        var summary = "A test submission summary";
         var request = CreateValidSubmissionRequest(
             challengeId,
-            "Test Submission",
-            "A test submission summary"
+            title,
+            summary
         );
 
         // Act
@@ -116,7 +118,7 @@ public class SubmissionsTests
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result).IsNotNull();
-        await Assert.That(result!.Title).IsEqualTo(request.Title);
+        await Assert.That(result!.Title).IsEqualTo(title);
         await Assert.That(result.ChallengeId).IsEqualTo(challengeId);
     }
 

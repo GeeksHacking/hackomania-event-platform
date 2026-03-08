@@ -150,6 +150,12 @@ public class GitHubRepositoryAutomationService(
             );
         }
 
+        logger.LogInformation(
+            "GitHub fork created from {SourceRepositoryUrl} to {ForkRepositoryUrl}",
+            repository.HtmlUrl,
+            fork.HtmlUrl
+        );
+
         var targetName = BuildTargetRepositoryName(
             settings.RepositoryPrefix,
             teamName,
@@ -157,12 +163,18 @@ public class GitHubRepositoryAutomationService(
         );
         if (string.Equals(fork.Name, targetName, StringComparison.Ordinal))
         {
+            logger.LogInformation(
+                "GitHub fork already uses the target name. Source: {SourceRepositoryUrl}. Final fork: {FinalForkRepositoryUrl}",
+                repository.HtmlUrl,
+                fork.HtmlUrl
+            );
             return;
         }
 
+        var renamedFork = fork;
         try
         {
-            await RenameForkAsync(client, fork.Id, targetName, ct);
+            renamedFork = await RenameForkAsync(client, fork.Id, targetName, ct);
         }
         catch (AuthorizationException ex)
         {
@@ -191,6 +203,13 @@ public class GitHubRepositoryAutomationService(
                 ex
             );
         }
+
+        logger.LogInformation(
+            "GitHub fork renamed. Source: {SourceRepositoryUrl}. Original fork: {OriginalForkRepositoryUrl}. Final fork: {FinalForkRepositoryUrl}",
+            repository.HtmlUrl,
+            fork.HtmlUrl,
+            renamedFork.HtmlUrl
+        );
     }
 
     private static GitHubClient CreateClient(string apiKey)
@@ -221,7 +240,7 @@ public class GitHubRepositoryAutomationService(
         return string.Join("-", parts);
     }
 
-    private async Task RenameForkAsync(
+    private async Task<Repository> RenameForkAsync(
         GitHubClient client,
         long forkId,
         string targetName,
@@ -255,7 +274,7 @@ public class GitHubRepositoryAutomationService(
 
         try
         {
-            await retryPipeline.ExecuteAsync(
+            return await retryPipeline.ExecuteAsync(
                 async token => await TryRenameForkAsync(client, forkId, targetName, token),
                 ct
             );
@@ -263,6 +282,7 @@ public class GitHubRepositoryAutomationService(
         catch (RetryableForkRenameException ex) when (ex.InnerException is ApiValidationException apiEx)
         {
             ExceptionDispatchInfo.Capture(apiEx).Throw();
+            throw;
         }
     }
 
@@ -309,7 +329,7 @@ public class GitHubRepositoryAutomationService(
         }
     }
 
-    private static async ValueTask TryRenameForkAsync(
+    private static async ValueTask<Repository> TryRenameForkAsync(
         GitHubClient client,
         long forkId,
         string targetName,
@@ -318,7 +338,7 @@ public class GitHubRepositoryAutomationService(
     {
         try
         {
-            await client.Repository.Edit(
+            return await client.Repository.Edit(
                 forkId,
                 new RepositoryUpdate { Name = targetName }
             );
@@ -331,7 +351,7 @@ public class GitHubRepositoryAutomationService(
                 && string.Equals(existingRepository.Name, targetName, StringComparison.Ordinal)
             )
             {
-                return;
+                return existingRepository;
             }
 
             ct.ThrowIfCancellationRequested();

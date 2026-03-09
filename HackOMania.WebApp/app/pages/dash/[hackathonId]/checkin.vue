@@ -356,39 +356,7 @@ onUnmounted(() => {
     </template>
 
     <template #body>
-      <div class="p-4 space-y-4 overflow-y-auto">
-        <!-- Scanner Card -->
-        <UCard>
-          <template #header>
-            <div class="flex flex-col gap-3">
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 class="text-sm font-semibold">
-                    Check-In Scanner
-                  </h3>
-                  <p class="text-xs text-(--ui-text-muted) mt-1">
-                    Scan participant QR codes and choose check-in/check-out actions
-                  </p>
-                </div>
-                <UButton
-                  icon="i-lucide-qr-code"
-                  size="sm"
-                  class="w-full sm:w-auto"
-                  @click="openScanner"
-                >
-                  Open Scanner
-                </UButton>
-              </div>
-            </div>
-          </template>
-
-          <div class="text-sm text-(--ui-text-muted)">
-            <p class="mt-2">
-              Participants should present their unique QR code for check-in.
-            </p>
-          </div>
-        </UCard>
-
+      <div class="space-y-3">
         <!-- Live Check-In History -->
         <UCard>
           <template #header>
@@ -410,17 +378,27 @@ onUnmounted(() => {
                   <span v-else>Loading...</span>
                 </p>
               </div>
-              <UButton
-                icon="i-lucide-refresh-cw"
-                size="sm"
-                variant="soft"
-                color="neutral"
-                class="w-full sm:w-auto"
-                :loading="isLoadingOverview"
-                @click="refreshOverview"
-              >
-                Refresh
-              </UButton>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <UButton
+                  icon="i-lucide-qr-code"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  @click="openScanner"
+                >
+                  Open Scanner
+                </UButton>
+                <UButton
+                  icon="i-lucide-refresh-cw"
+                  size="sm"
+                  variant="soft"
+                  color="neutral"
+                  class="w-full sm:w-auto"
+                  :loading="isLoadingOverview"
+                  @click="refreshOverview"
+                >
+                  Refresh
+                </UButton>
+              </div>
             </div>
           </template>
 
@@ -672,7 +650,7 @@ onUnmounted(() => {
                     <div class="flex flex-wrap gap-2">
                       <UButton
                         size="sm"
-                        :disabled="selectedParticipant?.isCurrentlyCheckedIn"
+                        :disabled="!!selectedParticipant?.isCurrentlyCheckedIn"
                         :loading="checkInMutation.isPending.value"
                         @click="handleCheckIn"
                       >

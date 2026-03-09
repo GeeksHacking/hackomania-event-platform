@@ -652,7 +652,7 @@ function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined
     </template>
 
     <template #body>
-      <div class="p-4 space-y-4 overflow-y-auto">
+      <div class="space-y-3">
         <UCard>
           <template #header>
             <div class="flex flex-col gap-3">

@@ -362,7 +362,7 @@ onUnmounted(() => {
     </template>
 
     <template #body>
-      <div class="space-y-4 overflow-y-auto p-4">
+      <div class="space-y-3">
         <UCard>
           <template #header>
             <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

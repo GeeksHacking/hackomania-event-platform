@@ -27,11 +27,17 @@ interface StatCard {
   color: StatColor
 }
 
-interface StatSection {
+interface DenseStatRow {
+  label: string
+  value: string | number
+  color?: StatColor
+}
+
+interface DenseStatSection {
   key: string
   title: string
-  cards: StatCard[]
-  gridClass: string
+  description: string
+  rows: DenseStatRow[]
   footer?: string | null
 }
 
@@ -51,6 +57,14 @@ const cardIconClass: Record<StatColor, string> = {
   warning: 'text-amber-500 dark:text-amber-400',
   error: 'text-red-500 dark:text-red-400',
   neutral: 'text-(--ui-text-muted)',
+}
+
+const metricValueClass: Record<StatColor, string> = {
+  primary: 'text-primary',
+  success: 'text-green-600 dark:text-green-400',
+  warning: 'text-amber-600 dark:text-amber-300',
+  error: 'text-red-600 dark:text-red-400',
+  neutral: 'text-(--ui-text-highlighted)',
 }
 
 const route = useRoute()
@@ -426,108 +440,99 @@ const teamCheckInSummary = computed(() => {
   )
 })
 
-const registrationStats = computed<StatCard[]>(() => [
-  { label: 'Total Registered', value: participants.value.length, icon: 'i-lucide-users', color: 'primary' },
-  { label: 'Active', value: activeParticipants.value.length, icon: 'i-lucide-user-check', color: 'success' },
+const overviewStats = computed<StatCard[]>(() => [
+  { label: 'Active Participants', value: activeParticipants.value.length, icon: 'i-lucide-users', color: 'primary' },
   { label: 'Complete Registrations', value: completeActiveParticipants.value.length, icon: 'i-lucide-file-check', color: 'success' },
-  { label: 'Incomplete Registrations', value: activeParticipants.value.filter(participant => isIncomplete(participant)).length, icon: 'i-lucide-file-warning', color: 'warning' },
-  { label: 'Withdrawn', value: withdrawnParticipants.value.length, icon: 'i-lucide-user-minus', color: 'neutral' },
-])
-
-const reviewStats = computed<StatCard[]>(() => [
-  { label: 'Pending Review', value: pendingReviewParticipants.value.length, icon: 'i-lucide-clock', color: 'warning' },
-  { label: `Overdue (${REVIEW_OVERDUE_DAYS}d+)`, value: overdueParticipants.value.length, icon: 'i-lucide-alert-triangle', color: 'error' },
-  { label: 'Accepted', value: acceptedParticipants.value.length, icon: 'i-lucide-check-circle', color: 'success' },
-  { label: 'Rejected', value: rejectedParticipants.value.length, icon: 'i-lucide-x-circle', color: 'error' },
-])
-
-const teamStats = computed<StatCard[]>(() => [
-  { label: 'Number of Teams', value: teams.value.length, icon: 'i-lucide-users', color: 'primary' },
-  { label: 'In a Team', value: inTeamParticipants.value.length, icon: 'i-lucide-user-round-check', color: 'success' },
-  { label: 'Not in a Team', value: notInTeamParticipants.value.length, icon: 'i-lucide-user-round-x', color: 'warning' },
-  { label: 'Avg Members / Team', value: averageMembersPerTeam.value.toFixed(1), icon: 'i-lucide-bar-chart', color: 'primary' },
-  { label: 'Largest Team', value: largestTeamSize.value, icon: 'i-lucide-arrow-up', color: 'neutral' },
-  { label: 'All Members In', value: teamCheckInSummary.value.fullyCheckedInTeams, icon: 'i-lucide-check-circle', color: 'success' },
-  { label: 'Some Members In', value: teamCheckInSummary.value.partiallyCheckedInTeams, icon: 'i-lucide-users', color: 'warning' },
-  { label: 'No Members In', value: teamCheckInSummary.value.noCheckedInTeams, icon: 'i-lucide-x-circle', color: 'neutral' },
-])
-
-const challengeStats = computed<StatCard[]>(() => [
-  { label: 'Challenge Statements', value: challenges.value.length, icon: 'i-lucide-file-text', color: 'primary' },
-  { label: 'Published', value: publishedChallenges.value.length, icon: 'i-lucide-eye', color: 'success' },
-  { label: 'Drafts', value: draftChallenges.value.length, icon: 'i-lucide-file-pen-line', color: 'warning' },
-  { label: 'Teams Selected', value: teamsWithSelectedChallenge.value.length, icon: 'i-lucide-check-check', color: 'success' },
-  { label: 'Teams Unselected', value: teamsWithoutSelectedChallenge.value.length, icon: 'i-lucide-circle-dashed', color: 'warning' },
-  { label: 'With Team Picks', value: challengesWithSelections.value.length, icon: 'i-lucide-target', color: 'success' },
-  { label: 'Without Team Picks', value: challengesWithoutSelections.value.length, icon: 'i-lucide-target-off', color: 'neutral' },
-  { label: 'Max Teams / Challenge', value: maxTeamsOnSingleChallenge.value, icon: 'i-lucide-trophy', color: 'primary' },
-  { label: 'Avg Teams / Published', value: averageTeamsPerPublishedChallenge.value.toFixed(1), icon: 'i-lucide-bar-chart-3', color: 'primary' },
-])
-
-const venueCheckInStats = computed<StatCard[]>(() => [
-  { label: 'Checked In Members', value: checkedInMembers.value, icon: 'i-lucide-user-check', color: 'success' },
-  { label: 'Checked Out Members', value: checkedOutMembers.value, icon: 'i-lucide-log-out', color: 'warning' },
-  { label: 'No Check-In Yet', value: membersWithoutCheckIn.value, icon: 'i-lucide-user-minus', color: 'neutral' },
-  { label: 'Total Check-Ins', value: totalMemberCheckIns.value, icon: 'i-lucide-history', color: 'primary' },
-])
-
-const additionalStats = computed<StatCard[]>(() => [
-  { label: 'Accepted (in team)', value: acceptedInTeam.value, icon: 'i-lucide-user-round-check', color: 'success' },
-  { label: 'Accepted (no team)', value: acceptedNotInTeam.value, icon: 'i-lucide-user-round-x', color: 'warning' },
+  { label: 'Pending Review', value: pendingReviewParticipants.value.length, icon: 'i-lucide-clock-3', color: 'warning' },
+  { label: `Overdue (${REVIEW_OVERDUE_DAYS}d+)`, value: overdueParticipants.value.length, icon: 'i-lucide-triangle-alert', color: 'error' },
+  { label: 'Teams', value: teams.value.length, icon: 'i-lucide-users-round', color: 'primary' },
+  { label: 'Checked In Now', value: checkedInMembers.value, icon: 'i-lucide-user-check', color: 'success' },
+  { label: 'Published Challenges', value: publishedChallenges.value.length, icon: 'i-lucide-trophy', color: 'primary' },
   { label: 'Emails Sent', value: emailsSent.value, icon: 'i-lucide-mail', color: 'neutral' },
 ])
 
-const statSections = computed<StatSection[]>(() => [
+const denseStatSections = computed<DenseStatSection[]>(() => [
   {
     key: 'registration',
-    title: 'Registration',
-    cards: registrationStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5',
+    title: 'Registration Pipeline',
+    description: 'Current participant volume and completion status.',
+    rows: [
+      { label: 'Total registered', value: participants.value.length, color: 'primary' },
+      { label: 'Active', value: activeParticipants.value.length, color: 'success' },
+      { label: 'Complete', value: completeActiveParticipants.value.length, color: 'success' },
+      { label: 'Incomplete', value: activeParticipants.value.filter(participant => isIncomplete(participant)).length, color: 'warning' },
+      { label: 'Withdrawn', value: withdrawnParticipants.value.length, color: 'neutral' },
+    ],
     footer: registrationCompletionRate.value === null
       ? null
-      : `Registration completion rate: ${registrationCompletionRate.value}%`,
+      : `Completion rate: ${registrationCompletionRate.value}% of active participants`,
   },
   {
     key: 'review',
-    title: 'Review Status',
-    cards: reviewStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-4',
+    title: 'Review Queue',
+    description: 'Admissions work that still needs organizer attention.',
+    rows: [
+      { label: 'Pending review', value: pendingReviewParticipants.value.length, color: 'warning' },
+      { label: `Overdue (${REVIEW_OVERDUE_DAYS}d+)`, value: overdueParticipants.value.length, color: 'error' },
+      { label: 'Accepted', value: acceptedParticipants.value.length, color: 'success' },
+      { label: 'Rejected', value: rejectedParticipants.value.length, color: 'error' },
+      { label: 'Accepted in teams', value: acceptedInTeam.value, color: 'success' },
+      { label: 'Accepted without teams', value: acceptedNotInTeam.value, color: 'warning' },
+    ],
     footer: acceptanceRate.value === null
       ? null
       : `Acceptance rate: ${acceptanceRate.value}% of reviewed applications`,
   },
   {
     key: 'teams',
-    title: 'Teams',
-    cards: teamStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4',
+    title: 'Team Health',
+    description: 'Formation, sizing, and venue attendance by team.',
+    rows: [
+      { label: 'Number of teams', value: teams.value.length, color: 'primary' },
+      { label: 'Participants in a team', value: inTeamParticipants.value.length, color: 'success' },
+      { label: 'Participants without a team', value: notInTeamParticipants.value.length, color: 'warning' },
+      { label: 'Average members / team', value: averageMembersPerTeam.value.toFixed(1), color: 'primary' },
+      { label: 'Largest team', value: largestTeamSize.value, color: 'neutral' },
+      { label: 'All members checked in', value: teamCheckInSummary.value.fullyCheckedInTeams, color: 'success' },
+      { label: 'Partially checked in', value: teamCheckInSummary.value.partiallyCheckedInTeams, color: 'warning' },
+      { label: 'No members checked in', value: teamCheckInSummary.value.noCheckedInTeams, color: 'neutral' },
+    ],
     footer: teamFormationRate.value === null
       ? null
       : `Team formation rate: ${teamFormationRate.value}% of active participants`,
   },
   {
     key: 'venue',
-    title: 'Venue Check-In',
-    cards: venueCheckInStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-4',
+    title: 'Venue Activity',
+    description: 'Check-in coverage across current participants.',
+    rows: [
+      { label: 'Checked in now', value: checkedInMembers.value, color: 'success' },
+      { label: 'Checked out', value: checkedOutMembers.value, color: 'warning' },
+      { label: 'No check-in yet', value: membersWithoutCheckIn.value, color: 'neutral' },
+      { label: 'Total check-ins', value: totalMemberCheckIns.value, color: 'primary' },
+    ],
     footer: memberCheckInRate.value === null
       ? null
       : `Current check-in rate: ${memberCheckInRate.value}% of active participants`,
   },
   {
     key: 'challenges',
-    title: 'Challenge Statements',
-    cards: challengeStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5',
+    title: 'Challenge Coverage',
+    description: 'Publishing status and how evenly teams are assigning themselves.',
+    rows: [
+      { label: 'Challenge statements', value: challenges.value.length, color: 'primary' },
+      { label: 'Published', value: publishedChallenges.value.length, color: 'success' },
+      { label: 'Drafts', value: draftChallenges.value.length, color: 'warning' },
+      { label: 'Teams selected', value: teamsWithSelectedChallenge.value.length, color: 'success' },
+      { label: 'Teams unselected', value: teamsWithoutSelectedChallenge.value.length, color: 'warning' },
+      { label: 'Challenges with picks', value: challengesWithSelections.value.length, color: 'success' },
+      { label: 'Challenges without picks', value: challengesWithoutSelections.value.length, color: 'neutral' },
+      { label: 'Max teams / challenge', value: maxTeamsOnSingleChallenge.value, color: 'primary' },
+      { label: 'Average teams / published', value: averageTeamsPerPublishedChallenge.value.toFixed(1), color: 'primary' },
+    ],
     footer: challengeSelectionRate.value === null
       ? null
       : `Challenge selection rate: ${challengeSelectionRate.value}% of teams`,
-  },
-  {
-    key: 'additional',
-    title: 'Additional',
-    cards: additionalStats.value,
-    gridClass: 'grid grid-cols-2 gap-4 sm:grid-cols-3',
   },
 ])
 
@@ -545,13 +550,12 @@ const resourceStatisticsCards = computed<StatCard[]>(() => {
     return []
 
   return [
-    { label: 'Resources in Scope', value: stats.resourceCount, icon: 'i-lucide-package', color: 'primary' },
     { label: 'Redeemed Resources', value: stats.resourcesWithRedemptions, icon: 'i-lucide-badge-check', color: 'success' },
     { label: 'Total Redemptions', value: stats.totalRedemptions, icon: 'i-lucide-history', color: 'primary' },
     { label: 'Participants Redeemed', value: stats.participantsWithRedemptions, icon: 'i-lucide-user-check', color: 'success' },
     { label: 'Not Yet Redeemed', value: stats.participantsWithoutRedemptions, icon: 'i-lucide-user-minus', color: 'warning' },
     { label: 'Teams Represented', value: stats.teamsWithRedemptions, icon: 'i-lucide-users', color: 'primary' },
-    { label: 'No-Team Redeemers', value: stats.redeemersWithoutTeam, icon: 'i-lucide-user-round-x', color: 'neutral' },
+    { label: 'Resources in Scope', value: stats.resourceCount, icon: 'i-lucide-package', color: 'neutral' },
     { label: 'Avg / Redeemer', value: stats.averageRedemptionsPerRedeemer.toFixed(2), icon: 'i-lucide-bar-chart-3', color: 'neutral' },
   ]
 })
@@ -858,7 +862,7 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
     </template>
 
     <template #body>
-      <div class="space-y-6 overflow-y-auto p-4">
+      <div class="space-y-4">
         <div
           v-if="isLoading"
           class="text-sm text-(--ui-text-muted)"
@@ -867,42 +871,131 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
         </div>
 
         <template v-else>
-          <UCard
-            v-for="section in statSections"
-            :key="section.key"
-          >
+          <UCard>
             <template #header>
-              <h3 class="text-sm font-semibold">
-                {{ section.title }}
-              </h3>
+              <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div>
+                  <h3 class="text-sm font-semibold">
+                    Operations Overview
+                  </h3>
+                  <p class="mt-1 text-xs text-(--ui-text-muted)">
+                    Core organizer metrics surfaced first, with the detailed breakdown below.
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-xs">
+                  <UBadge
+                    variant="soft"
+                    color="neutral"
+                    size="sm"
+                  >
+                    Completion {{ registrationCompletionRate === null ? '—' : `${registrationCompletionRate}%` }}
+                  </UBadge>
+                  <UBadge
+                    variant="soft"
+                    color="neutral"
+                    size="sm"
+                  >
+                    Acceptance {{ acceptanceRate === null ? '—' : `${acceptanceRate}%` }}
+                  </UBadge>
+                  <UBadge
+                    variant="soft"
+                    color="neutral"
+                    size="sm"
+                  >
+                    Team formation {{ teamFormationRate === null ? '—' : `${teamFormationRate}%` }}
+                  </UBadge>
+                  <UBadge
+                    variant="soft"
+                    color="neutral"
+                    size="sm"
+                  >
+                    Checked in {{ memberCheckInRate === null ? '—' : `${memberCheckInRate}%` }}
+                  </UBadge>
+                </div>
+              </div>
             </template>
 
-            <div :class="section.gridClass">
+            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div
-                v-for="card in section.cards"
+                v-for="card in overviewStats"
                 :key="card.label"
-                class="rounded-lg border border-(--ui-border) border-l-3 p-3"
+                class="rounded-xl border border-(--ui-border) border-l-3 bg-(--ui-bg-elevated) p-3"
                 :class="cardBorderClass[card.color]"
               >
-                <div class="mb-1 flex items-center gap-2">
-                  <UIcon
-                    :name="card.icon"
-                    class="h-4 w-4 shrink-0"
-                    :class="cardIconClass[card.color]"
-                  />
-                  <span class="text-xs text-(--ui-text-muted)">{{ card.label }}</span>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      {{ card.label }}
+                    </p>
+                    <p class="mt-2 text-2xl font-semibold text-(--ui-text-highlighted)">
+                      {{ card.value }}
+                    </p>
+                  </div>
+                  <div class="rounded-lg bg-(--ui-bg) p-2">
+                    <UIcon
+                      :name="card.icon"
+                      class="h-4 w-4 shrink-0"
+                      :class="cardIconClass[card.color]"
+                    />
+                  </div>
                 </div>
-                <p class="text-2xl font-semibold text-(--ui-text-highlighted)">
-                  {{ card.value }}
-                </p>
               </div>
             </div>
+          </UCard>
 
-            <div
-              v-if="section.footer"
-              class="mt-3 text-xs text-(--ui-text-muted)"
-            >
-              {{ section.footer }}
+          <UCard>
+            <template #header>
+              <div>
+                <h3 class="text-sm font-semibold">
+                  Breakdown
+                </h3>
+                <p class="mt-1 text-xs text-(--ui-text-muted)">
+                  Denser operational summaries grouped by workflow instead of one card per metric block.
+                </p>
+              </div>
+            </template>
+
+            <div class="grid gap-4 xl:grid-cols-2">
+              <section
+                v-for="section in denseStatSections"
+                :key="section.key"
+                class="rounded-xl border border-(--ui-border) bg-(--ui-bg-elevated) p-4"
+              >
+                <div class="flex flex-col gap-1">
+                  <h4 class="text-sm font-semibold">
+                    {{ section.title }}
+                  </h4>
+                  <p class="text-xs text-(--ui-text-muted)">
+                    {{ section.description }}
+                  </p>
+                </div>
+
+                <dl class="mt-4 divide-y divide-(--ui-border)">
+                  <div
+                    v-for="row in section.rows"
+                    :key="row.label"
+                    class="flex items-center justify-between gap-4 py-2.5"
+                  >
+                    <dt class="text-sm text-(--ui-text-muted)">
+                      {{ row.label }}
+                    </dt>
+                    <dd
+                      class="text-sm font-semibold"
+                      :class="metricValueClass[row.color ?? 'neutral']"
+                    >
+                      {{ row.value }}
+                    </dd>
+                  </div>
+                </dl>
+
+                <p
+                  v-if="section.footer"
+                  class="mt-4 text-xs text-(--ui-text-muted)"
+                >
+                  {{ section.footer }}
+                </p>
+              </section>
             </div>
           </UCard>
 
@@ -923,7 +1016,7 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
                     </UBadge>
                   </div>
                   <p class="mt-1 text-xs text-(--ui-text-muted)">
-                    View redemption statistics for all resources or drill into a single resource with team-grouped participant detail.
+                    {{ selectedResourceStatsResource?.description || 'View redemption statistics for all resources or drill into a single resource with team-grouped participant detail.' }}
                   </p>
                 </div>
 
@@ -978,28 +1071,6 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
             </template>
 
             <div class="space-y-4">
-              <div class="rounded-xl border border-(--ui-border) bg-(--ui-bg-elevated) p-4">
-                <div class="flex flex-wrap items-center gap-2">
-                  <h4 class="text-sm font-semibold">
-                    {{ selectedResourceStatsResource?.name || 'All resources' }}
-                  </h4>
-                  <UBadge
-                    size="xs"
-                    variant="soft"
-                    :color="selectedResourceStatsResource?.isPublished === false ? 'warning' : 'success'"
-                  >
-                    {{
-                      selectedResourceStatsResource
-                        ? selectedResourceStatsResource.isPublished ? 'Published' : 'Unpublished'
-                        : 'Aggregate view'
-                    }}
-                  </UBadge>
-                </div>
-                <p class="mt-2 text-sm text-(--ui-text-muted)">
-                  {{ resourceStatisticsScopeDescription }}
-                </p>
-              </div>
-
               <div
                 v-if="!organizerResources.length"
                 class="rounded-xl border border-dashed border-(--ui-border) p-4 text-sm text-(--ui-text-muted)"
@@ -1015,11 +1086,31 @@ const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamIt
               </div>
 
               <template v-else-if="resourceStatistics">
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h4 class="text-sm font-semibold">
+                    {{ selectedResourceStatsResource?.name || 'All resources' }}
+                  </h4>
+                  <UBadge
+                    size="xs"
+                    variant="soft"
+                    :color="selectedResourceStatsResource?.isPublished === false ? 'warning' : 'success'"
+                  >
+                    {{
+                      selectedResourceStatsResource
+                        ? selectedResourceStatsResource.isPublished ? 'Published' : 'Unpublished'
+                        : 'Aggregate view'
+                    }}
+                  </UBadge>
+                  <span class="text-xs text-(--ui-text-muted)">
+                    {{ resourceStatisticsScopeDescription }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
                   <div
                     v-for="card in resourceStatisticsCards"
                     :key="card.label"
-                    class="rounded-lg border border-(--ui-border) border-l-3 p-3"
+                    class="rounded-xl border border-(--ui-border) border-l-3 bg-(--ui-bg-elevated) p-3"
                     :class="cardBorderClass[card.color]"
                   >
                     <div class="mb-1 flex items-center gap-2">

@@ -243,7 +243,7 @@ async function joinHackathon(hackathon: { id: string, shortCode: string }) {
       </template>
 
       <template #body>
-        <div class="p-4 space-y-4 overflow-y-auto">
+        <div class="space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div class="flex flex-col gap-1">
               <h2 class="text-lg font-semibold">

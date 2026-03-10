@@ -387,6 +387,11 @@ public class DefaultStack : Stack
                                     Name = "App__AdminGitHubLogins__18",
                                     Value = "grannysapple",
                                 },
+new ServiceTemplateContainerEnvArgs
+                                {
+                                    Name = "App__AdminGitHubLogins__19",
+                                    Value = "Jlorj",
+                                },
                                 new ServiceTemplateContainerEnvArgs
                                 {
                                     Name = "GitHub__ClientId",

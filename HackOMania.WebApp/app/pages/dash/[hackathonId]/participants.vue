@@ -244,7 +244,7 @@ function formatDateTime(value: Date | null | undefined) {
 
 function matchesSearch(participant: ParticipantItem, query: string) {
   const participantId = (participant.id ?? '').toLowerCase()
-  const normalizedIdQuery = query.replace(/[^a-z0-9]/g, '')
+  const normalizedIdQuery = query.toLowerCase().replace(/[^a-z0-9]/g, '')
   const normalizedParticipantId = participantId.replace(/[^a-z0-9]/g, '')
 
   if (participantId.includes(query) || (normalizedIdQuery && normalizedParticipantId.includes(normalizedIdQuery)))

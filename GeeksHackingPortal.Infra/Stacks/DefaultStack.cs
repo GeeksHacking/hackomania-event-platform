@@ -306,93 +306,13 @@ public class DefaultStack : Stack
                                 },
                                 new ServiceTemplateContainerEnvArgs
                                 {
-                                    Name = "App__AdminGitHubLogins__2",
-                                    Value = "whipermr5",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
                                     Name = "App__AdminGitHubLogins__3",
                                     Value = "tohkailiang",
                                 },
                                 new ServiceTemplateContainerEnvArgs
                                 {
-                                    Name = "App__AdminGitHubLogins__4",
-                                    Value = "gunnicorn",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__5",
-                                    Value = "joeltio",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__6",
-                                    Value = "ethan-chew",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__7",
-                                    Value = "NEOGE07",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
                                     Name = "App__AdminGitHubLogins__8",
                                     Value = "rogeryeosgit",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__9",
-                                    Value = "DerenC",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__10",
-                                    Value = "UserNotFound7",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__11",
-                                    Value = "tiramisuxh",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__12",
-                                    Value = "misterdoobdoob",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__13",
-                                    Value = "kepat",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__14",
-                                    Value = "ravern",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__15",
-                                    Value = "sungyejoy",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__16",
-                                    Value = "korcena",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__17",
-                                    Value = "APS4087",
-                                },
-                                new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__18",
-                                    Value = "grannysapple",
-                                },
-new ServiceTemplateContainerEnvArgs
-                                {
-                                    Name = "App__AdminGitHubLogins__19",
-                                    Value = "Jlorj",
                                 },
                                 new ServiceTemplateContainerEnvArgs
                                 {

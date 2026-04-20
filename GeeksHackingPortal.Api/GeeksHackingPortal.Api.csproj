@@ -31,9 +31,4 @@
   <ItemGroup>
     <ProjectReference Include="..\GeeksHackingPortal.ServiceDefaults\GeeksHackingPortal.ServiceDefaults.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Converters\UriConverter.cs" />
-    <Compile Remove="Entities\**\*.cs" />
-  </ItemGroup>
 </Project>

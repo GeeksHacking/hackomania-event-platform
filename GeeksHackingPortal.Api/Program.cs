@@ -270,43 +270,45 @@ builder.Services.AddScoped<IAuthorizationHandler, TeamMemberForHackathonTeamHand
 builder.Services.AddScoped<IAuthorizationHandler, TeamCreatorForHackathonTeamHandler>();
 
 var app = builder.Build();
-var sql = app.Services.GetRequiredService<ISqlSugarClient>();
-var entityTypes = GetEntityTypes();
-var schemaDifferenceProvider = sql.CodeFirst.GetDifferenceTables(entityTypes);
-var schemaDifferences = schemaDifferenceProvider.ToDiffList().Where(table => table.IsDiff).ToArray();
-if (schemaDifferences.Length > 0)
-{
-    var diffString = schemaDifferenceProvider.ToDiffString()?.Trim();
-    app.Logger.LogError(
-        "Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API."
-    );
 
-    foreach (var table in schemaDifferences)
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var sql = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+
+    var entityTypes = GetEntityTypes();
+    var schemaDifferenceProvider = sql.CodeFirst.GetDifferenceTables(entityTypes);
+    var schemaDifferences = schemaDifferenceProvider.ToDiffList().Where(table => table.IsDiff).ToArray();
+    
+    if (schemaDifferences.Length > 0)
     {
+        var diffString = schemaDifferenceProvider.ToDiffString()?.Trim();
         app.Logger.LogError(
-            "{TableName}: +{Additions} ~{Updates} -{Deletions} remarks:{Remarks}",
-            table.TableName,
-            table.AddColums.Count,
-            table.UpdateColums.Count,
-            table.DeleteColums.Count,
-            table.UpdateRemark.Count
+            "Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API."
         );
 
-        foreach (var message in GetDiffMessages(table))
+        foreach (var table in schemaDifferences)
         {
-            app.Logger.LogError("{Message}", message);
+            app.Logger.LogError(
+                "{TableName}: +{Additions} ~{Updates} -{Deletions} remarks:{Remarks}",
+                table.TableName,
+                table.AddColums.Count,
+                table.UpdateColums.Count,
+                table.DeleteColums.Count,
+                table.UpdateRemark.Count
+            );
         }
-    }
 
-    if (!string.IsNullOrWhiteSpace(diffString))
-    {
-        app.Logger.LogError("{SchemaDiff}", diffString);
-    }
+        if (!string.IsNullOrWhiteSpace(diffString))
+        {
+            app.Logger.LogError("{SchemaDiff}", diffString);
+        }
 
-    throw new InvalidOperationException(
-        "Database schema does not match the current SqlSugar models. Review the diff and apply the schema changes before starting the API."
-    );
+        throw new InvalidOperationException(
+            "Database schema does not match the current SqlSugar models. Review the diff and apply the schema changes before starting the API."
+        );
+    }
 }
+
 
 app.UseForwardedHeaders();
 app.UseCors();
@@ -331,12 +333,3 @@ static Type[] GetEntityTypes() =>
         )
         .OrderBy(type => type.FullName, StringComparer.Ordinal)
         .ToArray();
-
-static IEnumerable<string> GetDiffMessages(TableDifferenceInfo table) =>
-    table.AddColums
-        .Concat(table.UpdateColums)
-        .Concat(table.DeleteColums)
-        .Concat(table.UpdateRemark)
-        .Select(column => column.Message)
-        .Where(message => !string.IsNullOrWhiteSpace(message))
-        .Select(message => message!);

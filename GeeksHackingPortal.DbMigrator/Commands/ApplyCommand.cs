@@ -66,7 +66,7 @@ public class ApplyCommand(
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        BackfillActivities(sql, logger);
+        BackfillActivities(sql, logger, cancellationToken);
 
         if (seedDevelopmentTemplate)
         {
@@ -76,22 +76,40 @@ public class ApplyCommand(
         }
     }
 
-    private static void BackfillActivities(ISqlSugarClient sql, ILogger logger)
+    private static void BackfillActivities(
+        ISqlSugarClient sql,
+        ILogger logger,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!sql.DbMaintenance.IsAnyTable(nameof(Activity), false))
         {
             logger.LogInformation("Skipping activity backfill because the Activity table does not exist.");
             return;
         }
 
-        BackfillHackathonActivities(sql, logger);
-        BackfillWorkshopActivities(sql, logger);
-        BackfillActivityRegistrations(sql, logger);
-        BackfillActivityOrganizers(sql, logger);
+        BackfillHackathonActivities(sql, logger, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        BackfillWorkshopActivities(sql, logger, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        BackfillActivityRegistrations(sql, logger, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        BackfillActivityOrganizers(sql, logger, cancellationToken);
     }
 
-    private static void BackfillHackathonActivities(ISqlSugarClient sql, ILogger logger)
+    private static void BackfillHackathonActivities(
+        ISqlSugarClient sql,
+        ILogger logger,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!sql.DbMaintenance.IsAnyTable(nameof(Hackathon), false))
         {
             logger.LogInformation("Skipping hackathon activity backfill because the Hackathon table does not exist.");
@@ -115,6 +133,8 @@ public class ApplyCommand(
             })
             .ToList();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (activities.Count == 0)
         {
             logger.LogInformation("No hackathon activities needed backfilling.");
@@ -122,11 +142,18 @@ public class ApplyCommand(
         }
 
         sql.Insertable(activities).ExecuteCommand();
+        cancellationToken.ThrowIfCancellationRequested();
         logger.LogInformation("Backfilled {ActivityCount} hackathon activities.", activities.Count);
     }
 
-    private static void BackfillWorkshopActivities(ISqlSugarClient sql, ILogger logger)
+    private static void BackfillWorkshopActivities(
+        ISqlSugarClient sql,
+        ILogger logger,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!sql.DbMaintenance.IsAnyTable(nameof(Workshop), false))
         {
             logger.LogInformation("Skipping workshop activity backfill because the Workshop table does not exist.");
@@ -152,6 +179,8 @@ public class ApplyCommand(
             })
             .ToList();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (activities.Count == 0)
         {
             logger.LogInformation("No workshop activities needed backfilling.");
@@ -159,11 +188,18 @@ public class ApplyCommand(
         }
 
         sql.Insertable(activities).ExecuteCommand();
+        cancellationToken.ThrowIfCancellationRequested();
         logger.LogInformation("Backfilled {ActivityCount} workshop activities.", activities.Count);
     }
 
-    private static void BackfillActivityRegistrations(ISqlSugarClient sql, ILogger logger)
+    private static void BackfillActivityRegistrations(
+        ISqlSugarClient sql,
+        ILogger logger,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (
             !sql.DbMaintenance.IsAnyTable(nameof(ActivityRegistration), false)
             || !sql.DbMaintenance.IsAnyTable(nameof(Participant), false)
@@ -194,6 +230,8 @@ public class ApplyCommand(
             })
             .ToList();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (registrations.Count == 0)
         {
             logger.LogInformation("No activity registrations needed backfilling.");
@@ -201,11 +239,18 @@ public class ApplyCommand(
         }
 
         sql.Insertable(registrations).ExecuteCommand();
+        cancellationToken.ThrowIfCancellationRequested();
         logger.LogInformation("Backfilled {RegistrationCount} activity registrations.", registrations.Count);
     }
 
-    private static void BackfillActivityOrganizers(ISqlSugarClient sql, ILogger logger)
+    private static void BackfillActivityOrganizers(
+        ISqlSugarClient sql,
+        ILogger logger,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (
             !sql.DbMaintenance.IsAnyTable(nameof(ActivityOrganizer), false)
             || !sql.DbMaintenance.IsAnyTable(nameof(Organizer), false)
@@ -232,6 +277,8 @@ public class ApplyCommand(
             })
             .ToList();
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (organizers.Count == 0)
         {
             logger.LogInformation("No activity organizers needed backfilling.");
@@ -239,6 +286,7 @@ public class ApplyCommand(
         }
 
         sql.Insertable(organizers).ExecuteCommand();
+        cancellationToken.ThrowIfCancellationRequested();
         logger.LogInformation("Backfilled {OrganizerCount} activity organizers.", organizers.Count);
     }
 

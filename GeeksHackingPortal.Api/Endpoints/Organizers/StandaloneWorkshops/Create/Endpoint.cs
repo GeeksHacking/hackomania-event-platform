@@ -28,6 +28,16 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             throw new ArgumentNullException(nameof(userId));
         }
 
+        var existingShortCode = await sql.Queryable<StandaloneWorkshop>()
+            .AnyAsync(workshop => workshop.ShortCode == req.ShortCode, ct);
+
+        if (existingShortCode)
+        {
+            AddError(r => r.ShortCode, "A standalone workshop with this short code already exists.");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
+        }
+
         var emailTemplates = NormalizeEmailTemplates(req.EmailTemplates);
         var workshopId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;

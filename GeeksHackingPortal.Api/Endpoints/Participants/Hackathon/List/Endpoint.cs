@@ -20,32 +20,32 @@ public class Endpoint(ISqlSugarClient sql) : EndpointWithoutRequest<Response>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var hackathons = await sql.Queryable<Entities.Hackathon>()
-            .Includes(h => h.Activity)
+            .LeftJoin<Entities.Activity>((hackathon, activity) => hackathon.Id == activity.Id)
+            .Where((hackathon, activity) => activity.IsPublished)
             .WithCache()
+            .Select((hackathon, activity) => new Response.HackathonItem
+            {
+                Id = hackathon.Id,
+                Name = activity.Title,
+                Description = activity.Description,
+                Venue = activity.Location,
+                HomepageUri = hackathon.HomepageUri,
+                ShortCode = hackathon.ShortCode,
+                IsPublished = activity.IsPublished,
+                EventStartDate = activity.StartTime,
+                EventEndDate = activity.EndTime,
+                SubmissionsStartDate = hackathon.SubmissionsStartDate,
+                ChallengeSelectionEndDate = hackathon.ChallengeSelectionEndDate,
+                SubmissionsEndDate = hackathon.SubmissionsEndDate,
+                JudgingStartDate = hackathon.JudgingStartDate,
+                JudgingEndDate = hackathon.JudgingEndDate,
+            })
             .ToListAsync(ct);
 
         await Send.OkAsync(
             new Response
             {
-                Hackathons = hackathons
-                    .Where(h => h.Activity.IsPublished)
-                    .Select(h => new Response.HackathonItem
-                    {
-                        Id = h.Id,
-                        Name = h.Activity.Title,
-                        Description = h.Activity.Description,
-                        Venue = h.Activity.Location,
-                        HomepageUri = h.HomepageUri,
-                        ShortCode = h.ShortCode,
-                        IsPublished = h.Activity.IsPublished,
-                        EventStartDate = h.Activity.StartTime,
-                        EventEndDate = h.Activity.EndTime,
-                        SubmissionsStartDate = h.SubmissionsStartDate,
-                        ChallengeSelectionEndDate = h.ChallengeSelectionEndDate,
-                        SubmissionsEndDate = h.SubmissionsEndDate,
-                        JudgingStartDate = h.JudgingStartDate,
-                        JudgingEndDate = h.JudgingEndDate,
-                    }),
+                Hackathons = hackathons,
             },
             ct
         );

@@ -100,4 +100,33 @@ public class StandaloneWorkshopCrudTests
         await Assert.That(status!.IsOrganizer).IsTrue();
         await Assert.That(status.IsRegistered).IsFalse();
     }
+
+    [Test]
+    public async Task CreateStandaloneWorkshop_WithDuplicateShortCode_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = TestDataHelper.CreateValidStandaloneWorkshopRequest(
+            Guid.NewGuid().ToString()[..8]
+        );
+
+        var firstResponse = await client.HttpClient.PostAsJsonAsync(
+            "/organizers/standalone-workshops",
+            request
+        );
+        await Assert.That(firstResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var duplicateRequest = TestDataHelper.CreateValidStandaloneWorkshopRequest(
+            Guid.NewGuid().ToString()[..8]
+        );
+        duplicateRequest.ShortCode = request.ShortCode;
+
+        // Act
+        var duplicateResponse = await client.HttpClient.PostAsJsonAsync(
+            "/organizers/standalone-workshops",
+            duplicateRequest
+        );
+
+        // Assert
+        await Assert.That(duplicateResponse.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
 }

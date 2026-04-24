@@ -216,7 +216,7 @@ builder
     )
     .AddPolicy(
         PolicyNames.CreateActivity,
-        policy => policy.Requirements.Add(new CreateHackathonRequirement())
+        policy => policy.Requirements.Add(new CreateActivityRequirement())
     );
 
 builder.Services.AddCors(options =>
@@ -276,6 +276,7 @@ builder.Services.AddScoped<IEmailService, PostmarkEmailService>();
 builder.Services.AddScoped<INotificationTemplateResolver, NotificationTemplateResolver>();
 builder.Services.AddScoped<IAuthorizationHandler, RootHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CreateHackathonHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CreateActivityHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrganizerForHackathonHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrganizerForActivityHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ParticipantForHackathonHandler>();

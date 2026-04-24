@@ -48,17 +48,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         {
             Id = workshopId,
             Activity = activity,
-            Title = req.Title,
-            Description = req.Description,
-            StartTime = req.StartTime,
-            EndTime = req.EndTime,
-            Location = req.Location,
             HomepageUri = req.HomepageUri,
             ShortCode = req.ShortCode,
             MaxParticipants = req.MaxParticipants,
-            IsPublished = req.IsPublished,
-            CreatedAt = now,
-            UpdatedAt = now,
         };
         var organizer = new ActivityOrganizer
         {
@@ -98,16 +90,16 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = workshop.Id,
-                Title = workshop.Title,
-                Description = workshop.Description,
-                StartTime = workshop.StartTime,
-                EndTime = workshop.EndTime,
-                Location = workshop.Location,
+                Title = activity.Title,
+                Description = activity.Description,
+                StartTime = activity.StartTime,
+                EndTime = activity.EndTime,
+                Location = activity.Location,
                 HomepageUri = workshop.HomepageUri,
                 ShortCode = workshop.ShortCode,
                 MaxParticipants = workshop.MaxParticipants,
-                IsPublished = workshop.IsPublished,
-                CreatedAt = workshop.CreatedAt,
+                IsPublished = activity.IsPublished,
+                CreatedAt = activity.CreatedAt,
                 EmailTemplates = emailTemplates,
             },
             ct

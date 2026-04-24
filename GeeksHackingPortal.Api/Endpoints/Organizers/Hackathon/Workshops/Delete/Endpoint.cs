@@ -38,7 +38,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
 
             await sql.Deleteable(workshop).ExecuteCommandAsync(ct);
             await sql.Deleteable<Activity>()
-                .Where(activity => activity.Id == workshop.ActivityId)
+                .Where(activity => activity.Id == workshop.Id)
                 .ExecuteCommandAsync(ct);
         });
 

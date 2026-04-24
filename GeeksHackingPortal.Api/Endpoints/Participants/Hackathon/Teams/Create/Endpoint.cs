@@ -29,7 +29,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
             .Includes(h => h.Activity)
             .WithCache()
             .InSingleAsync(req.HackathonId);
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;

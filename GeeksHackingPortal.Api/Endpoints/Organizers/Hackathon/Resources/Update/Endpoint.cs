@@ -24,7 +24,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var resource = await sql.Queryable<Resource>()
-            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == hackathon.ActivityId)
+            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == hackathon.Id)
             .FirstAsync(ct);
 
         if (resource is null)

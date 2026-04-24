@@ -39,7 +39,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var timelineItem = new EventTimelineItem
         {
             Id = Guid.NewGuid(),
-            ActivityId = hackathon.ActivityId,
+            ActivityId = hackathon.Id,
             Title = req.Title,
             Description = string.IsNullOrWhiteSpace(req.Description)
                 ? string.Empty

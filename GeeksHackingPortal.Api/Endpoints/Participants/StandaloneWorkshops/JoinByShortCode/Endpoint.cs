@@ -30,21 +30,21 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Where(w => w.ShortCode == req.ShortCode)
             .Includes(w => w.Activity)
             .FirstAsync(ct);
-        if (workshop is null || !workshop.IsPublished)
+        if (workshop is null || !workshop.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
         var registration = await sql.Queryable<ActivityRegistration>()
-            .FirstAsync(r => r.ActivityId == workshop.ActivityId && r.UserId == userId.Value, ct);
+            .FirstAsync(r => r.ActivityId == workshop.Id && r.UserId == userId.Value, ct);
 
         if (registration is null)
         {
             registration = new ActivityRegistration
             {
                 Id = Guid.NewGuid(),
-                ActivityId = workshop.ActivityId,
+                ActivityId = workshop.Id,
                 UserId = userId.Value,
                 Status = ActivityRegistrationStatus.Registered,
                 RegisteredAt = DateTimeOffset.UtcNow,

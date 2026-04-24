@@ -56,7 +56,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var activityOrganizer = new ActivityOrganizer
         {
             Id = organizer.Id,
-            ActivityId = hackathon.ActivityId,
+            ActivityId = hackathon.Id,
             UserId = req.UserId,
             Type = req.Type,
         };

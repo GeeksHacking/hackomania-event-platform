@@ -34,7 +34,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var resources = await sql.Queryable<Resource>()
-            .Where(r => r.ActivityId == hackathon.ActivityId)
+            .Where(r => r.ActivityId == hackathon.Id)
             .WithCache()
             .ToListAsync(ct);
 
@@ -79,7 +79,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 ? []
                 : await sql.Queryable<ResourceRedemption>()
                     .Where(redemption =>
-                        redemption.ActivityId == hackathon.ActivityId
+                        redemption.ActivityId == hackathon.Id
                         && scopedResourceIds.Contains(redemption.ResourceId)
                         && participantUserIds.Contains(redemption.UserId)
                     )

@@ -24,7 +24,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
         }
 
         var deleted = await sql.Deleteable<Resource>()
-            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == hackathon.ActivityId)
+            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == hackathon.Id)
             .ExecuteCommandAsync(ct);
 
         if (deleted == 0)

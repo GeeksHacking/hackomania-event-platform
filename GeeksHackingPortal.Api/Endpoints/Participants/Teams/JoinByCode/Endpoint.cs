@@ -46,7 +46,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .WithCache()
             .InSingleAsync(team.HackathonId);
 
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -77,7 +77,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             var registration = new ActivityRegistration
             {
                 Id = participantId,
-                ActivityId = hackathon.ActivityId,
+                ActivityId = hackathon.Id,
                 UserId = userId.Value,
                 Status = ActivityRegistrationStatus.Registered,
                 RegisteredAt = now,
@@ -118,7 +118,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 registration = new ActivityRegistration
                 {
                     Id = participant.Id,
-                    ActivityId = hackathon.ActivityId,
+                    ActivityId = hackathon.Id,
                     UserId = userId.Value,
                     RegisteredAt = participant.JoinedAt,
                 };

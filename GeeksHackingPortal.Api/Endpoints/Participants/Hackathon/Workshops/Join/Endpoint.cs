@@ -62,7 +62,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 {
                     Id = existingParticipant.Id,
                     WorkshopId = workshop.Id,
-                    WorkshopTitle = workshop.Title,
+                    WorkshopTitle = workshop.Activity.Title,
                     JoinedAt = existingParticipant.JoinedAt,
                 },
                 ct
@@ -93,7 +93,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             {
                 Id = workshopParticipant.Id,
                 WorkshopId = workshop.Id,
-                WorkshopTitle = workshop.Title,
+                WorkshopTitle = workshop.Activity.Title,
                 JoinedAt = workshopParticipant.JoinedAt,
             },
             ct

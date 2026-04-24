@@ -28,14 +28,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Includes(h => h.Activity)
             .FirstAsync(ct);
 
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
         var timelineItems = await sql.Queryable<EventTimelineItem>()
-            .Where(t => t.ActivityId == hackathon.ActivityId)
+            .Where(t => t.ActivityId == hackathon.Id)
             .OrderBy(t => t.StartTime)
             .WithCache()
             .ToListAsync(ct);

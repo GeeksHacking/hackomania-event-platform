@@ -31,6 +31,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
         var hasActivity = hackathon.Activity is not null;
+        var activity = hackathon.Activity ?? new Activity
+        {
+            Id = hackathon.Id,
+            Kind = ActivityKind.Hackathon,
+        };
 
         var gitHubRepositorySettings = await sql.Queryable<HackathonGitHubRepositorySettings>()
             .Where(s => s.HackathonId == hackathon.Id)
@@ -38,17 +43,17 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         if (!string.IsNullOrWhiteSpace(req.Name))
         {
-            hackathon.Name = req.Name;
+            activity.Title = req.Name;
         }
 
         if (!string.IsNullOrWhiteSpace(req.Description))
         {
-            hackathon.Description = req.Description;
+            activity.Description = req.Description;
         }
 
         if (!string.IsNullOrWhiteSpace(req.Venue))
         {
-            hackathon.Venue = req.Venue;
+            activity.Location = req.Venue;
         }
 
         if (req.HomepageUri is not null)
@@ -63,12 +68,12 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         if (req.EventStartDate.HasValue)
         {
-            hackathon.EventStartDate = req.EventStartDate.Value;
+            activity.StartTime = req.EventStartDate.Value;
         }
 
         if (req.EventEndDate.HasValue)
         {
-            hackathon.EventEndDate = req.EventEndDate.Value;
+            activity.EndTime = req.EventEndDate.Value;
         }
 
         if (req.SubmissionsStartDate.HasValue)
@@ -98,7 +103,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         if (req.IsPublished.HasValue)
         {
-            hackathon.IsPublished = req.IsPublished.Value;
+            activity.IsPublished = req.IsPublished.Value;
         }
 
         if (req.GitHubRepositorySettings is not null)
@@ -145,7 +150,6 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             }
         }
 
-        var activity = hackathon.EnsureActivity();
         activity.UpdatedAt = DateTimeOffset.UtcNow;
         if (hasActivity)
         {
@@ -197,14 +201,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = hackathon.Id,
-                Name = hackathon.Name,
-                Description = hackathon.Description,
-                Venue = hackathon.Venue,
+                Name = hackathon.Activity.Title,
+                Description = hackathon.Activity.Description,
+                Venue = hackathon.Activity.Location,
                 HomepageUri = hackathon.HomepageUri,
                 ShortCode = hackathon.ShortCode,
-                IsPublished = hackathon.IsPublished,
-                EventStartDate = hackathon.EventStartDate,
-                EventEndDate = hackathon.EventEndDate,
+                IsPublished = hackathon.Activity.IsPublished,
+                EventStartDate = hackathon.Activity.StartTime,
+                EventEndDate = hackathon.Activity.EndTime,
                 SubmissionsStartDate = hackathon.SubmissionsStartDate,
                 ChallengeSelectionEndDate = hackathon.ChallengeSelectionEndDate,
                 SubmissionsEndDate = hackathon.SubmissionsEndDate,

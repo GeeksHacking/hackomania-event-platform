@@ -84,22 +84,13 @@ public class ApplyCommand(
             return;
         }
 
-        var existingActivityIds = sql.Queryable<Activity>()
-            .Select(activity => activity.Id)
-            .ToList()
-            .ToHashSet();
-
-        BackfillHackathonActivities(sql, logger, existingActivityIds);
-        BackfillWorkshopActivities(sql, logger, existingActivityIds);
+        BackfillHackathonActivities(sql, logger);
+        BackfillWorkshopActivities(sql, logger);
         BackfillActivityRegistrations(sql, logger);
         BackfillActivityOrganizers(sql, logger);
     }
 
-    private static void BackfillHackathonActivities(
-        ISqlSugarClient sql,
-        ILogger logger,
-        HashSet<Guid> existingActivityIds
-    )
+    private static void BackfillHackathonActivities(ISqlSugarClient sql, ILogger logger)
     {
         if (!sql.DbMaintenance.IsAnyTable(nameof(Hackathon), false))
         {
@@ -108,9 +99,20 @@ public class ApplyCommand(
         }
 
         var activities = sql.Queryable<Hackathon>()
-            .ToList()
-            .Where(hackathon => !existingActivityIds.Contains(hackathon.Id))
-            .Select(hackathon => hackathon.EnsureActivity())
+            .Where(hackathon =>
+                !SqlFunc.Subqueryable<Activity>().Where(activity => activity.Id == hackathon.Id).Any()
+            )
+            .Select(hackathon => new Activity
+            {
+                Id = hackathon.Id,
+                Kind = ActivityKind.Hackathon,
+                Title = hackathon.LegacyName ?? string.Empty,
+                Description = hackathon.LegacyDescription ?? string.Empty,
+                Location = hackathon.LegacyVenue ?? string.Empty,
+                StartTime = hackathon.LegacyEventStartDate,
+                EndTime = hackathon.LegacyEventEndDate,
+                IsPublished = hackathon.LegacyIsPublished,
+            })
             .ToList();
 
         if (activities.Count == 0)
@@ -120,19 +122,10 @@ public class ApplyCommand(
         }
 
         sql.Insertable(activities).ExecuteCommand();
-        foreach (var activity in activities)
-        {
-            existingActivityIds.Add(activity.Id);
-        }
-
         logger.LogInformation("Backfilled {ActivityCount} hackathon activities.", activities.Count);
     }
 
-    private static void BackfillWorkshopActivities(
-        ISqlSugarClient sql,
-        ILogger logger,
-        HashSet<Guid> existingActivityIds
-    )
+    private static void BackfillWorkshopActivities(ISqlSugarClient sql, ILogger logger)
     {
         if (!sql.DbMaintenance.IsAnyTable(nameof(Workshop), false))
         {
@@ -141,9 +134,22 @@ public class ApplyCommand(
         }
 
         var activities = sql.Queryable<Workshop>()
-            .ToList()
-            .Where(workshop => !existingActivityIds.Contains(workshop.Id))
-            .Select(workshop => workshop.EnsureActivity())
+            .Where(workshop =>
+                !SqlFunc.Subqueryable<Activity>().Where(activity => activity.Id == workshop.Id).Any()
+            )
+            .Select(workshop => new Activity
+            {
+                Id = workshop.Id,
+                Kind = ActivityKind.HackathonWorkshop,
+                Title = workshop.LegacyTitle ?? string.Empty,
+                Description = workshop.LegacyDescription ?? string.Empty,
+                Location = workshop.LegacyLocation ?? string.Empty,
+                StartTime = workshop.LegacyStartTime,
+                EndTime = workshop.LegacyEndTime,
+                IsPublished = workshop.LegacyIsPublished,
+                CreatedAt = workshop.LegacyCreatedAt,
+                UpdatedAt = workshop.LegacyUpdatedAt,
+            })
             .ToList();
 
         if (activities.Count == 0)
@@ -153,11 +159,6 @@ public class ApplyCommand(
         }
 
         sql.Insertable(activities).ExecuteCommand();
-        foreach (var activity in activities)
-        {
-            existingActivityIds.Add(activity.Id);
-        }
-
         logger.LogInformation("Backfilled {ActivityCount} workshop activities.", activities.Count);
     }
 
@@ -174,14 +175,12 @@ public class ApplyCommand(
             return;
         }
 
-        var existingRegistrationIds = sql.Queryable<ActivityRegistration>()
-            .Select(registration => registration.Id)
-            .ToList()
-            .ToHashSet();
-
         var registrations = sql.Queryable<Participant>()
-            .ToList()
-            .Where(participant => !existingRegistrationIds.Contains(participant.Id))
+            .Where(participant =>
+                !SqlFunc.Subqueryable<ActivityRegistration>()
+                    .Where(registration => registration.Id == participant.Id)
+                    .Any()
+            )
             .Select(participant => new ActivityRegistration
             {
                 Id = participant.Id,
@@ -218,14 +217,12 @@ public class ApplyCommand(
             return;
         }
 
-        var existingOrganizerIds = sql.Queryable<ActivityOrganizer>()
-            .Select(organizer => organizer.Id)
-            .ToList()
-            .ToHashSet();
-
         var organizers = sql.Queryable<Organizer>()
-            .ToList()
-            .Where(organizer => !existingOrganizerIds.Contains(organizer.Id))
+            .Where(organizer =>
+                !SqlFunc.Subqueryable<ActivityOrganizer>()
+                    .Where(activityOrganizer => activityOrganizer.Id == organizer.Id)
+                    .Any()
+            )
             .Select(organizer => new ActivityOrganizer
             {
                 Id = organizer.Id,
@@ -285,12 +282,12 @@ public class ApplyCommand(
         {
             Id = hackathonId,
             Activity = activity,
-            Name = activity.Title,
-            Description = activity.Description,
-            Venue = activity.Location,
-            IsPublished = activity.IsPublished,
-            EventStartDate = activity.StartTime,
-            EventEndDate = activity.EndTime,
+            LegacyName = activity.Title,
+            LegacyDescription = activity.Description,
+            LegacyVenue = activity.Location,
+            LegacyIsPublished = activity.IsPublished,
+            LegacyEventStartDate = activity.StartTime,
+            LegacyEventEndDate = activity.EndTime,
             HomepageUri = new Uri("https://hackomania.geekshacking.com/2026"),
             ShortCode = "HACKO26",
             SubmissionsStartDate = new DateTimeOffset(2026, 3, 13, 10, 0, 0, TimeSpan.Zero),

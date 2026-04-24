@@ -7,7 +7,8 @@ namespace GeeksHackingPortal.Api.Entities;
     nameof(ActivityId),
     OrderByType.Asc,
     nameof(UserId),
-    OrderByType.Asc
+    OrderByType.Asc,
+    true
 )]
 public class ActivityOrganizer
 {

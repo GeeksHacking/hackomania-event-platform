@@ -45,7 +45,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Workshops = workshops
-                    .Where(w => w.IsPublished)
+                    .Where(w => w.Activity.IsPublished)
                     .Select(w =>
                     {
                         var joined = w.Participants?.FirstOrDefault(wp =>
@@ -54,11 +54,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                         return new WorkshopDto
                         {
                             Id = w.Id,
-                            Title = w.Title,
-                            Description = w.Description,
-                            StartTime = w.StartTime,
-                            EndTime = w.EndTime,
-                            Location = w.Location,
+                            Title = w.Activity.Title,
+                            Description = w.Activity.Description,
+                            StartTime = w.Activity.StartTime,
+                            EndTime = w.Activity.EndTime,
+                            Location = w.Activity.Location,
                             MaxParticipants = w.MaxParticipants,
                             CurrentParticipants = w.Participants?.Count ?? 0,
                             IsJoined = joined is not null,

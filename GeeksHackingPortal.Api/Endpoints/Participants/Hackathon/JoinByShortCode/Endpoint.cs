@@ -39,7 +39,7 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
             .Includes(h => h.Activity)
             .FirstAsync(ct);
 
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -65,7 +65,7 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
             var registration = new ActivityRegistration
             {
                 Id = participantId,
-                ActivityId = hackathon.ActivityId,
+                ActivityId = hackathon.Id,
                 UserId = userId.Value,
                 Status = ActivityRegistrationStatus.Registered,
                 RegisteredAt = now,
@@ -93,7 +93,7 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
                 registration = new ActivityRegistration
                 {
                     Id = existing.Id,
-                    ActivityId = hackathon.ActivityId,
+                    ActivityId = hackathon.Id,
                     UserId = userId.Value,
                     RegisteredAt = existing.JoinedAt,
                 };

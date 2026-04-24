@@ -26,7 +26,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var resource = new Resource
         {
             Id = Guid.NewGuid(),
-            ActivityId = hackathon.ActivityId,
+            ActivityId = hackathon.Id,
             Name = req.Name,
             Description = req.Description ?? string.Empty,
             RedemptionStmt = req.RedemptionStmt,

@@ -29,7 +29,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
         }
 
         var timelineItem = await sql.Queryable<EventTimelineItem>()
-            .Where(t => t.Id == req.TimelineItemId && t.ActivityId == hackathon.ActivityId)
+            .Where(t => t.Id == req.TimelineItemId && t.ActivityId == hackathon.Id)
             .FirstAsync(ct);
 
         if (timelineItem is null)

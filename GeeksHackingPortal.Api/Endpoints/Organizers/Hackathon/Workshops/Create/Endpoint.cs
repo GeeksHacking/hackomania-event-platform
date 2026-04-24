@@ -40,13 +40,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             Id = workshopId,
             HackathonId = hackathonId,
             Activity = activity,
-            Title = req.Title,
-            Description = req.Description,
-            StartTime = req.StartTime,
-            EndTime = req.EndTime,
-            Location = req.Location,
             MaxParticipants = req.MaxParticipants,
-            IsPublished = req.IsPublished,
         };
 
         var transactionResult = await sql.Ado.UseTranAsync(async () =>
@@ -65,14 +59,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             {
                 Id = workshop.Id,
                 HackathonId = workshop.HackathonId,
-                Title = workshop.Title,
-                Description = workshop.Description,
-                StartTime = workshop.StartTime,
-                EndTime = workshop.EndTime,
-                Location = workshop.Location,
+                Title = activity.Title,
+                Description = activity.Description,
+                StartTime = activity.StartTime,
+                EndTime = activity.EndTime,
+                Location = activity.Location,
                 MaxParticipants = workshop.MaxParticipants,
-                IsPublished = workshop.IsPublished,
-                CreatedAt = workshop.CreatedAt,
+                IsPublished = activity.IsPublished,
+                CreatedAt = activity.CreatedAt,
             },
             ct
         );

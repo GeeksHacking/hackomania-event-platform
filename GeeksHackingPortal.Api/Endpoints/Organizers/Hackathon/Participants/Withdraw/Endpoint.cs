@@ -32,7 +32,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        if (hackathon.EventEndDate < DateTimeOffset.UtcNow)
+        if (hackathon.Activity.EndTime < DateTimeOffset.UtcNow)
         {
             AddError("You cannot withdraw a participant after the event has ended");
             await Send.ErrorsAsync(cancellation: ct);

@@ -31,7 +31,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        if (workshop.EndTime < DateTimeOffset.UtcNow)
+        if (workshop.Activity.EndTime < DateTimeOffset.UtcNow)
         {
             AddError("You cannot leave a workshop after it has ended");
             await Send.ErrorsAsync(cancellation: ct);
@@ -47,7 +47,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var registration = await sql.Queryable<ActivityRegistration>()
             .FirstAsync(
                 r =>
-                    r.ActivityId == workshop.ActivityId
+                    r.ActivityId == workshop.Id
                     && r.UserId == userId.Value
                     && r.Status == ActivityRegistrationStatus.Registered
                     && r.WithdrawnAt == null,

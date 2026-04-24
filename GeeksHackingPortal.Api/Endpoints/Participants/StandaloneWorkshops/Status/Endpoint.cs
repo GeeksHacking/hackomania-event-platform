@@ -38,9 +38,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         var isOrganizer = await sql.Queryable<ActivityOrganizer>()
             .WithCache()
-            .AnyAsync(o => o.ActivityId == workshop.ActivityId && o.UserId == userId.Value, ct);
+            .AnyAsync(o => o.ActivityId == workshop.Id && o.UserId == userId.Value, ct);
         var registration = await sql.Queryable<ActivityRegistration>()
-            .Where(r => r.ActivityId == workshop.ActivityId && r.UserId == userId.Value)
+            .Where(r => r.ActivityId == workshop.Id && r.UserId == userId.Value)
             .WithCache()
             .FirstAsync(ct);
 

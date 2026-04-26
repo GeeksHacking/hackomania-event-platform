@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class WithdrawFromHackathonTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -49,10 +49,10 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_WithNoTeam_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/withdraw",
             null
         );
@@ -65,16 +65,16 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_WhenInTeam_ReturnsBadRequest()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Create a team (participant is auto-assigned to it)
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             new { Name = "Test Team", Description = "Team for withdraw test" }
         );
 
         // Act - Try to withdraw from hackathon while in a team
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/withdraw",
             null
         );
@@ -87,20 +87,20 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_AfterLeavingTeam_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Create and then leave the team
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             new { Name = "Test Team", Description = "Team for withdraw test" }
         );
-        await client.HttpClient.PostAsync(
+        await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/teams/leave",
             null
         );
 
         // Act - Withdraw from hackathon after leaving team
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/withdraw",
             null
         );
@@ -113,10 +113,10 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_SetsStatusToNotParticipant()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Verify participant before withdrawing
-        var beforeWithdrawStatus = await client.HttpClient.GetAsync(
+        var beforeWithdrawStatus = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var beforeStatus =
@@ -124,13 +124,13 @@ public class WithdrawFromHackathonTests
         await Assert.That(beforeStatus!.IsParticipant).IsTrue();
 
         // Act
-        await client.HttpClient.PostAsync(
+        await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/withdraw",
             null
         );
 
         // Assert
-        var afterWithdrawStatus = await client.HttpClient.GetAsync(
+        var afterWithdrawStatus = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var afterStatus =
@@ -142,16 +142,16 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_ThenRejoin_ReturnsParticipant()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Withdraw from hackathon
-        await client.HttpClient.PostAsync(
+        await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/withdraw",
             null
         );
 
         // Verify not participant
-        var afterWithdrawStatus = await client.HttpClient.GetAsync(
+        var afterWithdrawStatus = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var afterWithdraw =
@@ -159,14 +159,14 @@ public class WithdrawFromHackathonTests
         await Assert.That(afterWithdraw!.IsParticipant).IsFalse();
 
         // Act - Rejoin hackathon
-        var rejoinResponse = await client.HttpClient.PostAsync(
+        var rejoinResponse = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/join",
             null
         );
         await Assert.That(rejoinResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Assert - Should be participant again
-        var afterRejoinStatus = await client.HttpClient.GetAsync(
+        var afterRejoinStatus = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var afterRejoin =
@@ -178,7 +178,7 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/withdraw",
             null
         );
@@ -194,7 +194,7 @@ public class WithdrawFromHackathonTests
     public async Task WithdrawFromHackathon_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsync(
+        var response = await AnonymousClient.HttpClient.PostAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/withdraw",
             null
         );

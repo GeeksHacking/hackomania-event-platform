@@ -121,9 +121,9 @@ builder
         options.UseSystemNetHttp();
         options.SetRedirectionEndpointUris("/callback/login/github");
 
-        options.AddEventHandler<OpenIddictClientEvents.ProcessAuthenticationContext>(builder =>
+        options.AddEventHandler<OpenIddictClientEvents.ProcessAuthenticationContext>(builder2 =>
         {
-            builder.UseInlineHandler(context =>
+            builder2.UseInlineHandler(context =>
             {
                 var properties = context.Properties;
                 if (properties is null)

@@ -1,8 +1,6 @@
-using System.Text.Json;
 using ConsoleAppFramework;
 using GeeksHackingPortal.Api.Entities;
 using GeeksHackingPortal.Api.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SqlSugar;
 

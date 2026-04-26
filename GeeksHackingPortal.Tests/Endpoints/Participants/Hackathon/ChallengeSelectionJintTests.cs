@@ -7,7 +7,7 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class ChallengeSelectionJintTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -33,7 +33,7 @@ public class ChallengeSelectionJintTests
     public async Task SubmitChallenge_WithTeamSizeRequirement_ShouldEnforce()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -43,11 +43,11 @@ public class ChallengeSelectionJintTests
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Create team
         var teamRequest = new { Name = "Solo Team", Description = "A one-person team" };
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest
         );
@@ -62,7 +62,7 @@ public class ChallengeSelectionJintTests
             SelectionCriteriaStmt = "teamSize >= 3",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/challenges",
             challengeRequest
         );
@@ -79,7 +79,7 @@ public class ChallengeSelectionJintTests
             SlidesUri = "https://slides.example.com",
         };
 
-        var submission = await client.HttpClient.PostAsJsonAsync(
+        var submission = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team!.Id}/submissions",
             submissionRequest
         );
@@ -91,7 +91,7 @@ public class ChallengeSelectionJintTests
     public async Task SubmitChallenge_WithMaxTeamsLimit_ShouldEnforce()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -109,18 +109,18 @@ public class ChallengeSelectionJintTests
             SelectionCriteriaStmt = "currentTeamsInChallenge < 1",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest
         );
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<JintChallengeResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
 
         // Create first team
         var teamRequest1 = new { Name = "Team 1", Description = "First team" };
-        var teamResponse1 = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse1 = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest1
         );
@@ -136,7 +136,7 @@ public class ChallengeSelectionJintTests
             DemoUri = "https://demo1.example.com",
             SlidesUri = "https://slides1.example.com",
         };
-        var submission1 = await client.HttpClient.PostAsJsonAsync(
+        var submission1 = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team1!.Id}/submissions",
             submissionRequest1
         );
@@ -144,7 +144,7 @@ public class ChallengeSelectionJintTests
 
         // Create second team
         var teamRequest2 = new { Name = "Team 2", Description = "Second team" };
-        var teamResponse2 = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse2 = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest2
         );
@@ -160,7 +160,7 @@ public class ChallengeSelectionJintTests
             DemoUri = "https://demo2.example.com",
             SlidesUri = "https://slides2.example.com",
         };
-        var submission2 = await client.HttpClient.PostAsJsonAsync(
+        var submission2 = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team2!.Id}/submissions",
             submissionRequest2
         );
@@ -171,7 +171,7 @@ public class ChallengeSelectionJintTests
     public async Task SubmitChallenge_WithAlwaysTrueStmt_ShouldAlwaysSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -181,11 +181,11 @@ public class ChallengeSelectionJintTests
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Create team
         var teamRequest = new { Name = "Test Team", Description = "Test" };
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest
         );
@@ -200,7 +200,7 @@ public class ChallengeSelectionJintTests
             SelectionCriteriaStmt = "true",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/challenges",
             challengeRequest
         );
@@ -217,7 +217,7 @@ public class ChallengeSelectionJintTests
             SlidesUri = "https://slides.example.com",
         };
 
-        var submission = await client.HttpClient.PostAsJsonAsync(
+        var submission = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team!.Id}/submissions",
             submissionRequest
         );

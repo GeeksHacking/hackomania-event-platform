@@ -8,19 +8,19 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.StandaloneWorkshops;
 public class StandaloneWorkshopJoinAndStatusTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     [Test]
     public async Task JoinStandaloneWorkshop_WithValidWorkshop_ReturnsOk()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
@@ -36,14 +36,14 @@ public class StandaloneWorkshopJoinAndStatusTests
     public async Task JoinStandaloneWorkshop_AlreadyJoined_ReturnsOk()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
-        await client.HttpClient.PostAsync(
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
+        await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
@@ -56,10 +56,10 @@ public class StandaloneWorkshopJoinAndStatusTests
     public async Task JoinStandaloneWorkshopByShortCode_WithValidShortCode_ReturnsOk()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/standalone-workshops/join",
             new { workshop.ShortCode }
         );
@@ -76,12 +76,12 @@ public class StandaloneWorkshopJoinAndStatusTests
     {
         // Arrange
         var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(
-            client.HttpClient,
+            Client.HttpClient,
             isPublished: false
         );
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
@@ -94,14 +94,14 @@ public class StandaloneWorkshopJoinAndStatusTests
     public async Task GetStandaloneWorkshopStatus_AfterJoin_ReturnsRegistered()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
-        await client.HttpClient.PostAsync(
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
+        await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/standalone-workshops/{workshop.Id}/status"
         );
         var status = await response.Content.ReadFromJsonAsync<StandaloneWorkshopStatusResponse>();
@@ -118,18 +118,18 @@ public class StandaloneWorkshopJoinAndStatusTests
     public async Task WithdrawStandaloneWorkshop_AfterJoin_ReturnsWithdrawnStatus()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
-        await client.HttpClient.PostAsync(
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
+        await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/join",
             null
         );
 
         // Act
-        var withdrawResponse = await client.HttpClient.PostAsync(
+        var withdrawResponse = await Client.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{workshop.Id}/withdraw",
             null
         );
-        var statusResponse = await client.HttpClient.GetAsync(
+        var statusResponse = await Client.HttpClient.GetAsync(
             $"/participants/standalone-workshops/{workshop.Id}/status"
         );
         var status = await statusResponse.Content.ReadFromJsonAsync<StandaloneWorkshopStatusResponse>();
@@ -146,7 +146,7 @@ public class StandaloneWorkshopJoinAndStatusTests
     public async Task JoinStandaloneWorkshop_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsync(
+        var response = await AnonymousClient.HttpClient.PostAsync(
             $"/participants/standalone-workshops/{Guid.NewGuid()}/join",
             null
         );

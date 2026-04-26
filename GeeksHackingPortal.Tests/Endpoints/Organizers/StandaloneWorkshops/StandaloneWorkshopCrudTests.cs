@@ -8,10 +8,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.StandaloneWorkshops;
 public class StandaloneWorkshopCrudTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     [Test]
     public async Task CreateStandaloneWorkshop_WithValidRequest_ReturnsOk()
@@ -22,7 +22,7 @@ public class StandaloneWorkshopCrudTests
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/standalone-workshops",
             request
         );
@@ -51,7 +51,7 @@ public class StandaloneWorkshopCrudTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/standalone-workshops",
             request
         );
@@ -73,7 +73,7 @@ public class StandaloneWorkshopCrudTests
         );
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             "/organizers/standalone-workshops",
             request
         );
@@ -86,10 +86,10 @@ public class StandaloneWorkshopCrudTests
     public async Task CreateStandaloneWorkshop_CreatorIsActivityOrganizer()
     {
         // Arrange
-        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(client.HttpClient);
+        var workshop = await TestDataHelper.CreateStandaloneWorkshopAsync(Client.HttpClient);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/standalone-workshops/{workshop.Id}/status"
         );
         var status = await response.Content.ReadFromJsonAsync<StandaloneWorkshopStatusResponse>();
@@ -109,7 +109,7 @@ public class StandaloneWorkshopCrudTests
             Guid.NewGuid().ToString()[..8]
         );
 
-        var firstResponse = await client.HttpClient.PostAsJsonAsync(
+        var firstResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/standalone-workshops",
             request
         );
@@ -121,7 +121,7 @@ public class StandaloneWorkshopCrudTests
         duplicateRequest.ShortCode = request.ShortCode;
 
         // Act
-        var duplicateResponse = await client.HttpClient.PostAsJsonAsync(
+        var duplicateResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/standalone-workshops",
             duplicateRequest
         );

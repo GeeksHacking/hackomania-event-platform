@@ -7,13 +7,13 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class ParticipantsManagementTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass organizerClient { get; init; }
+    public required AuthenticatedHttpClientDataClass OrganizerClient { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -91,10 +91,10 @@ public class ParticipantsManagementTests
     public async Task ListParticipants_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/participants"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantsListResponse>();
@@ -109,7 +109,7 @@ public class ParticipantsManagementTests
     public async Task ListParticipants_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/participants"
         );
 
@@ -124,7 +124,7 @@ public class ParticipantsManagementTests
     public async Task ListParticipants_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/participants"
         );
 
@@ -137,7 +137,7 @@ public class ParticipantsManagementTests
     {
         // Arrange
         var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
-            organizerClient
+            OrganizerClient
         );
 
         var reviewRequest = new ParticipantReviewRequest
@@ -149,8 +149,8 @@ public class ParticipantsManagementTests
             $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review";
 
         // Act
-        var reviewTask1 = organizerClient.HttpClient.PostAsJsonAsync(reviewUrl, reviewRequest);
-        var reviewTask2 = organizerClient.HttpClient.PostAsJsonAsync(reviewUrl, reviewRequest);
+        var reviewTask1 = OrganizerClient.HttpClient.PostAsJsonAsync(reviewUrl, reviewRequest);
+        var reviewTask2 = OrganizerClient.HttpClient.PostAsJsonAsync(reviewUrl, reviewRequest);
         await Task.WhenAll(reviewTask1, reviewTask2);
 
         var statuses = new[] { reviewTask1.Result.StatusCode, reviewTask2.Result.StatusCode };
@@ -159,7 +159,7 @@ public class ParticipantsManagementTests
         // allowing both reviews to be saved sequentially
         await Assert.That(statuses.Count(s => s == HttpStatusCode.OK)).IsEqualTo(2);
 
-        var listResponse = await organizerClient.HttpClient.GetAsync(
+        var listResponse = await OrganizerClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/participants"
         );
         var participants = await listResponse.Content.ReadFromJsonAsync<ParticipantsListResponse>();
@@ -179,12 +179,12 @@ public class ParticipantsManagementTests
     {
         // Arrange
         var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
-            organizerClient
+            OrganizerClient
         );
         var reviewRequest = new ParticipantReviewRequest { Decision = "reject", Reason = "   " };
 
         // Act
-        var response = await organizerClient.HttpClient.PostAsJsonAsync(
+        var response = await OrganizerClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review",
             reviewRequest
         );
@@ -198,12 +198,12 @@ public class ParticipantsManagementTests
     {
         // Arrange
         var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
-            organizerClient
+            OrganizerClient
         );
         var reviewRequest = new ParticipantReviewRequest { Decision = "accept", Reason = null };
 
         // Act
-        var response = await organizerClient.HttpClient.PostAsJsonAsync(
+        var response = await OrganizerClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review",
             reviewRequest
         );
@@ -220,11 +220,11 @@ public class ParticipantsManagementTests
     {
         // Arrange
         var (hackathonId, participantUserId) = await CreateHackathonWithJoinedParticipantAsync(
-            organizerClient
+            OrganizerClient
         );
 
         // Act 1 - Warm participants list cache before review
-        var beforeReviewResponse = await organizerClient.HttpClient.GetAsync(
+        var beforeReviewResponse = await OrganizerClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/participants"
         );
         var beforeReview =
@@ -238,14 +238,14 @@ public class ParticipantsManagementTests
             Decision = "accept",
             Reason = "Cache invalidation test",
         };
-        var reviewResponse = await organizerClient.HttpClient.PostAsJsonAsync(
+        var reviewResponse = await OrganizerClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/review",
             reviewRequest
         );
         await Assert.That(reviewResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Read participants list again
-        var afterReviewResponse = await organizerClient.HttpClient.GetAsync(
+        var afterReviewResponse = await OrganizerClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/participants"
         );
         var afterReview =
@@ -266,7 +266,7 @@ public class ParticipantsManagementTests
     public async Task ParticipantStatus_CacheInvalidation_AfterReview_ReturnsAccepted()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(organizerClient);
+        var hackathonId = await CreateHackathonAsync(OrganizerClient);
         await using var participantClient = await CreateParticipantClientAsync();
         var participantWhoAmI = await participantClient.HttpClient.GetFromJsonAsync<WhoAmIResponse>(
             "/auth/whoami"
@@ -290,7 +290,7 @@ public class ParticipantsManagementTests
         await Assert.That(beforeReviewStatus!.Status).IsEqualTo("Pending");
 
         // Act 2 - Organizer reviews participant as accepted
-        var reviewResponse = await organizerClient.HttpClient.PostAsJsonAsync(
+        var reviewResponse = await OrganizerClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/participants/{participantWhoAmI!.Id}/review",
             new ParticipantReviewRequest { Decision = "accept", Reason = "Status cache test" }
         );
@@ -316,7 +316,7 @@ public class ParticipantsManagementTests
         var request = new BatchEmailRequest { Status = "All" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/participants/batch-email",
             request
         );
@@ -332,11 +332,11 @@ public class ParticipantsManagementTests
     public async Task BatchEmail_WithValidHackathonNoParticipants_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var request = new BatchEmailRequest { Status = "All" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/participants/batch-email",
             request
         );
@@ -355,7 +355,7 @@ public class ParticipantsManagementTests
         var request = new BatchEmailRequest { Status = "All" };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/participants/batch-email",
             request
         );

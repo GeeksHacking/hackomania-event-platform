@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class RegistrationQuestionsManagementTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,10 +44,10 @@ public class RegistrationQuestionsManagementTests
     public async Task ListRegistrationQuestions_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions"
         );
         var result =
@@ -63,7 +63,7 @@ public class RegistrationQuestionsManagementTests
     public async Task CreateRegistrationQuestion_WithValidRequest_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var suffix = Guid.NewGuid().ToString()[..8];
         var request = new
         {
@@ -77,7 +77,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request
         );
@@ -95,7 +95,7 @@ public class RegistrationQuestionsManagementTests
     public async Task CreateRegistrationQuestion_WithDuplicateKey_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var questionKey = $"duplicate_key_{Guid.NewGuid().ToString()[..8]}";
 
         var request1 = new
@@ -108,7 +108,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Create first question
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request1
         );
@@ -123,7 +123,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act - Try to create second question with same key
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request2
         );
@@ -136,9 +136,9 @@ public class RegistrationQuestionsManagementTests
     public async Task UpdateRegistrationQuestion_WhenOptionInsertFails_RollsBackQuestionAndOptions()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var questionKey = $"rollback_options_{Guid.NewGuid().ToString()[..8]}";
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             new
             {
@@ -164,7 +164,7 @@ public class RegistrationQuestionsManagementTests
         await Assert.That(createResponse.StatusCode).IsEqualTo(HttpStatusCode.Created);
         await Assert.That(createdQuestion).IsNotNull();
 
-        var listResponse = await client.HttpClient.GetAsync(
+        var listResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions"
         );
         var list = await listResponse.Content.ReadFromJsonAsync<OrganizerRegistrationQuestionsResponse>();
@@ -173,7 +173,7 @@ public class RegistrationQuestionsManagementTests
         var originalOption = originalQuestion.Options!.Single();
 
         // Act - duplicate option IDs violate the option primary key after the question update/delete.
-        var failedUpdateResponse = await client.HttpClient.PatchAsJsonAsync(
+        var failedUpdateResponse = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions/{createdQuestion!.Id}",
             new
             {
@@ -200,7 +200,7 @@ public class RegistrationQuestionsManagementTests
             }
         );
 
-        var persistedListResponse = await client.HttpClient.GetAsync(
+        var persistedListResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions"
         );
         var persistedList =
@@ -221,7 +221,7 @@ public class RegistrationQuestionsManagementTests
     public async Task ListRegistrationQuestions_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -236,7 +236,7 @@ public class RegistrationQuestionsManagementTests
     public async Task ListRegistrationQuestions_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -258,7 +258,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions",
             request
         );

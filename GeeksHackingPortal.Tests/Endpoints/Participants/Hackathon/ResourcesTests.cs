@@ -8,10 +8,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class ResourcesTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -75,10 +75,10 @@ public class ResourcesTests
     public async Task ListResources_AsParticipant_ReturnsOk()
     {
         // Arrange
-        var (hackathonId, _) = await CreateHackathonWithResourceAsync(client);
+        var (hackathonId, _) = await CreateHackathonWithResourceAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/resources"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantResourcesListResponse>();
@@ -92,13 +92,13 @@ public class ResourcesTests
     [Test]
     public async Task ListResources_HidesUnpublishedResources()
     {
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
 
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
-        await TestDataHelper.CreateResourceAsync(client.HttpClient, hackathon.Id, isPublished: true);
-        await TestDataHelper.CreateResourceAsync(client.HttpClient, hackathon.Id, isPublished: false);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await TestDataHelper.CreateResourceAsync(Client.HttpClient, hackathon.Id, isPublished: true);
+        await TestDataHelper.CreateResourceAsync(Client.HttpClient, hackathon.Id, isPublished: false);
 
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/resources"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantResourcesListResponse>();
@@ -113,15 +113,15 @@ public class ResourcesTests
     {
         // Arrange - Create and join a hackathon to be a participant
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Act - Try to get resources for an invalid hackathon
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/resources"
         );
 
@@ -136,11 +136,11 @@ public class ResourcesTests
     public async Task RedeemResource_WithValidResource_ReturnsOk()
     {
         // Arrange
-        var (hackathonId, resourceId) = await CreateHackathonWithResourceAsync(client);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var (hackathonId, resourceId) = await CreateHackathonWithResourceAsync(Client);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/resources/{resourceId}/redemptions",
             null
         );
@@ -158,16 +158,16 @@ public class ResourcesTests
     {
         // Arrange
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{Guid.NewGuid()}/redemptions",
             null
         );
@@ -179,16 +179,16 @@ public class ResourcesTests
     [Test]
     public async Task RedeemResource_WithUnpublishedResource_ReturnsNotFound()
     {
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
         var resource = await TestDataHelper.CreateResourceAsync(
-            client.HttpClient,
+            Client.HttpClient,
             hackathon.Id,
             isPublished: false
         );
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
@@ -200,7 +200,7 @@ public class ResourcesTests
     public async Task ListResources_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/resources"
         );
 
@@ -212,7 +212,7 @@ public class ResourcesTests
     public async Task RedeemResource_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsync(
+        var response = await AnonymousClient.HttpClient.PostAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/participants/{Guid.NewGuid()}/resources/{Guid.NewGuid()}/redemptions",
             null
         );

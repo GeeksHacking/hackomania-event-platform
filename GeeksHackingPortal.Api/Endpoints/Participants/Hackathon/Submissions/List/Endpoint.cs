@@ -41,7 +41,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var submissions = await sql.Queryable<ChallengeSubmission>()
             .Where(s => s.HackathonId == hackathon.Id && s.TeamId == team.Id)
             .OrderBy(s => s.SubmittedAt, OrderByType.Desc)
-            .Select(s => new Response.Response_Submission
+            .Select(s => new Response.ResponseSubmission
             {
                 Id = s.Id,
                 ChallengeId = s.ChallengeId,

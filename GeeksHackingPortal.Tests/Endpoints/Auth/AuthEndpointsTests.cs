@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Auth;
 public class AuthEndpointsTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass authenticatedClient { get; init; }
+    public required AuthenticatedHttpClientDataClass AuthenticatedClient { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass client { get; init; }
+    public required HttpClientDataClass Client { get; init; }
     private const string TestGitHubLogin = "qin-guan";
     private const long TestGitHubId = 1;
     private const string TestFirstName = "Qin";
@@ -22,7 +22,7 @@ public class AuthEndpointsTests
     public async Task WhoAmI_WithAuthentication_ReturnsCurrentUser()
     {
         // Act
-        var response = await authenticatedClient.HttpClient.GetAsync("/auth/whoami");
+        var response = await AuthenticatedClient.HttpClient.GetAsync("/auth/whoami");
         var result = await response.Content.ReadFromJsonAsync<WhoAmIResponse>();
 
         // Assert
@@ -39,7 +39,7 @@ public class AuthEndpointsTests
     public async Task WhoAmI_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await client.HttpClient.GetAsync("/auth/whoami");
+        var response = await Client.HttpClient.GetAsync("/auth/whoami");
 
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
@@ -59,7 +59,7 @@ public class AuthEndpointsTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
+        var response = await Client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
 
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -79,10 +79,10 @@ public class AuthEndpointsTests
         };
 
         // Create user first
-        await client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
+        await Client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
 
         // Act - Impersonate the same user again
-        var response = await client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
+        var response = await Client.HttpClient.PostAsJsonAsync("/auth/impersonate", request);
 
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -106,7 +106,7 @@ public class AuthEndpointsTests
         var responses = await Task.WhenAll(
             Enumerable
                 .Range(0, 8)
-                .Select(_ => client.HttpClient.PostAsJsonAsync("/auth/impersonate", request))
+                .Select(_ => Client.HttpClient.PostAsJsonAsync("/auth/impersonate", request))
         );
 
         // Assert

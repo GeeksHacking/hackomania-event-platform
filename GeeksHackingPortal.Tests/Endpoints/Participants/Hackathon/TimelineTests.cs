@@ -8,13 +8,13 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class TimelineTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [Test]
     public async Task GetTimeline_ForPublishedHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
 
         // Create a timeline item
         var now = DateTimeOffset.UtcNow;
@@ -26,14 +26,14 @@ public class TimelineTests
             EndTime = now.AddDays(7).AddHours(1),
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             createRequest
         );
         createResponse.EnsureSuccessStatusCode();
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/timeline"
         );
         var result = await response.Content.ReadFromJsonAsync<TimelineListResponse>();
@@ -50,7 +50,7 @@ public class TimelineTests
     public async Task GetTimeline_ForHackathonByShortCode_ReturnsOk()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
 
         // Create a timeline item
         var now = DateTimeOffset.UtcNow;
@@ -62,13 +62,13 @@ public class TimelineTests
             EndTime = now.AddDays(8).AddHours(20),
         };
 
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.ShortCode}/timeline"
         );
         var result = await response.Content.ReadFromJsonAsync<TimelineListResponse>();
@@ -85,7 +85,7 @@ public class TimelineTests
     public async Task CreateTimelineItem_AsOrganizer_ReturnsOk()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
         var request = new
         {
@@ -96,7 +96,7 @@ public class TimelineTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             request
         );
@@ -114,7 +114,7 @@ public class TimelineTests
     public async Task UpdateTimelineItem_AsOrganizer_ReturnsOk()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
 
         // Create a timeline item
@@ -126,7 +126,7 @@ public class TimelineTests
             EndTime = now.AddDays(9).AddHours(2),
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             createRequest
         );
@@ -139,7 +139,7 @@ public class TimelineTests
             Description = "Present your amazing projects to the judges",
         };
 
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline/{createdItem!.Id}",
             updateRequest
         );
@@ -159,7 +159,7 @@ public class TimelineTests
     public async Task DeleteTimelineItem_AsOrganizer_ReturnsNoContent()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
 
         // Create a timeline item
@@ -171,14 +171,14 @@ public class TimelineTests
             EndTime = now.AddDays(8).AddHours(1),
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             createRequest
         );
         var createdItem = await createResponse.Content.ReadFromJsonAsync<TimelineItemResponse>();
 
         // Act - Delete the item
-        var response = await client.HttpClient.DeleteAsync(
+        var response = await Client.HttpClient.DeleteAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline/{createdItem!.Id}"
         );
 
@@ -186,7 +186,7 @@ public class TimelineTests
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
 
         // Verify it's deleted by trying to fetch timeline
-        var getResponse = await client.HttpClient.GetAsync(
+        var getResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/timeline"
         );
         var timeline = await getResponse.Content.ReadFromJsonAsync<TimelineListResponse>();
@@ -197,11 +197,11 @@ public class TimelineTests
     public async Task GetTimeline_OrderedByStartTime_ReturnsCorrectOrder()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
 
         // Create timeline items in non-chronological order
-        var createThirdResponse = await client.HttpClient.PostAsJsonAsync(
+        var createThirdResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             new
             {
@@ -212,7 +212,7 @@ public class TimelineTests
         );
         createThirdResponse.EnsureSuccessStatusCode();
 
-        var createFirstResponse = await client.HttpClient.PostAsJsonAsync(
+        var createFirstResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             new
             {
@@ -223,7 +223,7 @@ public class TimelineTests
         );
         createFirstResponse.EnsureSuccessStatusCode();
 
-        var createSecondResponse = await client.HttpClient.PostAsJsonAsync(
+        var createSecondResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             new
             {
@@ -235,7 +235,7 @@ public class TimelineTests
         createSecondResponse.EnsureSuccessStatusCode();
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/timeline"
         );
         response.EnsureSuccessStatusCode();
@@ -253,7 +253,7 @@ public class TimelineTests
     public async Task CreateTimelineItem_WithInvalidTimes_ReturnsBadRequest()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
         var request = new
         {
@@ -264,7 +264,7 @@ public class TimelineTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             request
         );
@@ -277,7 +277,7 @@ public class TimelineTests
     public async Task UpdateTimelineItem_WithInvalidTimes_ReturnsBadRequest()
     {
         // Arrange
-        var hackathon = await TestDataHelper.CreateHackathonAsync(client.HttpClient);
+        var hackathon = await TestDataHelper.CreateHackathonAsync(Client.HttpClient);
         var now = DateTimeOffset.UtcNow;
 
         // Create a valid timeline item
@@ -289,7 +289,7 @@ public class TimelineTests
             EndTime = now.AddDays(8),
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline",
             createRequest
         );
@@ -301,7 +301,7 @@ public class TimelineTests
             EndTime = now.AddDays(6), // EndTime before StartTime
         };
 
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/timeline/{createdItem!.Id}",
             updateRequest
         );

@@ -7,7 +7,7 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class WorkshopsTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -33,7 +33,7 @@ public class WorkshopsTests
     public async Task CreateWorkshop_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -50,7 +50,7 @@ public class WorkshopsTests
             IsPublished = true,
         };
 
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/workshops",
             workshopRequest
         );
@@ -65,7 +65,7 @@ public class WorkshopsTests
     public async Task ListWorkshops_ShouldReturnCreatedWorkshops()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -83,13 +83,13 @@ public class WorkshopsTests
             IsPublished = true,
         };
 
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/workshops",
             workshopRequest
         );
 
         // List workshops
-        var listResponse = await client.HttpClient.GetAsync(
+        var listResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops"
         );
 
@@ -103,7 +103,7 @@ public class WorkshopsTests
     public async Task UpdateWorkshop_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -121,7 +121,7 @@ public class WorkshopsTests
             IsPublished = true,
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/workshops",
             workshopRequest
         );
@@ -139,7 +139,7 @@ public class WorkshopsTests
             IsPublished = false,
         };
 
-        var updateResponse = await client.HttpClient.PutAsJsonAsync(
+        var updateResponse = await Client.HttpClient.PutAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops/{workshop!.Id}",
             updateRequest
         );
@@ -153,7 +153,7 @@ public class WorkshopsTests
     public async Task DeleteWorkshop_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -171,14 +171,14 @@ public class WorkshopsTests
             IsPublished = true,
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/workshops",
             workshopRequest
         );
         var workshop = await createResponse.Content.ReadFromJsonAsync<WorkshopResponse>();
 
         // Delete workshop
-        var deleteResponse = await client.HttpClient.DeleteAsync(
+        var deleteResponse = await Client.HttpClient.DeleteAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops/{workshop!.Id}"
         );
 
@@ -190,7 +190,7 @@ public class WorkshopsTests
     {
         // Arrange - Create hackathon and workshop
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -206,14 +206,14 @@ public class WorkshopsTests
             MaxParticipants = 50,
             IsPublished = true,
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/workshops",
             workshopRequest
         );
         var workshop = await createResponse.Content.ReadFromJsonAsync<WorkshopResponse>();
 
         // Act 1 - List workshops to populate cache
-        var response1 = await client.HttpClient.GetAsync(
+        var response1 = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops"
         );
         var result1 = await response1.Content.ReadFromJsonAsync<WorkshopListResponse>();
@@ -233,14 +233,14 @@ public class WorkshopsTests
             MaxParticipants = 100,
             IsPublished = true,
         };
-        var updateResponse = await client.HttpClient.PutAsJsonAsync(
+        var updateResponse = await Client.HttpClient.PutAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops/{workshop!.Id}",
             updateRequest
         );
         await Assert.That(updateResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - List workshops again to verify cache was invalidated
-        var response2 = await client.HttpClient.GetAsync(
+        var response2 = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops"
         );
         var result2 = await response2.Content.ReadFromJsonAsync<WorkshopListResponse>();

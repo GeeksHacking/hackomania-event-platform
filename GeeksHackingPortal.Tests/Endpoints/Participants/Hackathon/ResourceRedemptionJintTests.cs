@@ -7,7 +7,7 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class ResourceRedemptionJintTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -39,16 +39,16 @@ public class ResourceRedemptionJintTests
     public async Task RedeemResource_WithParticipantRedemptionLimit_ShouldEnforce()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Create resource with redemption limit of 2 per participant
         var resourceRequest = new
@@ -59,7 +59,7 @@ public class ResourceRedemptionJintTests
             IsPublished = true,
         };
 
-        var createResourceResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResourceResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/resources",
             resourceRequest
         );
@@ -67,21 +67,21 @@ public class ResourceRedemptionJintTests
             await createResourceResponse.Content.ReadFromJsonAsync<JintResourceResponse>();
 
         // First redemption - should succeed
-        var redemption1 = await client.HttpClient.PostAsync(
+        var redemption1 = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource!.Id}/redemptions",
             null
         );
         await Assert.That(redemption1.IsSuccessStatusCode).IsTrue();
 
         // Second redemption - should succeed
-        var redemption2 = await client.HttpClient.PostAsync(
+        var redemption2 = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
         await Assert.That(redemption2.IsSuccessStatusCode).IsTrue();
 
         // Third redemption - should fail
-        var redemption3 = await client.HttpClient.PostAsync(
+        var redemption3 = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
@@ -92,16 +92,16 @@ public class ResourceRedemptionJintTests
     public async Task RedeemResource_WithTeamSizeRequirement_ShouldEnforce()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Create resource that requires team size >= 3
         var resourceRequest = new
@@ -112,7 +112,7 @@ public class ResourceRedemptionJintTests
             IsPublished = true,
         };
 
-        var createResourceResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResourceResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/resources",
             resourceRequest
         );
@@ -120,7 +120,7 @@ public class ResourceRedemptionJintTests
             await createResourceResponse.Content.ReadFromJsonAsync<JintResourceResponse>();
 
         // Try to redeem without team - should fail
-        var redemption = await client.HttpClient.PostAsync(
+        var redemption = await Client.HttpClient.PostAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource!.Id}/redemptions",
             null
         );

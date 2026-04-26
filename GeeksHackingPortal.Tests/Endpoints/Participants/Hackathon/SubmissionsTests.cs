@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class SubmissionsTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -101,7 +101,7 @@ public class SubmissionsTests
     {
         // Arrange
         var (hackathonId, teamId, challengeId) = await CreateHackathonWithTeamAndChallengeAsync(
-            client
+            Client
         );
         var title = "Test Submission";
         var summary = "A test submission summary";
@@ -112,7 +112,7 @@ public class SubmissionsTests
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/submissions",
             request
         );
@@ -130,7 +130,7 @@ public class SubmissionsTests
     {
         // Arrange
         var (hackathonId, teamId, challengeId) = await CreateHackathonWithTeamAndChallengeAsync(
-            client
+            Client
         );
 
         // Create a submission first
@@ -139,13 +139,13 @@ public class SubmissionsTests
             "List Test Submission",
             "A submission for list test"
         );
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/submissions",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/submissions"
         );
         var result = await response.Content.ReadFromJsonAsync<TeamSubmissionsListResponse>();
@@ -160,7 +160,7 @@ public class SubmissionsTests
     public async Task CreateSubmission_WithInvalidChallengeId_ReturnsError()
     {
         // Arrange
-        var (hackathonId, teamId, _) = await CreateHackathonWithTeamAndChallengeAsync(client);
+        var (hackathonId, teamId, _) = await CreateHackathonWithTeamAndChallengeAsync(Client);
         var request = CreateValidSubmissionRequest(
             Guid.NewGuid(),
             "Invalid Challenge Submission",
@@ -168,7 +168,7 @@ public class SubmissionsTests
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/submissions",
             request
         );
@@ -198,7 +198,7 @@ public class SubmissionsTests
             IsPublished = true,
         };
 
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -213,16 +213,16 @@ public class SubmissionsTests
             SelectionCriteriaStmt = "true",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest
         );
         await Assert.That(challengeResponse.IsSuccessStatusCode).IsTrue();
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
 
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             new { Name = "Submission Window Team", Description = "Team for submission timing" }
         );
@@ -236,7 +236,7 @@ public class SubmissionsTests
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team!.Id}/submissions",
             request
         );
@@ -250,14 +250,14 @@ public class SubmissionsTests
     {
         // Arrange
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         await Assert.That(hackathonResponse.IsSuccessStatusCode).IsTrue();
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             new
             {
@@ -271,7 +271,7 @@ public class SubmissionsTests
         await Assert.That(challengeResponse.IsSuccessStatusCode).IsTrue();
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
 
         var request = CreateValidSubmissionRequest(
             challenge!.Id,
@@ -280,7 +280,7 @@ public class SubmissionsTests
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{Guid.NewGuid()}/submissions",
             request
         );
@@ -303,7 +303,7 @@ public class SubmissionsTests
         );
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/teams/{Guid.NewGuid()}/submissions",
             request
         );
@@ -316,7 +316,7 @@ public class SubmissionsTests
     public async Task ListSubmissions_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/teams/{Guid.NewGuid()}/submissions"
         );
 

@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class ChallengesTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -70,10 +70,10 @@ public class ChallengesTests
     public async Task ListChallenges_AsParticipant_ReturnsPublishedChallenges()
     {
         // Arrange
-        var (hackathonId, _) = await CreateHackathonWithPublishedChallengeAsync(client);
+        var (hackathonId, _) = await CreateHackathonWithPublishedChallengeAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/challenges"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
@@ -95,10 +95,10 @@ public class ChallengesTests
     public async Task GetChallenge_PublishedChallenge_ReturnsOk()
     {
         // Arrange
-        var (hackathonId, challengeId) = await CreateHackathonWithPublishedChallengeAsync(client);
+        var (hackathonId, challengeId) = await CreateHackathonWithPublishedChallengeAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/challenges/{challengeId}"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantChallengeResponse>();
@@ -114,7 +114,7 @@ public class ChallengesTests
     {
         // Arrange - Create hackathon and join
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -129,17 +129,17 @@ public class ChallengesTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = false,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest
         );
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
         // Join as participant
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/challenges/{challenge!.Id}"
         );
 
@@ -152,17 +152,17 @@ public class ChallengesTests
     {
         // Arrange
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join as participant
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/challenges/{Guid.NewGuid()}"
         );
 
@@ -174,7 +174,7 @@ public class ChallengesTests
     public async Task ListChallenges_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/challenges"
         );
 
@@ -186,10 +186,10 @@ public class ChallengesTests
     public async Task UpdateChallenge_CacheInvalidation_ReturnsUpdatedData()
     {
         // Arrange - Create hackathon with a challenge
-        var (hackathonId, challengeId) = await CreateHackathonWithPublishedChallengeAsync(client);
+        var (hackathonId, challengeId) = await CreateHackathonWithPublishedChallengeAsync(Client);
 
         // Act 1 - Get challenge to populate cache
-        var response1 = await client.HttpClient.GetAsync(
+        var response1 = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/challenges/{challengeId}"
         );
         var result1 = await response1.Content.ReadFromJsonAsync<ParticipantChallengeResponse>();
@@ -202,14 +202,14 @@ public class ChallengesTests
             Title = "Updated Challenge Title",
             Description = "Updated description",
         };
-        var updateResponse = await client.HttpClient.PatchAsJsonAsync(
+        var updateResponse = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{challengeId}",
             updateRequest
         );
         await Assert.That(updateResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Get challenge again to verify cache was invalidated
-        var response2 = await client.HttpClient.GetAsync(
+        var response2 = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/challenges/{challengeId}"
         );
         var result2 = await response2.Content.ReadFromJsonAsync<ParticipantChallengeResponse>();

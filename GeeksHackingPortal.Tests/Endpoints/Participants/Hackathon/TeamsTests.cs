@@ -7,13 +7,13 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class TeamsTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client1 { get; init; }
+    public required AuthenticatedHttpClientDataClass Client1 { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -96,11 +96,11 @@ public class TeamsTests
     public async Task CreateTeam_AsParticipant_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var request = new { Name = "Test Team", Description = "A test team description" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             request
         );
@@ -117,18 +117,18 @@ public class TeamsTests
     public async Task CreateTeam_WhenAlreadyInTeam_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Create first team
         var createRequest1 = new { Name = "First Team", Description = "First team" };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest1
         );
 
         // Act - Try to create another team
         var createRequest2 = new { Name = "Second Team", Description = "Second team" };
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest2
         );
@@ -141,15 +141,15 @@ public class TeamsTests
     public async Task GetMyTeam_AfterCreating_ReturnsTeam()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var createRequest = new { Name = "Get Mine Team", Description = "Team for get mine test" };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/me"
         );
         var result = await response.Content.ReadFromJsonAsync<MyTeamResponse>();
@@ -168,10 +168,10 @@ public class TeamsTests
     public async Task GetMyTeam_WithNoTeam_ReturnsNotFound()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Act - Don't create a team, just try to get it
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/me"
         );
 
@@ -183,15 +183,15 @@ public class TeamsTests
     public async Task LeaveTeam_WhenInTeam_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var createRequest = new { Name = "Leave Team Test", Description = "Team to leave" };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/leave",
             new { }
         );
@@ -207,10 +207,10 @@ public class TeamsTests
     public async Task LeaveTeam_WhenNotInTeam_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Act - Try to leave without being in a team
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/leave",
             new { }
         );
@@ -223,9 +223,9 @@ public class TeamsTests
     public async Task UpdateTeam_AsTeamMember_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var createRequest = new { Name = "Update Team Test", Description = "Original description" };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest
         );
@@ -234,7 +234,7 @@ public class TeamsTests
         var updateRequest = new { Name = "Updated Team Name", Description = "Updated description" };
 
         // Act
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{createdTeam!.Id}",
             updateRequest
         );
@@ -253,7 +253,7 @@ public class TeamsTests
         var request = new { Name = "Unauthorized Team", Description = "Should fail" };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/teams",
             request
         );
@@ -267,7 +267,7 @@ public class TeamsTests
     {
         // Arrange - Create hackathon but don't join as participant
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -276,7 +276,7 @@ public class TeamsTests
         var teamRequest = new { Name = "No Join Team", Description = "Should fail" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon!.Id}/teams",
             teamRequest
         );
@@ -292,9 +292,9 @@ public class TeamsTests
     public async Task JoinTeamByCode_WithValidCode_ReturnsOk()
     {
         // Arrange - Create a hackathon and team with the first user
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var createRequest = new { Name = "Join Code Team", Description = "Team to join by code" };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest
         );
@@ -337,20 +337,20 @@ public class TeamsTests
     {
         // Arrange - First user creates hackathon and team
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join as participant and create team
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
         var createRequest = new
         {
             Name = "Auto Join Team",
             Description = "Team for auto-join test",
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             createRequest
         );
@@ -389,7 +389,7 @@ public class TeamsTests
     public async Task JoinTeamByCode_WithInvalidCode_ReturnsError()
     {
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/teams/join",
             new { JoinCode = "INVALID_JOIN_CODE_DOES_NOT_EXIST" }
         );
@@ -402,39 +402,39 @@ public class TeamsTests
     public async Task JoinTeamByCode_WhenAlreadyInTeam_ReturnsError()
     {
         // Arrange - Create a hackathon and two teams
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         // Create first team (user joins it automatically)
         var createRequest1 = new { Name = "First Team", Description = "User's current team" };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest1
         );
 
         // Leave first team and create second team
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/leave",
             new { }
         );
         var createRequest2 = new { Name = "Second Team", Description = "Team to try to join" };
-        var createResponse2 = await client.HttpClient.PostAsJsonAsync(
+        var createResponse2 = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest2
         );
         var secondTeam = await createResponse2.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Leave and rejoin first team
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/leave",
             new { }
         );
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             createRequest1
         );
 
         // Act - Try to join second team while already in first team
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/teams/join",
             new { secondTeam!.JoinCode }
         );
@@ -447,7 +447,7 @@ public class TeamsTests
     public async Task JoinTeamByCode_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             "/participants/teams/join",
             new { JoinCode = "ANYCODE" }
         );
@@ -461,11 +461,11 @@ public class TeamsTests
     {
         // Arrange
         var (hackathonId, challengeId, teamId) = await CreateHackathonWithChallengeAndTeamAsync(
-            client
+            Client
         );
 
         // Act
-        var response = await client.HttpClient.PutAsJsonAsync(
+        var response = await Client.HttpClient.PutAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/challenge",
             new { ChallengeId = challengeId }
         );
@@ -482,11 +482,11 @@ public class TeamsTests
     public async Task SelectChallenge_WithInvalidChallenge_ReturnsNotFound()
     {
         // Arrange
-        var (hackathonId, _, teamId) = await CreateHackathonWithChallengeAndTeamAsync(client);
+        var (hackathonId, _, teamId) = await CreateHackathonWithChallengeAndTeamAsync(Client);
         var invalidChallengeId = Guid.NewGuid();
 
         // Act
-        var response = await client.HttpClient.PutAsJsonAsync(
+        var response = await Client.HttpClient.PutAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{teamId}/challenge",
             new { ChallengeId = invalidChallengeId }
         );
@@ -515,7 +515,7 @@ public class TeamsTests
             JudgingEndDate = now.AddDays(-5).AddHours(-2),
             IsPublished = true,
         };
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -530,27 +530,27 @@ public class TeamsTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest
         );
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
         // Join as participant and create team
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
         var teamRequest = new
         {
             Name = "Past Deadline Team",
             Description = "Team for deadline test",
         };
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             teamRequest
         );
         var team = await teamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Act
-        var response = await client.HttpClient.PutAsJsonAsync(
+        var response = await Client.HttpClient.PutAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team!.Id}/challenge",
             new { ChallengeId = challenge!.Id }
         );
@@ -579,7 +579,7 @@ public class TeamsTests
             JudgingEndDate = now.AddDays(4),
             IsPublished = true,
         };
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -594,16 +594,16 @@ public class TeamsTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = true,
         };
-        var challengeResponse = await client.HttpClient.PostAsJsonAsync(
+        var challengeResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest
         );
         await Assert.That(challengeResponse.IsSuccessStatusCode).IsTrue();
         var challenge = await challengeResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon.Id}/join", null);
 
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams",
             new { Name = "Before Start Team", Description = "Team for before-start test" }
         );
@@ -611,7 +611,7 @@ public class TeamsTests
         var team = await teamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Act
-        var response = await client.HttpClient.PutAsJsonAsync(
+        var response = await Client.HttpClient.PutAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/teams/{team!.Id}/challenge",
             new { ChallengeId = challenge!.Id }
         );
@@ -624,7 +624,7 @@ public class TeamsTests
     public async Task SelectChallenge_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PutAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PutAsJsonAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/teams/{Guid.NewGuid()}/challenge",
             new { ChallengeId = Guid.NewGuid() }
         );
@@ -638,7 +638,7 @@ public class TeamsTests
     {
         // Arrange - Create hackathon with two challenges
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client1.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client1.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
@@ -653,7 +653,7 @@ public class TeamsTests
             SelectionCriteriaStmt = "Criteria 1",
             IsPublished = true,
         };
-        var challengeResponse1 = await client1.HttpClient.PostAsJsonAsync(
+        var challengeResponse1 = await Client1.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon!.Id}/challenges",
             challengeRequest1
         );
@@ -667,7 +667,7 @@ public class TeamsTests
             SelectionCriteriaStmt = "Criteria 2",
             IsPublished = true,
         };
-        var challengeResponse2 = await client1.HttpClient.PostAsJsonAsync(
+        var challengeResponse2 = await Client1.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/challenges",
             challengeRequest2
         );
@@ -687,7 +687,7 @@ public class TeamsTests
         try
         {
             // Both users join hackathon as participants
-            await client1.HttpClient.PostAsync(
+            await Client1.HttpClient.PostAsync(
                 $"/participants/hackathons/{hackathon.Id}/join",
                 null
             );
@@ -698,7 +698,7 @@ public class TeamsTests
 
             // Create two teams (one per user)
             var teamRequest1 = new { Name = "Team 1", Description = "First team" };
-            var teamResponse1 = await client1.HttpClient.PostAsJsonAsync(
+            var teamResponse1 = await Client1.HttpClient.PostAsJsonAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams",
                 teamRequest1
             );
@@ -712,7 +712,7 @@ public class TeamsTests
             var team2 = await teamResponse2.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
             // Act & Assert - Initial state: no teams selected challenges
-            var challengesResponse = await client1.HttpClient.GetAsync(
+            var challengesResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
             var challenges =
@@ -728,19 +728,19 @@ public class TeamsTests
             await Assert.That(challenge2Item.TeamCount).IsEqualTo(0);
 
             // Team 1 selects challenge 1
-            var selectResponse1 = await client1.HttpClient.PutAsJsonAsync(
+            var selectResponse1 = await Client1.HttpClient.PutAsJsonAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams/{team1!.Id}/challenge",
                 new { ChallengeId = challenge1!.Id }
             );
             await Assert.That(selectResponse1.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
             // Verify challenge 1 TeamCount = 1, challenge 2 TeamCount = 0
-            challengesResponse = await client1.HttpClient.GetAsync(
+            challengesResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
             challenges =
                 await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
-            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
+            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1.Id);
             challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
             await Assert.That(challenge1Item).IsNotNull();
             await Assert.That(challenge2Item).IsNotNull();
@@ -748,26 +748,26 @@ public class TeamsTests
             await Assert.That(challenge2Item.TeamCount).IsEqualTo(0);
 
             // Verify team 1 shows challenge 1 as selected
-            var team1Response = await client1.HttpClient.GetAsync(
+            var team1Response = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams/me"
             );
             var team1Result = await team1Response.Content.ReadFromJsonAsync<MyTeamResponse>();
-            await Assert.That(team1Result!.ChallengeId).IsEqualTo(challenge1!.Id);
+            await Assert.That(team1Result!.ChallengeId).IsEqualTo(challenge1.Id);
 
             // Team 2 selects challenge 1
             var selectResponse2 = await client2.HttpClient.PutAsJsonAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams/{team2!.Id}/challenge",
-                new { ChallengeId = challenge1!.Id }
+                new { ChallengeId = challenge1.Id }
             );
             await Assert.That(selectResponse2.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
             // Verify challenge 1 TeamCount = 2, challenge 2 TeamCount = 0
-            challengesResponse = await client1.HttpClient.GetAsync(
+            challengesResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
             challenges =
                 await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
-            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
+            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1.Id);
             challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
             await Assert.That(challenge1Item).IsNotNull();
             await Assert.That(challenge2Item).IsNotNull();
@@ -779,41 +779,41 @@ public class TeamsTests
                 $"/participants/hackathons/{hackathon.Id}/teams/me"
             );
             var team2Result = await team2Response.Content.ReadFromJsonAsync<MyTeamResponse>();
-            await Assert.That(team2Result!.ChallengeId).IsEqualTo(challenge1!.Id);
+            await Assert.That(team2Result!.ChallengeId).IsEqualTo(challenge1.Id);
 
             // Team 1 changes to challenge 2
-            var changeResponse = await client1.HttpClient.PutAsJsonAsync(
-                $"/participants/hackathons/{hackathon.Id}/teams/{team1!.Id}/challenge",
+            var changeResponse = await Client1.HttpClient.PutAsJsonAsync(
+                $"/participants/hackathons/{hackathon.Id}/teams/{team1.Id}/challenge",
                 new { ChallengeId = challenge2!.Id }
             );
             await Assert.That(changeResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
             // Verify challenge 1 TeamCount = 1, challenge 2 TeamCount = 1
-            challengesResponse = await client1.HttpClient.GetAsync(
+            challengesResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/challenges"
             );
             challenges =
                 await challengesResponse.Content.ReadFromJsonAsync<ParticipantChallengesListResponse>();
-            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1!.Id);
-            challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2!.Id);
+            challenge1Item = challenges!.Challenges!.FirstOrDefault(c => c.Id == challenge1.Id);
+            challenge2Item = challenges.Challenges!.FirstOrDefault(c => c.Id == challenge2.Id);
             await Assert.That(challenge1Item).IsNotNull();
             await Assert.That(challenge2Item).IsNotNull();
             await Assert.That(challenge1Item.TeamCount).IsEqualTo(1);
             await Assert.That(challenge2Item.TeamCount).IsEqualTo(1);
 
             // Verify team 1 shows challenge 2 as selected
-            team1Response = await client1.HttpClient.GetAsync(
+            team1Response = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams/me"
             );
             team1Result = await team1Response.Content.ReadFromJsonAsync<MyTeamResponse>();
-            await Assert.That(team1Result!.ChallengeId).IsEqualTo(challenge2!.Id);
+            await Assert.That(team1Result!.ChallengeId).IsEqualTo(challenge2.Id);
 
             // Verify team 2 still shows challenge 1 as selected
             team2Response = await client2.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathon.Id}/teams/me"
             );
             team2Result = await team2Response.Content.ReadFromJsonAsync<MyTeamResponse>();
-            await Assert.That(team2Result!.ChallengeId).IsEqualTo(challenge1!.Id);
+            await Assert.That(team2Result!.ChallengeId).IsEqualTo(challenge1.Id);
         }
         finally
         {
@@ -825,11 +825,11 @@ public class TeamsTests
     public async Task RemoveMember_AsTeamCreator_ReturnsOk()
     {
         // Arrange - Create hackathon and team with two members
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client1);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client1);
 
         // Create team (client1 becomes the creator)
         var teamRequest = new { Name = "Test Team", Description = "Team for removal test" };
-        var teamResponse = await client1.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client1.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             teamRequest
         );
@@ -859,14 +859,14 @@ public class TeamsTests
             );
 
             // Get team to find second user's ID
-            var myTeamResponse = await client1.HttpClient.GetAsync(
+            var myTeamResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathonId}/teams/me"
             );
             var myTeam = await myTeamResponse.Content.ReadFromJsonAsync<MyTeamResponse>();
             var secondMember = myTeam!.Members!.FirstOrDefault(m => !m.IsCurrentUser);
 
             // Act - Remove second member as team creator
-            var response = await client1.HttpClient.DeleteAsync(
+            var response = await Client1.HttpClient.DeleteAsync(
                 $"/participants/hackathons/{hackathonId}/teams/{team.Id}/members/{secondMember!.UserId}"
             );
             var result = await response.Content.ReadFromJsonAsync<RemoveMemberResponse>();
@@ -877,7 +877,7 @@ public class TeamsTests
             await Assert.That(result!.Message).IsNotNull();
 
             // Verify second member is no longer in team
-            myTeamResponse = await client1.HttpClient.GetAsync(
+            myTeamResponse = await Client1.HttpClient.GetAsync(
                 $"/participants/hackathons/{hackathonId}/teams/me"
             );
             myTeam = await myTeamResponse.Content.ReadFromJsonAsync<MyTeamResponse>();
@@ -893,24 +893,24 @@ public class TeamsTests
     public async Task RemoveMember_RemovingSelf_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         var teamRequest = new { Name = "Test Team", Description = "Team for self-removal test" };
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             teamRequest
         );
         var team = await teamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Get my team to find my user ID
-        var myTeamResponse = await client.HttpClient.GetAsync(
+        var myTeamResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/me"
         );
         var myTeam = await myTeamResponse.Content.ReadFromJsonAsync<MyTeamResponse>();
         var currentUser = myTeam!.Members!.First(m => m.IsCurrentUser);
 
         // Act - Try to remove self
-        var response = await client.HttpClient.DeleteAsync(
+        var response = await Client.HttpClient.DeleteAsync(
             $"/participants/hackathons/{hackathonId}/teams/{team!.Id}/members/{currentUser.UserId}"
         );
 
@@ -922,21 +922,21 @@ public class TeamsTests
     public async Task RemoveMember_NonExistentMember_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
 
         var teamRequest = new
         {
             Name = "Test Team",
             Description = "Team for non-existent member test",
         };
-        var teamResponse = await client.HttpClient.PostAsJsonAsync(
+        var teamResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             teamRequest
         );
         var team = await teamResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Act - Try to remove non-existent user
-        var response = await client.HttpClient.DeleteAsync(
+        var response = await Client.HttpClient.DeleteAsync(
             $"/participants/hackathons/{hackathonId}/teams/{team!.Id}/members/{Guid.NewGuid()}"
         );
 
@@ -948,16 +948,16 @@ public class TeamsTests
     public async Task UpdateTeam_CacheInvalidation_ReturnsUpdatedData()
     {
         // Arrange - Create hackathon, join, and create a team
-        var hackathonId = await CreatePublishedHackathonAndJoinAsync(client);
+        var hackathonId = await CreatePublishedHackathonAndJoinAsync(Client);
         var teamRequest = new { Name = "Original Team Name", Description = "Original description" };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams",
             teamRequest
         );
         var team = await createResponse.Content.ReadFromJsonAsync<CreateTeamResponse>();
 
         // Act 1 - Get team to populate cache
-        var response1 = await client.HttpClient.GetAsync(
+        var response1 = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/me"
         );
         var result1 = await response1.Content.ReadFromJsonAsync<MyTeamResponse>();
@@ -966,14 +966,14 @@ public class TeamsTests
 
         // Act 2 - Update the team
         var updateRequest = new { Name = "Updated Team Name", Description = "Updated description" };
-        var updateResponse = await client.HttpClient.PatchAsJsonAsync(
+        var updateResponse = await Client.HttpClient.PatchAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/teams/{team!.Id}",
             updateRequest
         );
         await Assert.That(updateResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Get team again to verify cache was invalidated
-        var response2 = await client.HttpClient.GetAsync(
+        var response2 = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/teams/me"
         );
         var result2 = await response2.Content.ReadFromJsonAsync<MyTeamResponse>();

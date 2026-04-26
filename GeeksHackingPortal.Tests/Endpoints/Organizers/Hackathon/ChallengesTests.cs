@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class ChallengesTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,7 +44,7 @@ public class ChallengesTests
     public async Task CreateChallenge_WithValidRequest_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var request = new
         {
             Title = "Test Challenge",
@@ -55,7 +55,7 @@ public class ChallengesTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges",
             request
         );
@@ -72,7 +72,7 @@ public class ChallengesTests
     public async Task ListChallenges_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a challenge
         var createRequest = new
@@ -83,13 +83,13 @@ public class ChallengesTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = true,
         };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/challenges"
         );
         var result = await response.Content.ReadFromJsonAsync<ChallengesListResponse>();
@@ -104,7 +104,7 @@ public class ChallengesTests
     public async Task GetChallenge_WithValidId_ReturnsChallenge()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a challenge
         var createRequest = new
@@ -115,14 +115,14 @@ public class ChallengesTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = true,
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges",
             createRequest
         );
         var createdChallenge = await createResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{createdChallenge!.Id}"
         );
         var result = await response.Content.ReadFromJsonAsync<ChallengeDetailResponse>();
@@ -137,10 +137,10 @@ public class ChallengesTests
     public async Task GetChallenge_WithInvalidId_ReturnsNotFound()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{Guid.NewGuid()}"
         );
 
@@ -152,7 +152,7 @@ public class ChallengesTests
     public async Task UpdateChallenge_WithValidRequest_ReturnsUpdatedChallenge()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a challenge
         var createRequest = new
@@ -163,7 +163,7 @@ public class ChallengesTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = false,
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges",
             createRequest
         );
@@ -177,7 +177,7 @@ public class ChallengesTests
         };
 
         // Act
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{createdChallenge!.Id}",
             updateRequest
         );
@@ -194,7 +194,7 @@ public class ChallengesTests
     public async Task DeleteChallenge_WithNoSubmissions_ReturnsNoContent()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a challenge
         var createRequest = new
@@ -205,14 +205,14 @@ public class ChallengesTests
             SelectionCriteriaStmt = "Test criteria",
             IsPublished = false,
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/challenges",
             createRequest
         );
         var createdChallenge = await createResponse.Content.ReadFromJsonAsync<ChallengeResponse>();
 
         // Act
-        var response = await client.HttpClient.DeleteAsync(
+        var response = await Client.HttpClient.DeleteAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{createdChallenge!.Id}"
         );
 
@@ -224,10 +224,10 @@ public class ChallengesTests
     public async Task DeleteChallenge_WithInvalidId_ReturnsNotFound()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.DeleteAsync(
+        var response = await Client.HttpClient.DeleteAsync(
             $"/organizers/hackathons/{hackathonId}/challenges/{Guid.NewGuid()}"
         );
 
@@ -249,7 +249,7 @@ public class ChallengesTests
         };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/challenges",
             request
         );

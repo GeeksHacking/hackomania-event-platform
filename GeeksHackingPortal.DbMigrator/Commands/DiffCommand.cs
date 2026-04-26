@@ -1,4 +1,5 @@
 using ConsoleAppFramework;
+using GeeksHackingPortal.Api.Services;
 using Microsoft.Extensions.Logging;
 using SqlSugar;
 
@@ -12,30 +13,17 @@ public class DiffCommand(ILogger<DiffCommand> logger, ISqlSugarClient sql)
     [Command("diff")]
     public Task<int> Diff(CancellationToken cancellationToken)
     {
-        try
-        {
-            logger.LogInformation("Inspecting pending database schema differences.");
-            cancellationToken.ThrowIfCancellationRequested();
-            logger.LogInformation("Creating database connection.");
-            var entityTypes = SchemaDiffLogger.GetEntityTypes();
-            cancellationToken.ThrowIfCancellationRequested();
-            logger.LogInformation("Collecting SqlSugar schema differences for {EntityCount} entities.", entityTypes.Length);
-            var differenceProvider = sql.CodeFirst.GetDifferenceTables(entityTypes);
-            var schemaDifferences = differenceProvider.ToDiffList()
-                .Where(table => table.IsDiff)
-                .ToArray();
+        logger.LogInformation("Inspecting pending database schema differences.");
+        cancellationToken.ThrowIfCancellationRequested();
 
-            SchemaDiffLogger.Write(
-                logger,
-                differenceProvider.ToDiffString()?.Trim() ?? string.Empty,
-                schemaDifferences
-            );
+        var report = SchemaDifferenceInspector.Inspect(sql);
+        logger.LogInformation(
+            "Collected SqlSugar schema differences for {EntityCount} entities.",
+            report.EntityTypes.Count
+        );
 
-            return Task.FromResult(schemaDifferences.Length > 0 ? 2 : 0);
-        }
-        catch (Exception exception)
-        {
-            return Task.FromException<int>(exception);
-        }
+        SchemaDifferenceLogger.Write(logger, report);
+
+        return Task.FromResult(report.HasDifferences ? 2 : 0);
     }
 }

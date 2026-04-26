@@ -4,7 +4,6 @@ using FastEndpoints.Swagger;
 using GeeksHackingPortal.Api;
 using GeeksHackingPortal.Api.Authorization;
 using GeeksHackingPortal.Api.DataProtection;
-using GeeksHackingPortal.Api.Entities;
 using GeeksHackingPortal.Api.Options;
 using GeeksHackingPortal.Api.Services;
 using Google.Cloud.Diagnostics.AspNetCore3;
@@ -19,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Client;
 using Scalar.AspNetCore;
 using SqlSugar;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -278,44 +276,38 @@ builder.Services.AddScoped<IAuthorizationHandler, ParticipantForActivityHandler>
 builder.Services.AddScoped<IAuthorizationHandler, TeamMemberForHackathonTeamHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, TeamCreatorForHackathonTeamHandler>();
 
-var app = builder.Build();
+await using var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
+var schemaMismatchLogged = false;
+try
 {
+    await using var scope = app.Services.CreateAsyncScope();
     var sql = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+    var schemaReport = SchemaDifferenceInspector.Inspect(sql);
 
-    var entityTypes = GetEntityTypes();
-    var schemaDifferenceProvider = sql.CodeFirst.GetDifferenceTables(entityTypes);
-    var schemaDifferences = schemaDifferenceProvider.ToDiffList().Where(table => table.IsDiff).ToArray();
-    
-    if (schemaDifferences.Length > 0)
+    if (schemaReport.HasDifferences)
     {
-        var diffString = schemaDifferenceProvider.ToDiffString()?.Trim();
-        Console.WriteLine($"Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API. {schemaDifferenceProvider.ToDiffString().Trim()}");
-
-        foreach (var table in schemaDifferences)
-        {
-            app.Logger.LogError(
-                "{TableName}: +{Additions} ~{Updates} -{Deletions} remarks:{Remarks}",
-                table.TableName,
-                table.AddColums.Count,
-                table.UpdateColums.Count,
-                table.DeleteColums.Count,
-                table.UpdateRemark.Count
-            );
-        }
-
-        if (!string.IsNullOrWhiteSpace(diffString))
-        {
-            app.Logger.LogError("{SchemaDiff}", diffString);
-        }
+        app.Logger.LogCritical(
+            "Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API."
+        );
+        SchemaDifferenceLogger.Write(app.Logger, schemaReport, LogLevel.Critical);
+        schemaMismatchLogged = true;
 
         throw new InvalidOperationException(
             "Database schema does not match the current SqlSugar models. Review the diff and apply the schema changes before starting the API."
         );
     }
-}
 
+    app.Logger.LogInformation(
+        "Database schema validation passed for {EntityCount} entities.",
+        schemaReport.EntityTypes.Count
+    );
+}
+catch (Exception exception) when (!schemaMismatchLogged)
+{
+    app.Logger.LogCritical(exception, "Database schema validation failed during startup.");
+    throw;
+}
 
 app.UseForwardedHeaders();
 app.UseCors();
@@ -327,16 +319,4 @@ app.UseSwaggerGen(options => options.Path = "/openapi/{documentName}.json");
 app.MapScalarApiReference();
 app.MapDefaultEndpoints();
 
-app.Run();
-
-return;
-
-static Type[] GetEntityTypes() =>
-    typeof(User).Assembly.GetTypes()
-        .Where(type =>
-            type is { IsClass: true, IsAbstract: false, IsNested: false, IsGenericTypeDefinition: false }
-            && !Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false)
-            && string.Equals(type.Namespace, "GeeksHackingPortal.Api.Entities", StringComparison.Ordinal)
-        )
-        .OrderBy(type => type.FullName, StringComparer.Ordinal)
-        .ToArray();
+await app.RunAsync();

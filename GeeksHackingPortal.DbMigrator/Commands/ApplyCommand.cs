@@ -6,9 +6,7 @@ using SqlSugar;
 
 namespace GeeksHackingPortal.DbMigrator.Commands;
 
-public class ApplyCommand(
-     ILogger<ApplyCommand> logger,
-     ISqlSugarClient sql)
+public class ApplyCommand(ILogger<ApplyCommand> logger, ISqlSugarClient sql)
 {
     /// <summary>
     /// Apply pending SqlSugar schema changes after diff review.
@@ -30,24 +28,17 @@ public class ApplyCommand(
         );
 
         cancellationToken.ThrowIfCancellationRequested();
-        logger.LogInformation("Creating database connection.");
-        var entityTypes = SchemaDiffLogger.GetEntityTypes();
-        cancellationToken.ThrowIfCancellationRequested();
-        logger.LogInformation("Collecting SqlSugar schema differences for {EntityCount} entities.", entityTypes.Length);
-        var differenceProvider = sql.CodeFirst.GetDifferenceTables(entityTypes);
-        var schemaDifferences = differenceProvider.ToDiffList()
-            .Where(table => table.IsDiff)
-            .ToArray();
-
-        SchemaDiffLogger.Write(
-            logger,
-            differenceProvider.ToDiffString()?.Trim() ?? string.Empty,
-            schemaDifferences
+        var report = SchemaDifferenceInspector.Inspect(sql);
+        logger.LogInformation(
+            "Collected SqlSugar schema differences for {EntityCount} entities.",
+            report.EntityTypes.Count
         );
 
-        if (schemaDifferences.Length > 0)
+        SchemaDifferenceLogger.Write(logger, report);
+
+        if (report.HasDifferences)
         {
-            if (schemaDifferences.Any(table => table.DeleteColums.Count > 0) && !allowDestructive)
+            if (report.HasDestructiveChanges && !allowDestructive)
             {
                 logger.LogWarning(
                     "Destructive database changes were detected and --allow-destructive was not supplied."
@@ -59,7 +50,7 @@ public class ApplyCommand(
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            sql.CodeFirst.InitTables(entityTypes);
+            sql.CodeFirst.InitTables(report.EntityTypes.ToArray());
             logger.LogInformation("Database schema changes were applied.");
         }
 

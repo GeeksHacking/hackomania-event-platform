@@ -2,9 +2,9 @@ namespace GeeksHackingPortal.Api.Endpoints.Participants.Hackathon.Submissions.Li
 
 public class Response
 {
-    public IEnumerable<Response_Submission> Submissions { get; set; } = [];
+    public IEnumerable<ResponseSubmission> Submissions { get; set; } = [];
 
-    public class Response_Submission
+    public class ResponseSubmission
     {
         public Guid Id { get; set; }
         public Guid? ChallengeId { get; set; }

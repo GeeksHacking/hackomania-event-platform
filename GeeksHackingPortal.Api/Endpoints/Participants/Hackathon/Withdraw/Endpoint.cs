@@ -24,7 +24,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var hackathon = await sql.Queryable<Entities.Hackathon>()
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
@@ -32,7 +33,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        if (hackathon.EventEndDate < DateTimeOffset.UtcNow)
+        if (hackathon.Activity.EndTime < DateTimeOffset.UtcNow)
         {
             AddError("You cannot leave a hackathon after the event has ended");
             await Send.ErrorsAsync(cancellation: ct);
@@ -43,7 +44,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         var participant = await sql.Queryable<Participant>()
             .Where(p => p.HackathonId == hackathon.Id && p.UserId == currentUserId && p.WithdrawnAt == null)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         if (participant is null)
@@ -59,8 +60,31 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        participant.WithdrawnAt = DateTimeOffset.UtcNow;
-        await sql.Updateable(participant).ExecuteCommandAsync(ct);
+        var withdrawnAt = DateTimeOffset.UtcNow;
+        participant.WithdrawnAt = withdrawnAt;
+
+        var registration = await sql.Queryable<ActivityRegistration>()
+            .InSingleAsync(participant.Id);
+
+        if (registration is not null)
+        {
+            registration.Status = ActivityRegistrationStatus.Withdrawn;
+            registration.WithdrawnAt = withdrawnAt;
+        }
+
+        var transactionResult = await sql.Ado.UseTranAsync(async () =>
+        {
+            await sql.Updateable(participant).ExecuteCommandAsync(ct);
+            if (registration is not null)
+            {
+                await sql.Updateable(registration).ExecuteCommandAsync(ct);
+            }
+        });
+
+        if (!transactionResult.IsSuccess)
+        {
+            throw transactionResult.ErrorException!;
+        }
 
         await Send.OkAsync(new Response { Message = "You have withdrawn from the hackathon" }, ct);
     }

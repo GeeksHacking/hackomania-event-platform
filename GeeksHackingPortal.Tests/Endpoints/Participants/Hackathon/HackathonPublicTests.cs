@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class HackathonPublicTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(
         string suffix = "",
@@ -48,7 +48,7 @@ public class HackathonPublicTests
     public async Task ListPublicHackathons_WithoutAuthentication_ReturnsOk()
     {
         // Act
-        var response = await client.HttpClient.GetAsync("/participants/hackathons");
+        var response = await Client.HttpClient.GetAsync("/participants/hackathons");
         var result = await response.Content.ReadFromJsonAsync<ParticipantsHackathonsListResponse>();
 
         // Assert
@@ -61,10 +61,10 @@ public class HackathonPublicTests
     public async Task ListPublicHackathons_OnlyReturnsPublishedHackathons()
     {
         // Arrange - Create a published hackathon
-        var hackathon = await CreatePublishedHackathonAsync(client);
+        var hackathon = await CreatePublishedHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync("/participants/hackathons");
+        var response = await Client.HttpClient.GetAsync("/participants/hackathons");
         var result = await response.Content.ReadFromJsonAsync<ParticipantsHackathonsListResponse>();
 
         // Assert
@@ -81,10 +81,10 @@ public class HackathonPublicTests
     public async Task GetPublicHackathon_ByIdWithPublished_ReturnsOk()
     {
         // Arrange - Create a published hackathon
-        var hackathon = await CreatePublishedHackathonAsync(client);
+        var hackathon = await CreatePublishedHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync($"/participants/hackathons/{hackathon.Id}");
+        var response = await Client.HttpClient.GetAsync($"/participants/hackathons/{hackathon.Id}");
         var result = await response.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Assert
@@ -97,10 +97,10 @@ public class HackathonPublicTests
     public async Task GetPublicHackathon_ByShortCode_ReturnsOk()
     {
         // Arrange - Create a published hackathon
-        var hackathon = await CreatePublishedHackathonAsync(client);
+        var hackathon = await CreatePublishedHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.ShortCode}"
         );
         var result = await response.Content.ReadFromJsonAsync<HackathonResponse>();
@@ -115,7 +115,7 @@ public class HackathonPublicTests
     public async Task GetPublicHackathon_WithInvalidId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}"
         );
 
@@ -128,14 +128,14 @@ public class HackathonPublicTests
     {
         // Arrange - Create an unpublished hackathon
         var request = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8], false);
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             request
         );
         var hackathon = await createResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Act - Try to get it via the public endpoint
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon!.Id}"
         );
 
@@ -151,7 +151,7 @@ public class HackathonPublicTests
             Guid.NewGuid().ToString()[..8],
             isPublished: false
         );
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             request
         );
@@ -159,7 +159,7 @@ public class HackathonPublicTests
         await Assert.That(created).IsNotNull();
 
         // Act 1 - Warm public list cache before publishing
-        var beforePublishResponse = await client.HttpClient.GetAsync("/participants/hackathons");
+        var beforePublishResponse = await Client.HttpClient.GetAsync("/participants/hackathons");
         var beforePublish =
             await beforePublishResponse.Content.ReadFromJsonAsync<ParticipantsHackathonsListResponse>();
         await Assert.That(beforePublishResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -168,14 +168,14 @@ public class HackathonPublicTests
         await Assert.That(existsBeforePublish).IsFalse();
 
         // Act 2 - Publish hackathon
-        var publishResponse = await client.HttpClient.PatchAsJsonAsync(
+        var publishResponse = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{created.Id}",
             new UpdateHackathonRequest { IsPublished = true }
         );
         await Assert.That(publishResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Read public list again
-        var afterPublishResponse = await client.HttpClient.GetAsync("/participants/hackathons");
+        var afterPublishResponse = await Client.HttpClient.GetAsync("/participants/hackathons");
         var afterPublish =
             await afterPublishResponse.Content.ReadFromJsonAsync<ParticipantsHackathonsListResponse>();
 
@@ -190,23 +190,23 @@ public class HackathonPublicTests
     public async Task GetPublicHackathon_CacheInvalidation_AfterUnpublish_ReturnsNotFound()
     {
         // Arrange - Create published hackathon
-        var created = await CreatePublishedHackathonAsync(client);
+        var created = await CreatePublishedHackathonAsync(Client);
 
         // Act 1 - Warm cache via public get
-        var warmupResponse = await client.HttpClient.GetAsync(
+        var warmupResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{created.Id}"
         );
         await Assert.That(warmupResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 2 - Unpublish hackathon
-        var unpublishResponse = await client.HttpClient.PatchAsJsonAsync(
+        var unpublishResponse = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{created.Id}",
             new UpdateHackathonRequest { IsPublished = false }
         );
         await Assert.That(unpublishResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Public get should no longer expose this hackathon
-        var afterUnpublishResponse = await client.HttpClient.GetAsync(
+        var afterUnpublishResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{created.Id}"
         );
 

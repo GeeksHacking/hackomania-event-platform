@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class JoinAndStatusTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -46,10 +46,10 @@ public class JoinAndStatusTests
     public async Task JoinHackathon_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/join",
             null
         );
@@ -65,13 +65,13 @@ public class JoinAndStatusTests
     public async Task JoinHackathon_AlreadyJoined_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // Join the first time
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathonId}/join", null);
 
         // Act - Join again
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/join",
             null
         );
@@ -84,12 +84,12 @@ public class JoinAndStatusTests
     public async Task JoinHackathon_RapidRepeatCalls_DoesNotThrottleInDevelopment()
     {
         // Arrange
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // Act/Assert
         for (var i = 0; i < 15; i++)
         {
-            var response = await client.HttpClient.PostAsync(
+            var response = await Client.HttpClient.PostAsync(
                 $"/participants/hackathons/{hackathonId}/join",
                 null
             );
@@ -118,14 +118,14 @@ public class JoinAndStatusTests
             JudgingEndDate = now.AddDays(9).AddHours(-2),
             IsPublished = false,
         };
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             request
         );
         var hackathon = await createResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathon!.Id}/join",
             null
         );
@@ -138,7 +138,7 @@ public class JoinAndStatusTests
     public async Task JoinHackathon_WithInvalidId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.PostAsync(
+        var response = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/join",
             null
         );
@@ -151,7 +151,7 @@ public class JoinAndStatusTests
     public async Task JoinHackathon_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsync(
+        var response = await AnonymousClient.HttpClient.PostAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/join",
             null
         );
@@ -164,11 +164,11 @@ public class JoinAndStatusTests
     public async Task GetStatus_BeforeJoining_ReturnsNotParticipant()
     {
         // Arrange - Create a new hackathon but don't join
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // The creator is an organizer but not a participant unless they explicitly join
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var result = await response.Content.ReadFromJsonAsync<ParticipantStatusResponse>();
@@ -184,10 +184,10 @@ public class JoinAndStatusTests
     public async Task GetStatus_CacheInvalidation_AfterJoin_ReturnsParticipant()
     {
         // Arrange - Create a new published hackathon
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // Act 1 - Get status before joining to populate cache
-        var beforeJoinResponse = await client.HttpClient.GetAsync(
+        var beforeJoinResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var beforeJoinStatus =
@@ -197,14 +197,14 @@ public class JoinAndStatusTests
         await Assert.That(beforeJoinStatus!.IsParticipant).IsFalse();
 
         // Act 2 - Join the hackathon (should invalidate Participant table cache)
-        var joinResponse = await client.HttpClient.PostAsync(
+        var joinResponse = await Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/join",
             null
         );
         await Assert.That(joinResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Get status again and verify it reflects joined state
-        var afterJoinResponse = await client.HttpClient.GetAsync(
+        var afterJoinResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var afterJoinStatus =
@@ -220,23 +220,23 @@ public class JoinAndStatusTests
     public async Task GetStatus_ConcurrentJoinAndReads_FinalStateIsParticipant()
     {
         // Arrange - Create a new published hackathon
-        var hackathonId = await CreatePublishedHackathonAsync(client);
+        var hackathonId = await CreatePublishedHackathonAsync(Client);
 
         // Warm cache with pre-join state
-        var warmupResponse = await client.HttpClient.GetAsync(
+        var warmupResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         await Assert.That(warmupResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act - Run join and multiple status reads concurrently
-        var joinTask = client.HttpClient.PostAsync(
+        var joinTask = Client.HttpClient.PostAsync(
             $"/participants/hackathons/{hackathonId}/join",
             null
         );
         var statusTasks = Enumerable
             .Range(0, 6)
             .Select(_ =>
-                client.HttpClient.GetAsync($"/participants/hackathons/{hackathonId}/status")
+                Client.HttpClient.GetAsync($"/participants/hackathons/{hackathonId}/status")
             )
             .ToList();
 
@@ -248,7 +248,7 @@ public class JoinAndStatusTests
         await Assert.That(allStatusReadsOk).IsTrue();
 
         // Final assert - eventual state must reflect joined participant
-        var finalResponse = await client.HttpClient.GetAsync(
+        var finalResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/status"
         );
         var finalStatus =
@@ -262,7 +262,7 @@ public class JoinAndStatusTests
     public async Task GetStatus_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/status"
         );
 
@@ -274,7 +274,7 @@ public class JoinAndStatusTests
     public async Task GetStatus_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/status"
         );
 
@@ -289,14 +289,14 @@ public class JoinAndStatusTests
         var shortCode = $"SC{Guid.NewGuid().ToString()[..6]}";
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
         hackathonRequest.ShortCode = shortCode;
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await createResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = shortCode }
         );
@@ -315,16 +315,16 @@ public class JoinAndStatusTests
         var shortCode = $"SC{Guid.NewGuid().ToString()[..6]}";
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
         hackathonRequest.ShortCode = shortCode;
-        await client.HttpClient.PostAsJsonAsync("/organizers/hackathons", hackathonRequest);
+        await Client.HttpClient.PostAsJsonAsync("/organizers/hackathons", hackathonRequest);
 
         // Join the first time
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = shortCode }
         );
 
         // Act - Join again
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = shortCode }
         );
@@ -354,10 +354,10 @@ public class JoinAndStatusTests
             JudgingEndDate = now.AddDays(9).AddHours(-2),
             IsPublished = false,
         };
-        await client.HttpClient.PostAsJsonAsync("/organizers/hackathons", request);
+        await Client.HttpClient.PostAsJsonAsync("/organizers/hackathons", request);
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = shortCode }
         );
@@ -370,7 +370,7 @@ public class JoinAndStatusTests
     public async Task JoinHackathonByShortCode_WithInvalidShortCode_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = "INVALID_CODE_DOES_NOT_EXIST" }
         );
@@ -383,7 +383,7 @@ public class JoinAndStatusTests
     public async Task JoinHackathonByShortCode_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             "/participants/hackathons/join",
             new { ShortCode = "ANYCODE" }
         );

@@ -121,9 +121,9 @@ builder
         options.UseSystemNetHttp();
         options.SetRedirectionEndpointUris("/callback/login/github");
 
-        options.AddEventHandler<OpenIddictClientEvents.ProcessAuthenticationContext>(builder =>
+        options.AddEventHandler<OpenIddictClientEvents.ProcessAuthenticationContext>(builder2 =>
         {
-            builder.UseInlineHandler(context =>
+            builder2.UseInlineHandler(context =>
             {
                 var properties = context.Properties;
                 if (properties is null)
@@ -191,8 +191,16 @@ builder
         policy => policy.Requirements.Add(new OrganizerForHackathonRequirement())
     )
     .AddPolicy(
+        PolicyNames.OrganizerForActivity,
+        policy => policy.Requirements.Add(new OrganizerForActivityRequirement())
+    )
+    .AddPolicy(
         PolicyNames.ParticipantForHackathon,
         policy => policy.Requirements.Add(new ParticipantForHackathonRequirement())
+    )
+    .AddPolicy(
+        PolicyNames.ParticipantForActivity,
+        policy => policy.Requirements.Add(new ParticipantForActivityRequirement())
     )
     .AddPolicy(
         PolicyNames.TeamMemberForHackathonTeam,
@@ -203,8 +211,8 @@ builder
         policy => policy.Requirements.Add(new TeamCreatorForHackathonTeamRequirement())
     )
     .AddPolicy(
-        PolicyNames.CreateHackathon,
-        policy => policy.Requirements.Add(new CreateHackathonRequirement())
+        PolicyNames.CreateActivity,
+        policy => policy.Requirements.Add(new CreateActivityRequirement())
     );
 
 builder.Services.AddCors(options =>
@@ -263,9 +271,11 @@ builder.Services.AddScoped<IJintEvaluationService, JintEvaluationService>();
 builder.Services.AddScoped<IEmailService, PostmarkEmailService>();
 builder.Services.AddScoped<INotificationTemplateResolver, NotificationTemplateResolver>();
 builder.Services.AddScoped<IAuthorizationHandler, RootHandler>();
-builder.Services.AddScoped<IAuthorizationHandler, CreateHackathonHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CreateActivityHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrganizerForHackathonHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, OrganizerForActivityHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, ParticipantForHackathonHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, ParticipantForActivityHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, TeamMemberForHackathonTeamHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, TeamCreatorForHackathonTeamHandler>();
 

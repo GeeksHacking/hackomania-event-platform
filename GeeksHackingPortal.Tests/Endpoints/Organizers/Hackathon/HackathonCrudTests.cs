@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class HackathonCrudTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -39,7 +39,7 @@ public class HackathonCrudTests
         var request = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync("/organizers/hackathons", request);
+        var response = await Client.HttpClient.PostAsJsonAsync("/organizers/hackathons", request);
         var result = await response.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Assert
@@ -58,7 +58,7 @@ public class HackathonCrudTests
         var request = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             request
         );
@@ -72,10 +72,10 @@ public class HackathonCrudTests
     {
         // Arrange - Create a hackathon first
         var createRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        await client.HttpClient.PostAsJsonAsync("/organizers/hackathons", createRequest);
+        await Client.HttpClient.PostAsJsonAsync("/organizers/hackathons", createRequest);
 
         // Act
-        var response = await client.HttpClient.GetAsync("/organizers/hackathons");
+        var response = await Client.HttpClient.GetAsync("/organizers/hackathons");
         var result = await response.Content.ReadFromJsonAsync<OrganizersHackathonsListResponse>();
 
         // Assert
@@ -88,7 +88,7 @@ public class HackathonCrudTests
     public async Task ListHackathons_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync("/organizers/hackathons");
+        var response = await AnonymousClient.HttpClient.GetAsync("/organizers/hackathons");
 
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Unauthorized);
@@ -99,14 +99,14 @@ public class HackathonCrudTests
     {
         // Arrange - Create a hackathon
         var createRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             createRequest
         );
         var createdHackathon = await createResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{createdHackathon!.Id}"
         );
         var result = await response.Content.ReadFromJsonAsync<HackathonResponse>();
@@ -122,7 +122,7 @@ public class HackathonCrudTests
     public async Task GetHackathon_WithInvalidId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync($"/organizers/hackathons/{Guid.NewGuid()}");
+        var response = await Client.HttpClient.GetAsync($"/organizers/hackathons/{Guid.NewGuid()}");
 
         // Assert
         await Assert
@@ -136,7 +136,7 @@ public class HackathonCrudTests
     {
         // Arrange - Create a hackathon
         var createRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             createRequest
         );
@@ -149,7 +149,7 @@ public class HackathonCrudTests
         };
 
         // Act
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{createdHackathon!.Id}",
             updateRequest
         );
@@ -168,7 +168,7 @@ public class HackathonCrudTests
         // Arrange - Create an unpublished hackathon
         var createRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
         createRequest.IsPublished = false;
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             createRequest
         );
@@ -177,7 +177,7 @@ public class HackathonCrudTests
         var updateRequest = new UpdateHackathonRequest { IsPublished = true };
 
         // Act
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{createdHackathon!.Id}",
             updateRequest
         );
@@ -193,7 +193,7 @@ public class HackathonCrudTests
     public async Task UpdateHackathon_GitHubRepositorySettings_RoundTrips()
     {
         var createRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             createRequest
         );
@@ -211,7 +211,7 @@ public class HackathonCrudTests
             },
         };
 
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{createdHackathon!.Id}",
             updateRequest
         );
@@ -233,7 +233,7 @@ public class HackathonCrudTests
         var updateRequest = new UpdateHackathonRequest { Name = "Updated Name" };
 
         // Act
-        var response = await client.HttpClient.PatchAsJsonAsync(
+        var response = await Client.HttpClient.PatchAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}",
             updateRequest
         );

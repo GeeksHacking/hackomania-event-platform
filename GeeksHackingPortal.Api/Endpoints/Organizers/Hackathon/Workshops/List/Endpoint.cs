@@ -23,8 +23,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     {
         var workshops = await sql.Queryable<Workshop>()
             .Where(w => w.HackathonId == req.HackathonId)
+            .Includes(w => w.Activity)
             .Includes(w => w.Participants)
-            .WithCache()
+            
             .ToListAsync(ct);
 
         await Send.OkAsync(
@@ -34,14 +35,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                     .Select(w => new WorkshopDto
                     {
                         Id = w.Id,
-                        Title = w.Title,
-                        Description = w.Description,
-                        StartTime = w.StartTime,
-                        EndTime = w.EndTime,
-                        Location = w.Location,
+                        Title = w.Activity.Title,
+                        Description = w.Activity.Description,
+                        StartTime = w.Activity.StartTime,
+                        EndTime = w.Activity.EndTime,
+                        Location = w.Activity.Location,
                         MaxParticipants = w.MaxParticipants,
                         CurrentParticipants = w.Participants?.Count ?? 0,
-                        IsPublished = w.IsPublished,
+                        IsPublished = w.Activity.IsPublished,
                     })
                     .ToList(),
             },

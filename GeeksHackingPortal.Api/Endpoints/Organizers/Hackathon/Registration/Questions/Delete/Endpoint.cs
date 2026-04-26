@@ -23,7 +23,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var question = await sql.Queryable<RegistrationQuestion>()
-            .Where(q => q.Id == req.QuestionId && q.HackathonId == req.HackathonId)
+            .Where(q => q.Id == req.QuestionId && q.ActivityId == req.HackathonId)
             .FirstAsync(ct);
 
         if (question is null)
@@ -31,6 +31,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
             await Send.NotFoundAsync(ct);
             return;
         }
+
+        using var tran = sql.Ado.UseTran();
 
         await sql.Deleteable<ParticipantRegistrationSubmission>()
             .Where(s => s.QuestionId == question.Id)
@@ -41,6 +43,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request>
             .ExecuteCommandAsync(ct);
 
         await sql.Deleteable(question).ExecuteCommandAsync(ct);
+
+        tran.CommitTran();
 
         await Send.NoContentAsync(ct);
     }

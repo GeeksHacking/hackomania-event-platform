@@ -7,7 +7,7 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class WorkshopsParticipantTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -33,14 +33,14 @@ public class WorkshopsParticipantTests
     public async Task JoinWorkshop_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon as participant
-        var joinResponse = await client.HttpClient.PostAsJsonAsync(
+        var joinResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon!.Id}/join",
             new { }
         );
@@ -57,14 +57,14 @@ public class WorkshopsParticipantTests
             IsPublished = true,
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops",
             workshopRequest
         );
         var workshop = await createResponse.Content.ReadFromJsonAsync<WorkshopResponse>();
 
         // Join workshop as participant
-        var joinWorkshopResponse = await client.HttpClient.PostAsJsonAsync(
+        var joinWorkshopResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/workshops/{workshop!.Id}/join",
             new { }
         );
@@ -79,17 +79,17 @@ public class WorkshopsParticipantTests
     public async Task ListWorkshops_AsParticipant_ShouldShowPublishedOnly()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon as participant
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Create published workshop
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops",
             new
             {
@@ -104,7 +104,7 @@ public class WorkshopsParticipantTests
         );
 
         // Create unpublished workshop
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops",
             new
             {
@@ -119,7 +119,7 @@ public class WorkshopsParticipantTests
         );
 
         // List workshops as participant
-        var listResponse = await client.HttpClient.GetAsync(
+        var listResponse = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathon.Id}/workshops"
         );
 
@@ -136,14 +136,14 @@ public class WorkshopsParticipantTests
     public async Task MarkAttendance_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Create workshop
         var workshopRequest = new
@@ -157,14 +157,14 @@ public class WorkshopsParticipantTests
             IsPublished = true,
         };
 
-        var createResponse = await client.HttpClient.PostAsJsonAsync(
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/workshops",
             workshopRequest
         );
         var workshop = await createResponse.Content.ReadFromJsonAsync<WorkshopResponse>();
 
         // Join workshop
-        var r = await client.HttpClient.PostAsJsonAsync(
+        var r = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/workshops/{workshop!.Id}/join",
             new { }
         );
@@ -172,7 +172,7 @@ public class WorkshopsParticipantTests
         await Assert.That(r.IsSuccessStatusCode).IsTrue();
 
         // Mark attendance
-        var attendanceResponse = await client.HttpClient.PostAsJsonAsync(
+        var attendanceResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/workshops/{workshop.Id}/attendance",
             new { }
         );

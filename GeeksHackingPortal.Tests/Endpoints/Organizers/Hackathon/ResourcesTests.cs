@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class ResourcesTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,7 +44,7 @@ public class ResourcesTests
     public async Task CreateResource_WithValidRequest_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var request = new
         {
             Name = "Test Resource",
@@ -54,7 +54,7 @@ public class ResourcesTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/resources",
             request
         );
@@ -72,7 +72,7 @@ public class ResourcesTests
     public async Task ListResources_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a resource
         var createRequest = new
@@ -82,13 +82,13 @@ public class ResourcesTests
             RedemptionStmt = "return true;",
             IsPublished = false,
         };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/resources",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/resources"
         );
         var result = await response.Content.ReadFromJsonAsync<ResourcesListResponse>();
@@ -113,7 +113,7 @@ public class ResourcesTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/resources",
             request
         );
@@ -138,7 +138,7 @@ public class ResourcesTests
         };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/resources",
             request
         );

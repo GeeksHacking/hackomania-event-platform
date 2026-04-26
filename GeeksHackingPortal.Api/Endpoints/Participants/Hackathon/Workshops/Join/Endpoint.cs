@@ -38,6 +38,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         // Get workshop
         var workshop = await sql.Queryable<Workshop>()
+            .Includes(w => w.Activity)
             .Includes(w => w.Participants)
             .FirstAsync(w => w.Id == workshopId && w.HackathonId == hackathonId, ct);
 
@@ -61,7 +62,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 {
                     Id = existingParticipant.Id,
                     WorkshopId = workshop.Id,
-                    WorkshopTitle = workshop.Title,
+                    WorkshopTitle = workshop.Activity.Title,
                     JoinedAt = existingParticipant.JoinedAt,
                 },
                 ct
@@ -92,7 +93,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             {
                 Id = workshopParticipant.Id,
                 WorkshopId = workshop.Id,
-                WorkshopTitle = workshop.Title,
+                WorkshopTitle = workshop.Activity.Title,
                 JoinedAt = workshopParticipant.JoinedAt,
             },
             ct

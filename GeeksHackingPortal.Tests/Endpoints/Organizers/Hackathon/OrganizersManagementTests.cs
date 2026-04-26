@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class OrganizersManagementTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,10 +44,10 @@ public class OrganizersManagementTests
     public async Task ListOrganizers_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/organizers"
         );
         var result = await response.Content.ReadFromJsonAsync<OrganizersListResponse>();
@@ -64,7 +64,7 @@ public class OrganizersManagementTests
     public async Task ListOrganizers_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/organizers"
         );
 
@@ -79,7 +79,7 @@ public class OrganizersManagementTests
     public async Task ListOrganizers_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/organizers"
         );
 
@@ -91,11 +91,11 @@ public class OrganizersManagementTests
     public async Task AddOrganizer_WithNonExistentUser_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var request = new { UserId = Guid.NewGuid(), Type = "Admin" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/organizers",
             request
         );
@@ -112,7 +112,7 @@ public class OrganizersManagementTests
         var request = new { UserId = Guid.NewGuid(), Type = "Admin" };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/organizers",
             request
         );

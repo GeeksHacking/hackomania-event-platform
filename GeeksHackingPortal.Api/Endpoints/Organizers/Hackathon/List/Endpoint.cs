@@ -29,7 +29,7 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
         }
 
         var isRoot = await membership.IsRoot(userId.Value, ct);
-        var query = sql.Queryable<Entities.Hackathon>();
+        var query = sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity);
 
         if (!isRoot)
         {
@@ -41,15 +41,15 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
             );
         }
 
-        var hackathons = await query.WithCache().ToListAsync(ct);
+        var hackathons = await query.ToListAsync(ct);
         var hackathonIds = hackathons.Select(h => h.Id).ToList();
 
         var templates = await sql.Queryable<HackathonNotificationTemplate>()
-            .Where(t => hackathonIds.Contains(t.HackathonId))
-            .WithCache()
+            .Where(t => hackathonIds.Contains(t.ActivityId))
+            
             .ToListAsync(ct);
         var templatesByHackathon = templates
-            .GroupBy(t => t.HackathonId)
+            .GroupBy(t => t.ActivityId)
             .ToDictionary(
                 g => g.Key,
                 g =>
@@ -67,14 +67,14 @@ public class Endpoint(ISqlSugarClient sql, MembershipService membership)
                 Hackathons = hackathons.Select(h => new Response.HackathonItem
                 {
                     Id = h.Id,
-                    Name = h.Name,
-                    Description = h.Description,
-                    Venue = h.Venue,
+                    Name = h.Activity.Title,
+                    Description = h.Activity.Description,
+                    Venue = h.Activity.Location,
                     HomepageUri = h.HomepageUri,
                     ShortCode = h.ShortCode,
-                    IsPublished = h.IsPublished,
-                    EventStartDate = h.EventStartDate,
-                    EventEndDate = h.EventEndDate,
+                    IsPublished = h.Activity.IsPublished,
+                    EventStartDate = h.Activity.StartTime,
+                    EventEndDate = h.Activity.EndTime,
                     SubmissionsStartDate = h.SubmissionsStartDate,
                     ChallengeSelectionEndDate = h.ChallengeSelectionEndDate,
                     SubmissionsEndDate = h.SubmissionsEndDate,

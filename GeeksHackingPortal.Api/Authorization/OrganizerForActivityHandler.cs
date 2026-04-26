@@ -1,20 +1,18 @@
 using GeeksHackingPortal.Api.Extensions;
-using GeeksHackingPortal.Api.Options;
 using GeeksHackingPortal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 
 namespace GeeksHackingPortal.Api.Authorization;
 
-public class CreateHackathonHandler(MembershipService membership, IOptions<AppOptions> options)
-    : AuthorizationHandler<CreateHackathonRequirement>
+public class OrganizerForActivityHandler(MembershipService membership)
+    : AuthorizationHandler<OrganizerForActivityRequirement>
 {
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
-        CreateHackathonRequirement requirement
+        OrganizerForActivityRequirement requirement
     )
     {
-        if (context.Resource is not HttpContext)
+        if (context.Resource is not HttpContext httpContext)
         {
             return;
         }
@@ -25,13 +23,13 @@ public class CreateHackathonHandler(MembershipService membership, IOptions<AppOp
             return;
         }
 
-        if (options.Value.CreationMode == HackathonCreationMode.Anyone)
+        var activityId = httpContext.GetActivityIdFromRoute();
+        if (activityId is null)
         {
-            context.Succeed(requirement);
             return;
         }
 
-        if (await membership.IsRoot(userId.Value))
+        if (await membership.IsActivityOrganizerOrRoot(userId.Value, activityId.Value))
         {
             context.Succeed(requirement);
         }

@@ -16,7 +16,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
+        var hackathon = await sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity).InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
             await Send.NotFoundAsync(ct);
@@ -24,8 +24,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var resources = await sql.Queryable<Resource>()
-            .Where(r => r.HackathonId == hackathon.Id)
-            .Select(r => new Response.Response_Resource
+            .Where(r => r.ActivityId == hackathon.Id)
+            .Select(r => new Response.ResponseResource
             {
                 Id = r.Id,
                 Name = r.Name,
@@ -33,7 +33,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 RedemptionStmt = r.RedemptionStmt,
                 IsPublished = r.IsPublished,
             })
-            .WithCache()
+            
             .ToListAsync(ct);
 
         await Send.OkAsync(new Response { Resources = resources }, ct);

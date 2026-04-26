@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class JudgesTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,11 +44,11 @@ public class JudgesTests
     public async Task CreateJudge_WithValidRequest_ReturnsCreated()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var request = new { Name = "Test Judge" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/judges",
             request
         );
@@ -66,17 +66,17 @@ public class JudgesTests
     public async Task ListJudges_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Create a judge
         var createRequest = new { Name = "List Test Judge" };
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/judges",
             createRequest
         );
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/judges"
         );
         var result = await response.Content.ReadFromJsonAsync<JudgesListResponse>();
@@ -94,7 +94,7 @@ public class JudgesTests
         var request = new { Name = "Invalid Hackathon Judge" };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/judges",
             request
         );
@@ -113,7 +113,7 @@ public class JudgesTests
         var request = new { Name = "Unauthorized Judge" };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/judges",
             request
         );

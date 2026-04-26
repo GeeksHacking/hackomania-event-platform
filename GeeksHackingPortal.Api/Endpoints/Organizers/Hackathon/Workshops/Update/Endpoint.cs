@@ -22,6 +22,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var workshop = await sql.Queryable<Workshop>()
+            .Includes(w => w.Activity)
             .FirstAsync(w => w.Id == req.WorkshopId && w.HackathonId == req.HackathonId, ct);
 
         if (workshop is null)
@@ -29,30 +30,49 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             await Send.NotFoundAsync(ct);
             return;
         }
+        var hasActivity = workshop.Activity is not null;
 
-        workshop.Title = req.Title;
-        workshop.Description = req.Description;
-        workshop.StartTime = req.StartTime;
-        workshop.EndTime = req.EndTime;
-        workshop.Location = req.Location;
         workshop.MaxParticipants = req.MaxParticipants;
-        workshop.IsPublished = req.IsPublished;
-        workshop.UpdatedAt = DateTimeOffset.UtcNow;
 
+        using var tran = sql.Ado.UseTran();
+
+        var activity = workshop.Activity ?? new Activity
+        {
+            Id = workshop.Id,
+            Kind = ActivityKind.HackathonWorkshop,
+        };
+        activity.Title = req.Title;
+        activity.Description = req.Description;
+        activity.StartTime = req.StartTime;
+        activity.EndTime = req.EndTime;
+        activity.Location = req.Location;
+        activity.IsPublished = req.IsPublished;
+        activity.UpdatedAt = DateTimeOffset.UtcNow;
+
+        if (hasActivity)
+        {
+            await sql.Updateable(activity).ExecuteCommandAsync(ct);
+        }
+        else
+        {
+            await sql.Insertable(activity).ExecuteCommandAsync(ct);
+        }
         await sql.Updateable(workshop).ExecuteCommandAsync(ct);
+
+        tran.CommitTran();
 
         await Send.OkAsync(
             new Response
             {
                 Id = workshop.Id,
-                Title = workshop.Title,
-                Description = workshop.Description,
-                StartTime = workshop.StartTime,
-                EndTime = workshop.EndTime,
-                Location = workshop.Location,
+                Title = activity.Title,
+                Description = activity.Description,
+                StartTime = activity.StartTime,
+                EndTime = activity.EndTime,
+                Location = activity.Location,
                 MaxParticipants = workshop.MaxParticipants,
-                IsPublished = workshop.IsPublished,
-                UpdatedAt = workshop.UpdatedAt,
+                IsPublished = activity.IsPublished,
+                UpdatedAt = activity.UpdatedAt,
             },
             ct
         );

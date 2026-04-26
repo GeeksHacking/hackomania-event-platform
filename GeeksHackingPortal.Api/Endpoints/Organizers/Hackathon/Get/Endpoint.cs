@@ -25,7 +25,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     {
         var hackathon = await sql.Queryable<HackathonEntity>()
             .Where(h => h.Id == req.HackathonId)
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .FirstAsync(ct);
 
         if (hackathon is null)
@@ -35,8 +36,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var emailTemplates = await sql.Queryable<HackathonNotificationTemplate>()
-            .Where(t => t.HackathonId == hackathon.Id)
-            .WithCache()
+            .Where(t => t.ActivityId == hackathon.Id)
+            
             .ToListAsync(ct);
         var emailTemplateMap = emailTemplates
             .GroupBy(t => t.EventKey, StringComparer.OrdinalIgnoreCase)
@@ -49,14 +50,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = hackathon.Id,
-                Name = hackathon.Name,
-                Description = hackathon.Description,
-                Venue = hackathon.Venue,
+                Name = hackathon.Activity.Title,
+                Description = hackathon.Activity.Description,
+                Venue = hackathon.Activity.Location,
                 HomepageUri = hackathon.HomepageUri,
                 ShortCode = hackathon.ShortCode,
-                IsPublished = hackathon.IsPublished,
-                EventStartDate = hackathon.EventStartDate,
-                EventEndDate = hackathon.EventEndDate,
+                IsPublished = hackathon.Activity.IsPublished,
+                EventStartDate = hackathon.Activity.StartTime,
+                EventEndDate = hackathon.Activity.EndTime,
                 SubmissionsStartDate = hackathon.SubmissionsStartDate,
                 ChallengeSelectionEndDate = hackathon.ChallengeSelectionEndDate,
                 SubmissionsEndDate = hackathon.SubmissionsEndDate,

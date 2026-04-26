@@ -9,23 +9,34 @@ public class Workshop
 
     public Guid HackathonId { get; set; }
 
-    public string Title { get; set; } = null!;
+    [Navigate(NavigateType.OneToOne, nameof(Id))]
+    public Activity Activity { get; set; } = null!;
 
-    [SugarColumn(ColumnDataType = "longtext")]
-    public string Description { get; set; } = null!;
+    [SugarColumn(ColumnName = "Title", IsNullable = true)]
+    public string? LegacyTitle { get; set; }
 
-    public DateTimeOffset StartTime { get; set; }
+    [SugarColumn(ColumnName = "Description", IsNullable = true, ColumnDataType = "longtext")]
+    public string? LegacyDescription { get; set; }
 
-    public DateTimeOffset EndTime { get; set; }
+    [SugarColumn(ColumnName = "StartTime")]
+    public DateTimeOffset LegacyStartTime { get; set; }
 
-    public string Location { get; set; } = null!;
+    [SugarColumn(ColumnName = "EndTime")]
+    public DateTimeOffset LegacyEndTime { get; set; }
+
+    [SugarColumn(ColumnName = "Location", IsNullable = true)]
+    public string? LegacyLocation { get; set; }
 
     public int MaxParticipants { get; set; }
 
-    public bool IsPublished { get; set; }
+    [SugarColumn(ColumnName = "IsPublished")]
+    public bool LegacyIsPublished { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+    [SugarColumn(ColumnName = "CreatedAt")]
+    public DateTimeOffset LegacyCreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    [SugarColumn(ColumnName = "UpdatedAt")]
+    public DateTimeOffset LegacyUpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     [Navigate(NavigateType.OneToMany, nameof(WorkshopParticipant.WorkshopId))]
     public List<WorkshopParticipant> Participants { get; set; } = null!;

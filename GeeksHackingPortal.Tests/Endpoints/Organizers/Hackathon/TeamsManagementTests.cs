@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class TeamsManagementTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,10 +44,10 @@ public class TeamsManagementTests
     public async Task ListTeams_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/teams"
         );
         var result = await response.Content.ReadFromJsonAsync<TeamsListResponse>();
@@ -62,7 +62,7 @@ public class TeamsManagementTests
     public async Task ListTeams_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/teams"
         );
 
@@ -77,7 +77,7 @@ public class TeamsManagementTests
     public async Task ListTeams_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/teams"
         );
 

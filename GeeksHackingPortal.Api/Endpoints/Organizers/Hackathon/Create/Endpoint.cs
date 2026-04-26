@@ -12,7 +12,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override void Configure()
     {
         Post("organizers/hackathons");
-        Policies(PolicyNames.CreateHackathon);
+        Policies(PolicyNames.CreateActivity);
         Description(b => b.WithTags("Organizers", "Hackathons"));
         Summary(s =>
         {
@@ -42,32 +42,57 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var hackathon = new Entities.Hackathon
+        var hackathonId = Guid.NewGuid();
+        var activity = new Activity
+        {
+            Id = hackathonId,
+            Kind = ActivityKind.Hackathon,
+            Title = req.Name,
+            Description = req.Description,
+            Location = req.Venue,
+            StartTime = req.EventStartDate,
+            EndTime = req.EventEndDate,
+            IsPublished = req.IsPublished,
+        };
+        var organizer = new Organizer
         {
             Id = Guid.NewGuid(),
-            Name = req.Name,
-            Description = req.Description,
-            Venue = req.Venue,
+            HackathonId = hackathonId,
+            UserId = userId.Value,
+            Type = OrganizerType.Admin,
+        };
+        var activityOrganizer = new ActivityOrganizer
+        {
+            Id = organizer.Id,
+            ActivityId = activity.Id,
+            UserId = userId.Value,
+            Type = organizer.Type,
+        };
+
+        var hackathon = new Entities.Hackathon
+        {
+            Id = hackathonId,
+            Activity = activity,
             HomepageUri = req.HomepageUri,
             ShortCode = req.ShortCode,
-            IsPublished = req.IsPublished,
-            EventStartDate = req.EventStartDate,
-            EventEndDate = req.EventEndDate,
             SubmissionsStartDate = req.SubmissionsStartDate,
             ChallengeSelectionEndDate = challengeSelectionEndDate,
             SubmissionsEndDate = req.SubmissionsEndDate,
             JudgingStartDate = req.JudgingStartDate,
             JudgingEndDate = req.JudgingEndDate,
-            Organizers = [new Organizer { UserId = userId.Value, Type = OrganizerType.Admin }],
+            Organizers = [organizer],
         };
 
-        var ent = await sql.InsertNav(hackathon)
-            .Include(h => h.Organizers)
-            .ExecuteReturnEntityAsync();
+        using var tran = sql.Ado.UseTran();
+
+        await sql.Insertable(activity).ExecuteCommandAsync(ct);
+        await sql.Insertable(hackathon).ExecuteCommandAsync(ct);
+        await sql.Insertable(hackathon.Organizers).ExecuteCommandAsync(ct);
+        await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
 
         if (HackathonGitHubRepositorySettingsMutation.ShouldPersist(gitHubRepositorySettingsResult.Settings))
         {
-            gitHubRepositorySettingsResult.Settings!.HackathonId = ent.Id;
+            gitHubRepositorySettingsResult.Settings!.HackathonId = hackathon.Id;
             await sql.Insertable(gitHubRepositorySettingsResult.Settings).ExecuteCommandAsync(ct);
         }
 
@@ -77,7 +102,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 kvp => new HackathonNotificationTemplate
                 {
                     Id = Guid.NewGuid(),
-                    HackathonId = ent.Id,
+                    ActivityId = hackathon.Id,
                     EventKey = kvp.Key,
                     TemplateId = kvp.Value,
                 }
@@ -86,24 +111,26 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             await sql.Insertable(notificationTemplates.ToList()).ExecuteCommandAsync(ct);
         }
 
+        tran.CommitTran();
+
         await Send.CreatedAtAsync<Get.Endpoint>(
-            new { HackathonId = ent.Id },
+            new { HackathonId = hackathon.Id },
             new Response
             {
-                Id = ent.Id,
-                Name = ent.Name,
-                Description = ent.Description,
-                Venue = ent.Venue,
-                HomepageUri = ent.HomepageUri,
-                ShortCode = ent.ShortCode,
-                IsPublished = ent.IsPublished,
-                EventStartDate = ent.EventStartDate,
-                EventEndDate = ent.EventEndDate,
-                SubmissionsStartDate = ent.SubmissionsStartDate,
-                ChallengeSelectionEndDate = ent.ChallengeSelectionEndDate,
-                SubmissionsEndDate = ent.SubmissionsEndDate,
-                JudgingStartDate = ent.JudgingStartDate,
-                JudgingEndDate = ent.JudgingEndDate,
+                Id = hackathon.Id,
+                Name = hackathon.Activity.Title,
+                Description = hackathon.Activity.Description,
+                Venue = hackathon.Activity.Location,
+                HomepageUri = hackathon.HomepageUri,
+                ShortCode = hackathon.ShortCode,
+                IsPublished = hackathon.Activity.IsPublished,
+                EventStartDate = hackathon.Activity.StartTime,
+                EventEndDate = hackathon.Activity.EndTime,
+                SubmissionsStartDate = hackathon.SubmissionsStartDate,
+                ChallengeSelectionEndDate = hackathon.ChallengeSelectionEndDate,
+                SubmissionsEndDate = hackathon.SubmissionsEndDate,
+                JudgingStartDate = hackathon.JudgingStartDate,
+                JudgingEndDate = hackathon.JudgingEndDate,
                 EmailTemplates = emailTemplates,
                 GitHubRepositorySettings = HackathonGitHubRepositorySettingsMapper.ToResponse(
                     gitHubRepositorySettingsResult.Settings

@@ -26,7 +26,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var hackathon = await sql.Queryable<Entities.Hackathon>()
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
@@ -46,7 +47,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         var team = await sql.Queryable<Team>()
             .Where(t => t.Id == req.TeamId && t.HackathonId == hackathon.Id)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         if (team is null)
@@ -60,7 +61,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Where(p =>
                 p.HackathonId == hackathon.Id && p.UserId == req.UserId && p.TeamId == team.Id
             )
-            .WithCache()
+            
             .FirstAsync(ct);
 
         if (participantToRemove is null)
@@ -70,6 +71,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
+        using var tran = sql.Ado.UseTran();
+
         // Remove the member from the team
         participantToRemove.TeamId = null;
         await sql.Updateable(participantToRemove).ExecuteCommandAsync(ct);
@@ -77,13 +80,15 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // Check if there are any remaining members
         var remainingMembersCount = await sql.Queryable<Participant>()
             .Where(p => p.TeamId == team.Id)
-            .WithCache()
+            
             .CountAsync(ct);
 
         // If no members remain, delete the team
         if (remainingMembersCount == 0)
         {
             await sql.Deleteable<Team>().Where(t => t.Id == team.Id).ExecuteCommandAsync(ct);
+
+            tran.CommitTran();
 
             await Send.OkAsync(
                 new Response
@@ -95,6 +100,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             );
             return;
         }
+
+        tran.CommitTran();
 
         await Send.OkAsync(new Response { Message = "Member removed successfully" }, ct);
     }

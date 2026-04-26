@@ -24,10 +24,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 h.Id.ToString() == req.HackathonIdOrShortCode
                 || h.ShortCode == req.HackathonIdOrShortCode
             )
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .FirstAsync(ct);
 
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -37,14 +38,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = hackathon.Id,
-                Name = hackathon.Name,
-                Description = hackathon.Description,
-                Venue = hackathon.Venue,
+                Name = hackathon.Activity.Title,
+                Description = hackathon.Activity.Description,
+                Venue = hackathon.Activity.Location,
                 HomepageUri = hackathon.HomepageUri,
                 ShortCode = hackathon.ShortCode,
-                IsPublished = hackathon.IsPublished,
-                EventStartDate = hackathon.EventStartDate,
-                EventEndDate = hackathon.EventEndDate,
+                IsPublished = hackathon.Activity.IsPublished,
+                EventStartDate = hackathon.Activity.StartTime,
+                EventEndDate = hackathon.Activity.EndTime,
                 SubmissionsStartDate = hackathon.SubmissionsStartDate,
                 ChallengeSelectionEndDate = hackathon.ChallengeSelectionEndDate,
                 SubmissionsEndDate = hackathon.SubmissionsEndDate,

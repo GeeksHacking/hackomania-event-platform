@@ -25,8 +25,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
-        if (hackathon is null || !hackathon.IsPublished)
+        var hackathon = await sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity).InSingleAsync(req.HackathonId);
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -44,7 +44,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // Validate that all questions exist and are for this hackathon
         var questionIds = req.Submissions.Select(s => s.QuestionId).ToList();
         var questions = await sql.Queryable<RegistrationQuestion>()
-            .Where(q => q.HackathonId == req.HackathonId && questionIds.Contains(q.Id))
+            .Where(q => q.ActivityId == req.HackathonId && questionIds.Contains(q.Id))
             .ToListAsync(ct);
 
         var questionsById = questions.ToDictionary(q => q.Id);
@@ -102,7 +102,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         // Check required questions
         var allRequiredQuestions = await sql.Queryable<RegistrationQuestion>()
-            .Where(q => q.HackathonId == req.HackathonId && q.IsRequired)
+            .Where(q => q.ActivityId == req.HackathonId && q.IsRequired)
             .ToListAsync(ct);
 
         var submittedQuestionIds = req.Submissions.Select(s => s.QuestionId).ToHashSet();
@@ -111,9 +111,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Select(q => q.QuestionKey)
             .ToList();
 
+        using var tran = sql.Ado.UseTran();
+
         // Delete existing submissions for the questions being updated
         await sql.Deleteable<ParticipantRegistrationSubmission>()
-            .Where(s => s.ParticipantId == participant.Id && questionIds.Contains(s.QuestionId))
+            .Where(s => s.ActivityRegistrationId == participant.Id && questionIds.Contains(s.QuestionId))
             .ExecuteCommandAsync(ct);
 
         // Insert new submissions
@@ -122,7 +124,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .Submissions.Select(s => new ParticipantRegistrationSubmission
             {
                 Id = Guid.NewGuid(),
-                ParticipantId = participant.Id,
+                ActivityRegistrationId = participant.Id,
                 QuestionId = s.QuestionId,
                 Value = s.Value,
                 FollowUpValue = s.FollowUpValue,
@@ -132,6 +134,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .ToList();
 
         await sql.Insertable(submissions).ExecuteCommandAsync(ct);
+
+        tran.CommitTran();
 
         await Send.OkAsync(
             new Response

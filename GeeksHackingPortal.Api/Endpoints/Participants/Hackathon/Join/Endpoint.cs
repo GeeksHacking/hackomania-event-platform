@@ -33,8 +33,10 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
             throw new ArgumentNullException(nameof(userId));
         }
 
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
-        if (hackathon is null || !hackathon.IsPublished)
+        var hackathon = await sql.Queryable<Entities.Hackathon>()
+            .Includes(h => h.Activity)
+            .InSingleAsync(req.HackathonId);
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -46,20 +48,67 @@ public class Endpoint(ISqlSugarClient sql, IWebHostEnvironment env) : Endpoint<R
 
         if (existing is null)
         {
+            var now = DateTimeOffset.UtcNow;
+            var participantId = Guid.NewGuid();
             existing = new Participant
             {
+                Id = participantId,
                 HackathonId = hackathon.Id,
                 UserId = userId.Value,
                 TeamId = null,
-                JoinedAt = DateTimeOffset.UtcNow,
+                JoinedAt = now,
             };
 
-            await sql.Insertable(existing).ExecuteCommandAsync(ct);
+            var registration = new ActivityRegistration
+            {
+                Id = participantId,
+                ActivityId = hackathon.Id,
+                UserId = userId.Value,
+                Status = ActivityRegistrationStatus.Registered,
+                RegisteredAt = now,
+            };
+
+            var transactionResult = await sql.Ado.UseTranAsync(async () =>
+            {
+                await sql.Insertable(existing).ExecuteCommandAsync(ct);
+                await sql.Insertable(registration).ExecuteCommandAsync(ct);
+            });
+
+            if (!transactionResult.IsSuccess)
+            {
+                throw transactionResult.ErrorException!;
+            }
         }
         else if (existing.WithdrawnAt is not null)
         {
             existing.WithdrawnAt = null;
-            await sql.Updateable(existing).ExecuteCommandAsync(ct);
+            var registration = await sql.Queryable<ActivityRegistration>()
+                .InSingleAsync(existing.Id);
+
+            if (registration is null)
+            {
+                registration = new ActivityRegistration
+                {
+                    Id = existing.Id,
+                    ActivityId = hackathon.Id,
+                    UserId = userId.Value,
+                    RegisteredAt = existing.JoinedAt,
+                };
+            }
+
+            registration.Status = ActivityRegistrationStatus.Registered;
+            registration.WithdrawnAt = null;
+
+            var transactionResult = await sql.Ado.UseTranAsync(async () =>
+            {
+                await sql.Updateable(existing).ExecuteCommandAsync(ct);
+                await sql.Storageable(registration).ExecuteCommandAsync(ct);
+            });
+
+            if (!transactionResult.IsSuccess)
+            {
+                throw transactionResult.ErrorException!;
+            }
         }
 
         await Send.OkAsync(

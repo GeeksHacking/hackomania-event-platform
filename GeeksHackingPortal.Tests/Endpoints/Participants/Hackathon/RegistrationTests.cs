@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class RegistrationTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -53,10 +53,10 @@ public class RegistrationTests
     public async Task ListRegistrationQuestions_AsParticipant_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAndJoinAsync(client);
+        var hackathonId = await CreateHackathonAndJoinAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/registration/questions"
         );
         var result = await response.Content.ReadFromJsonAsync<RegistrationQuestionsResponse>();
@@ -71,10 +71,10 @@ public class RegistrationTests
     public async Task GetRegistrationSubmissions_AsParticipant_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAndJoinAsync(client);
+        var hackathonId = await CreateHackathonAndJoinAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{hackathonId}/registration/submissions"
         );
         var result = await response.Content.ReadFromJsonAsync<RegistrationSubmissionsResponse>();
@@ -88,11 +88,11 @@ public class RegistrationTests
     public async Task SubmitRegistration_WithEmptySubmissions_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAndJoinAsync(client);
+        var hackathonId = await CreateHackathonAndJoinAsync(Client);
         var request = new { Submissions = Array.Empty<object>() };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathonId}/registration/submissions",
             request
         );
@@ -104,13 +104,76 @@ public class RegistrationTests
     }
 
     [Test]
+    public async Task SubmitRegistration_WhenReplacementInsertFails_RollsBackExistingSubmission()
+    {
+        // Arrange
+        var hackathonId = await CreateHackathonAndJoinAsync(Client);
+        var questionKey = $"rollback_submission_{Guid.NewGuid().ToString()[..8]}";
+        var createQuestionResponse = await Client.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/registration/questions",
+            new
+            {
+                QuestionText = "Rollback protected question",
+                QuestionKey = questionKey,
+                Type = "Text",
+                DisplayOrder = 1,
+                IsRequired = false,
+            }
+        );
+        var question =
+            await createQuestionResponse.Content.ReadFromJsonAsync<CreateRegistrationQuestionResponse>();
+        await Assert.That(createQuestionResponse.StatusCode).IsEqualTo(HttpStatusCode.Created);
+        await Assert.That(question).IsNotNull();
+
+        var initialSubmitResponse = await Client.HttpClient.PostAsJsonAsync(
+            $"/participants/hackathons/{hackathonId}/registration/submissions",
+            new
+            {
+                Submissions = new[]
+                {
+                    new { QuestionId = question!.Id, Value = "original answer" },
+                },
+            }
+        );
+        await Assert.That(initialSubmitResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        // Act - the duplicate question ID violates the unique submission index after deletion.
+        var failedSubmitResponse = await Client.HttpClient.PostAsJsonAsync(
+            $"/participants/hackathons/{hackathonId}/registration/submissions",
+            new
+            {
+                Submissions = new[]
+                {
+                    new { QuestionId = question.Id, Value = "replacement answer 1" },
+                    new { QuestionId = question.Id, Value = "replacement answer 2" },
+                },
+            }
+        );
+
+        var submissionsResponse = await Client.HttpClient.GetAsync(
+            $"/participants/hackathons/{hackathonId}/registration/submissions"
+        );
+        var submissions =
+            await submissionsResponse.Content.ReadFromJsonAsync<RegistrationSubmissionsResponse>();
+
+        // Assert
+        await Assert.That(failedSubmitResponse.IsSuccessStatusCode).IsFalse();
+        await Assert.That(submissionsResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(submissions!.Submissions).IsNotNull();
+
+        var persistedSubmission = submissions.Submissions!.Single(s => s.QuestionId == question.Id);
+        await Assert.That(persistedSubmission.Value).IsEqualTo("original answer");
+        await Assert.That(submissions.AnsweredQuestions).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task ListRegistrationQuestions_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Arrange - Still need to be a participant somewhere
-        await CreateHackathonAndJoinAsync(client);
+        await CreateHackathonAndJoinAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -125,7 +188,7 @@ public class RegistrationTests
     public async Task ListRegistrationQuestions_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -140,7 +203,7 @@ public class RegistrationTests
         var request = new { Submissions = Array.Empty<object>() };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{Guid.NewGuid()}/registration/submissions",
             request
         );

@@ -35,15 +35,17 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var workshops = await sql.Queryable<Workshop>()
-            .Where(w => w.HackathonId == hackathonId && w.IsPublished)
+            .Where(w => w.HackathonId == hackathonId)
+            .Includes(w => w.Activity)
             .Includes(w => w.Participants)
-            .WithCache()
+            
             .ToListAsync(ct);
 
         await Send.OkAsync(
             new Response
             {
                 Workshops = workshops
+                    .Where(w => w.Activity.IsPublished)
                     .Select(w =>
                     {
                         var joined = w.Participants?.FirstOrDefault(wp =>
@@ -52,11 +54,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                         return new WorkshopDto
                         {
                             Id = w.Id,
-                            Title = w.Title,
-                            Description = w.Description,
-                            StartTime = w.StartTime,
-                            EndTime = w.EndTime,
-                            Location = w.Location,
+                            Title = w.Activity.Title,
+                            Description = w.Activity.Description,
+                            StartTime = w.Activity.StartTime,
+                            EndTime = w.Activity.EndTime,
+                            Location = w.Activity.Location,
                             MaxParticipants = w.MaxParticipants,
                             CurrentParticipants = w.Participants?.Count ?? 0,
                             IsJoined = joined is not null,

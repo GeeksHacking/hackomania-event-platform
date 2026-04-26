@@ -7,10 +7,10 @@ namespace GeeksHackingPortal.Tests.Endpoints.Organizers.Hackathon;
 public class RegistrationQuestionsManagementTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     [ClassDataSource<HttpClientDataClass>]
-    public required HttpClientDataClass anonymousClient { get; init; }
+    public required HttpClientDataClass AnonymousClient { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -44,10 +44,10 @@ public class RegistrationQuestionsManagementTests
     public async Task ListRegistrationQuestions_WithValidHackathon_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
 
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions"
         );
         var result =
@@ -63,7 +63,7 @@ public class RegistrationQuestionsManagementTests
     public async Task CreateRegistrationQuestion_WithValidRequest_ReturnsOk()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var suffix = Guid.NewGuid().ToString()[..8];
         var request = new
         {
@@ -77,7 +77,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request
         );
@@ -95,7 +95,7 @@ public class RegistrationQuestionsManagementTests
     public async Task CreateRegistrationQuestion_WithDuplicateKey_ReturnsError()
     {
         // Arrange
-        var hackathonId = await CreateHackathonAsync(client);
+        var hackathonId = await CreateHackathonAsync(Client);
         var questionKey = $"duplicate_key_{Guid.NewGuid().ToString()[..8]}";
 
         var request1 = new
@@ -108,7 +108,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Create first question
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request1
         );
@@ -123,7 +123,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act - Try to create second question with same key
-        var response = await client.HttpClient.PostAsJsonAsync(
+        var response = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathonId}/registration/questions",
             request2
         );
@@ -133,10 +133,95 @@ public class RegistrationQuestionsManagementTests
     }
 
     [Test]
+    public async Task UpdateRegistrationQuestion_WhenOptionInsertFails_RollsBackQuestionAndOptions()
+    {
+        // Arrange
+        var hackathonId = await CreateHackathonAsync(Client);
+        var questionKey = $"rollback_options_{Guid.NewGuid().ToString()[..8]}";
+        var createResponse = await Client.HttpClient.PostAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/registration/questions",
+            new
+            {
+                QuestionText = "Original rollback question",
+                QuestionKey = questionKey,
+                Type = "SingleChoice",
+                DisplayOrder = 1,
+                IsRequired = false,
+                Options = new[]
+                {
+                    new
+                    {
+                        OptionText = "Original option",
+                        OptionValue = "original",
+                        DisplayOrder = 1,
+                        HasFollowUpText = false,
+                    },
+                },
+            }
+        );
+        var createdQuestion =
+            await createResponse.Content.ReadFromJsonAsync<CreateRegistrationQuestionResponse>();
+        await Assert.That(createResponse.StatusCode).IsEqualTo(HttpStatusCode.Created);
+        await Assert.That(createdQuestion).IsNotNull();
+
+        var listResponse = await Client.HttpClient.GetAsync(
+            $"/organizers/hackathons/{hackathonId}/registration/questions"
+        );
+        var list = await listResponse.Content.ReadFromJsonAsync<OrganizerRegistrationQuestionsResponse>();
+        await Assert.That(listResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        var originalQuestion = list!.Questions!.Single(q => q.Id == createdQuestion!.Id);
+        var originalOption = originalQuestion.Options!.Single();
+
+        // Act - duplicate option IDs violate the option primary key after the question update/delete.
+        var failedUpdateResponse = await Client.HttpClient.PatchAsJsonAsync(
+            $"/organizers/hackathons/{hackathonId}/registration/questions/{createdQuestion!.Id}",
+            new
+            {
+                QuestionText = "Updated text should roll back",
+                Options = new[]
+                {
+                    new
+                    {
+                        Id = originalOption.Id,
+                        OptionText = "Replacement option 1",
+                        OptionValue = "replacement-1",
+                        DisplayOrder = 1,
+                        HasFollowUpText = false,
+                    },
+                    new
+                    {
+                        Id = originalOption.Id,
+                        OptionText = "Replacement option 2",
+                        OptionValue = "replacement-2",
+                        DisplayOrder = 2,
+                        HasFollowUpText = false,
+                    },
+                },
+            }
+        );
+
+        var persistedListResponse = await Client.HttpClient.GetAsync(
+            $"/organizers/hackathons/{hackathonId}/registration/questions"
+        );
+        var persistedList =
+            await persistedListResponse.Content.ReadFromJsonAsync<OrganizerRegistrationQuestionsResponse>();
+        var persistedQuestion = persistedList!.Questions!.Single(q => q.Id == createdQuestion.Id);
+        var persistedOption = persistedQuestion.Options!.Single();
+
+        // Assert
+        await Assert.That(failedUpdateResponse.IsSuccessStatusCode).IsFalse();
+        await Assert.That(persistedListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(persistedQuestion.QuestionText).IsEqualTo("Original rollback question");
+        await Assert.That(persistedOption.Id).IsEqualTo(originalOption.Id);
+        await Assert.That(persistedOption.OptionText).IsEqualTo("Original option");
+        await Assert.That(persistedOption.OptionValue).IsEqualTo("original");
+    }
+
+    [Test]
     public async Task ListRegistrationQuestions_WithInvalidHackathonId_ReturnsNotFound()
     {
         // Act
-        var response = await client.HttpClient.GetAsync(
+        var response = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -151,7 +236,7 @@ public class RegistrationQuestionsManagementTests
     public async Task ListRegistrationQuestions_WithoutAuthentication_ReturnsUnauthorized()
     {
         // Act
-        var response = await anonymousClient.HttpClient.GetAsync(
+        var response = await AnonymousClient.HttpClient.GetAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions"
         );
 
@@ -173,7 +258,7 @@ public class RegistrationQuestionsManagementTests
         };
 
         // Act
-        var response = await anonymousClient.HttpClient.PostAsJsonAsync(
+        var response = await AnonymousClient.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{Guid.NewGuid()}/registration/questions",
             request
         );

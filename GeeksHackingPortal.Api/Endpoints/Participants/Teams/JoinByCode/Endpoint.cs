@@ -30,7 +30,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // Find the team by join code
         var team = await sql.Queryable<Team>()
             .Where(t => t.JoinCode == req.JoinCode)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         if (team is null)
@@ -42,10 +42,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         // Get the hackathon for this team
         var hackathon = await sql.Queryable<Entities.Hackathon>()
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .InSingleAsync(team.HackathonId);
 
-        if (hackathon is null || !hackathon.IsPublished)
+        if (hackathon is null || !hackathon.Activity.IsPublished)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -54,23 +55,45 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // Check if user is already a participant in this hackathon
         var participant = await sql.Queryable<Participant>()
             .Where(p => p.HackathonId == hackathon.Id && p.UserId == userId.Value)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         var autoJoinedHackathon = false;
 
         if (participant is null)
         {
+            var now = DateTimeOffset.UtcNow;
+            var participantId = Guid.NewGuid();
             // Auto-register the user as a participant in the hackathon
             participant = new Participant
             {
+                Id = participantId,
                 HackathonId = hackathon.Id,
                 UserId = userId.Value,
                 TeamId = team.Id,
-                JoinedAt = DateTimeOffset.UtcNow,
+                JoinedAt = now,
             };
 
-            await sql.Insertable(participant).ExecuteCommandAsync(ct);
+            var registration = new ActivityRegistration
+            {
+                Id = participantId,
+                ActivityId = hackathon.Id,
+                UserId = userId.Value,
+                Status = ActivityRegistrationStatus.Registered,
+                RegisteredAt = now,
+            };
+
+            var transactionResult = await sql.Ado.UseTranAsync(async () =>
+            {
+                await sql.Insertable(participant).ExecuteCommandAsync(ct);
+                await sql.Insertable(registration).ExecuteCommandAsync(ct);
+            });
+
+            if (!transactionResult.IsSuccess)
+            {
+                throw transactionResult.ErrorException!;
+            }
+
             autoJoinedHackathon = true;
         }
         else
@@ -85,7 +108,35 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
             // Update the participant's team
             participant.TeamId = team.Id;
-            await sql.Updateable(participant).ExecuteCommandAsync(ct);
+            participant.WithdrawnAt = null;
+
+            var registration = await sql.Queryable<ActivityRegistration>()
+                .InSingleAsync(participant.Id);
+
+            if (registration is null)
+            {
+                registration = new ActivityRegistration
+                {
+                    Id = participant.Id,
+                    ActivityId = hackathon.Id,
+                    UserId = userId.Value,
+                    RegisteredAt = participant.JoinedAt,
+                };
+            }
+
+            registration.Status = ActivityRegistrationStatus.Registered;
+            registration.WithdrawnAt = null;
+
+            var transactionResult = await sql.Ado.UseTranAsync(async () =>
+            {
+                await sql.Updateable(participant).ExecuteCommandAsync(ct);
+                await sql.Storageable(registration).ExecuteCommandAsync(ct);
+            });
+
+            if (!transactionResult.IsSuccess)
+            {
+                throw transactionResult.ErrorException!;
+            }
         }
 
         await Send.OkAsync(

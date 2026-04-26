@@ -7,7 +7,7 @@ namespace GeeksHackingPortal.Tests.Endpoints.Participants.Hackathon;
 public class VenueCheckInTests
 {
     [ClassDataSource<AuthenticatedHttpClientDataClass>]
-    public required AuthenticatedHttpClientDataClass client { get; init; }
+    public required AuthenticatedHttpClientDataClass Client { get; init; }
 
     private static CreateHackathonRequest CreateValidHackathonRequest(string suffix = "")
     {
@@ -39,19 +39,19 @@ public class VenueCheckInTests
     public async Task CheckIn_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon as participant
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Check in
-        var checkInResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkInResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
@@ -66,25 +66,25 @@ public class VenueCheckInTests
     public async Task CheckOut_ShouldSucceed()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Check in first
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 
         // Check out
-        var checkOutResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkOutResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/venue/check-out",
             new { }
         );
@@ -99,17 +99,17 @@ public class VenueCheckInTests
     public async Task CheckOut_WithoutCheckIn_ShouldFail()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
         // Try to check out without checking in
-        var checkOutResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkOutResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/venue/check-out",
             new { }
         );
@@ -121,25 +121,25 @@ public class VenueCheckInTests
     public async Task OrganizerOverview_ShouldShowCheckInStatus()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
 
         // Join hackathon
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
 
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Check in
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 
         // Get overview as organizer
-        var overviewResponse = await client.HttpClient.GetAsync(
+        var overviewResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
 
@@ -155,23 +155,23 @@ public class VenueCheckInTests
     {
         // Arrange
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Check in first
-        var checkInResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkInResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
         await Assert.That(checkInResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 1 - Warm overview cache while participant is checked in
-        var beforeCheckOutResponse = await client.HttpClient.GetAsync(
+        var beforeCheckOutResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
         var beforeCheckOut =
@@ -185,14 +185,14 @@ public class VenueCheckInTests
         await Assert.That(beforeParticipant!.IsCurrentlyCheckedIn).IsTrue();
 
         // Act 2 - Check out participant
-        var checkOutResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkOutResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/participants/hackathons/{hackathon.Id}/venue/check-out",
             new { }
         );
         await Assert.That(checkOutResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act 3 - Read overview again and verify cache invalidation
-        var afterCheckOutResponse = await client.HttpClient.GetAsync(
+        var afterCheckOutResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
         var afterCheckOut =
@@ -213,29 +213,29 @@ public class VenueCheckInTests
     {
         // Arrange
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         // Warm cache with initial not-checked-in state
-        var warmupResponse = await client.HttpClient.GetAsync(
+        var warmupResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
         await Assert.That(warmupResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         // Act - Check in while issuing concurrent reads
-        var checkInTask = client.HttpClient.PostAsJsonAsync(
+        var checkInTask = Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
         var overviewTasks = Enumerable
             .Range(0, 6)
             .Select(_ =>
-                client.HttpClient.GetAsync($"/organizers/hackathons/{hackathon.Id}/venue/overview")
+                Client.HttpClient.GetAsync($"/organizers/hackathons/{hackathon.Id}/venue/overview")
             )
             .ToList();
 
@@ -247,7 +247,7 @@ public class VenueCheckInTests
         await Assert.That(allOverviewReadsOk).IsTrue();
 
         // Final assert - eventual state must show participant checked in
-        var finalOverviewResponse = await client.HttpClient.GetAsync(
+        var finalOverviewResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
         var finalOverview =
@@ -265,20 +265,20 @@ public class VenueCheckInTests
     public async Task OrganizerCheckOutEndpoint_ShouldAllowOrganizerToCheckOutParticipant()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
 
-        var checkOutResponse = await client.HttpClient.PostAsJsonAsync(
+        var checkOutResponse = await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-out",
             new { }
         );
@@ -293,24 +293,24 @@ public class VenueCheckInTests
     public async Task OrganizerHistoryAndAuditTrail_ShouldContainCheckInAndCheckOutEvents()
     {
         var hackathonRequest = CreateValidHackathonRequest(Guid.NewGuid().ToString()[..8]);
-        var hackathonResponse = await client.HttpClient.PostAsJsonAsync(
+        var hackathonResponse = await Client.HttpClient.PostAsJsonAsync(
             "/organizers/hackathons",
             hackathonRequest
         );
         var hackathon = await hackathonResponse.Content.ReadFromJsonAsync<HackathonResponse>();
-        await client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
-        var participantUserId = await GetCurrentUserIdAsync(client.HttpClient);
+        await Client.HttpClient.PostAsync($"/participants/hackathons/{hackathon!.Id}/join", null);
+        var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-in",
             new { }
         );
-        await client.HttpClient.PostAsJsonAsync(
+        await Client.HttpClient.PostAsJsonAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/check-out",
             new { }
         );
 
-        var historyResponse = await client.HttpClient.GetAsync(
+        var historyResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/venue/history"
         );
         await Assert.That(historyResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
@@ -319,7 +319,7 @@ public class VenueCheckInTests
         await Assert.That(history!.History.Count).IsGreaterThan(0);
         await Assert.That(history.History.Any(x => x.CheckOutTime is not null)).IsTrue();
 
-        var overviewResponse = await client.HttpClient.GetAsync(
+        var overviewResponse = await Client.HttpClient.GetAsync(
             $"/organizers/hackathons/{hackathon.Id}/venue/overview"
         );
         var overview = await overviewResponse.Content.ReadFromJsonAsync<VenueOverviewResponse>();

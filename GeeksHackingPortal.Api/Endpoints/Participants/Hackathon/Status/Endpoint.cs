@@ -22,7 +22,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var hackathon = await sql.Queryable<Entities.Hackathon>()
-            .WithCache()
+            .Includes(h => h.Activity)
+            
             .InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
@@ -33,12 +34,12 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var currentUserId = User.GetUserId();
 
         var isOrganizer = await sql.Queryable<Organizer>()
-            .WithCache()
+            
             .AnyAsync(o => o.HackathonId == hackathon.Id && o.UserId == currentUserId, ct);
 
         var participant = await sql.Queryable<Participant>()
             .Where(p => p.HackathonId == hackathon.Id && p.UserId == currentUserId)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         if (participant is null || participant.WithdrawnAt is not null)
@@ -65,7 +66,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         {
             var team = await sql.Queryable<Team>()
                 .Where(t => t.Id == participant.TeamId.Value)
-                .WithCache()
+                
                 .FirstAsync(ct);
             teamName = team?.Name;
         }
@@ -73,7 +74,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var latestReview = await sql.Queryable<ParticipantReview>()
             .Where(r => r.ParticipantId == participant.Id)
             .OrderByDescending(r => r.CreatedAt)
-            .WithCache()
+            
             .FirstAsync(ct);
 
         var status = latestReview switch

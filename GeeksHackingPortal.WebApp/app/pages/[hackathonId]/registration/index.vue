@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 definePageMeta({
   // Explicitly mark as public route
@@ -8,7 +11,8 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const route = useRoute()
-const hackathon = useRouteHackathon()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
 
 useHead({
   titleTemplate: title => (title ? `${title} - HackOMania` : 'HackOMania'),

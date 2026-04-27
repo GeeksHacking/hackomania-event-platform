@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import type { HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListResponse } from '~/api-client/models'
+import type { GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint200 } from '@geekshacking/portal-sdk'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsSubmitEndpoint,
+  useGeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
-import { useSubmitRegistrationMutation } from '~/composables/question'
-import { useUpdateUserMutation } from '~/composables/user'
 import { registrationPageConfig } from '~/config/registration-pages'
 
 const props = defineProps<{
   hackathonId: string
-  questions: HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListResponse
+  questions: GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint200
 }>()
 
 const router = useRouter()
 const route = useRoute()
-const hackathon = useRouteHackathon()
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(computed(() => props.hackathonId))
 const queryClient = useQueryClient()
 
 const registrationPath = computed(() => hackathon.value ? `/${hackathon.value.shortCode}/registration` : `/${props.hackathonId}/registration`)
@@ -46,7 +49,7 @@ const formattedSections = computed(() => {
           return {
             ...q,
             items,
-            isMultiSelect: q.type === 4,
+            isMultiSelect: q.type === 'MultipleChoice',
             hasOptions: items.length > 0,
             isLong,
           }
@@ -141,7 +144,7 @@ watch([() => props.questions, userData], ([newVal]) => {
     newVal.categories.forEach((category) => {
       category.questions?.forEach((question) => {
         if (question.questionKey) {
-          const isMulti = question.type === 4
+          const isMulti = question.type === 'MultipleChoice'
           const val = question.currentSubmission?.value
           const followUpVal = question.currentSubmission?.followUpValue
 
@@ -179,14 +182,13 @@ watch([() => props.questions, userData], ([newVal]) => {
   }
 }, { immediate: true, deep: true })
 
-// Submit mutation with built-in error handling
-const { mutateAsync, isPending: isSubmitting, fieldErrors, submissionError } = useSubmitRegistrationMutation(
-  toRef(props, 'hackathonId'),
-  allQuestions,
-)
+const fieldErrors = ref<Record<string, string>>({})
+const submissionError = ref(false)
+const submitRegistrationMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsSubmitEndpoint()
+const isSubmitting = submitRegistrationMutation.isPending
 
 // User profile update mutation
-const updateUserMutation = useUpdateUserMutation()
+const updateUserMutation = useGeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint()
 
 async function onSubmit() {
   const submissions = Object.entries(state)
@@ -239,12 +241,16 @@ async function onSubmit() {
     const lastName = String(state.last_name ?? '').trim()
     if (firstName && lastName) {
       await updateUserMutation.mutateAsync({
-        firstName,
-        lastName,
+        data: {
+          firstName,
+          lastName,
+        },
       })
     }
 
-    await mutateAsync({ submissions })
+    fieldErrors.value = {}
+    submissionError.value = false
+    await submitRegistrationMutation.mutateAsync({ hackathonId: props.hackathonId, data: { submissions } })
 
     // Remove cached submissions so status page fetches fresh data
     queryClient.removeQueries({
@@ -257,7 +263,28 @@ async function onSubmit() {
     })
   }
   catch (error) {
+    submissionError.value = true
+    parseErrorsToFields(error)
     console.error('[FORM] Submission failed:', error)
+  }
+}
+
+function parseErrorsToFields(error: unknown) {
+  const err = error as { errors?: { additionalData?: Record<string, string[] | string> } }
+  const errorBag = err?.errors?.additionalData ?? {}
+  const questionById = new Map(
+    allQuestions.value
+      .filter(question => question.id)
+      .map(question => [question.id as string, question]),
+  )
+
+  for (const [fieldId, messages] of Object.entries(errorBag)) {
+    const question = questionById.get(fieldId)
+    if (!question?.questionKey)
+      continue
+    const message = Array.isArray(messages) ? messages[0] : String(messages)
+    if (message)
+      fieldErrors.value[question.questionKey] = message
   }
 }
 

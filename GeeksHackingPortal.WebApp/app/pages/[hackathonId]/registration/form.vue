@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
-import { hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 definePageMeta({
   // Explicitly mark as public route
@@ -10,8 +13,9 @@ definePageMeta({
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathon = useRouteHackathon()
-const resolvedHackathonId = useResolvedHackathonId()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? '')
 
 // Track if we should show the form
 const showForm = ref(false)
@@ -26,20 +30,15 @@ const { data: user, isLoading: isLoadingUser, isError } = useGeeksHackingPortalA
 })
 
 // Check participation status
-const { data: statusData, isLoading: isLoadingStatus } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.status(resolvedHackathonId.value ?? ''),
-    enabled: !!resolvedHackathonId.value && !!user.value,
-  })),
+const { data: statusData, isLoading: isLoadingStatus } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value && !!user.value) } },
 )
 
 // Check registration submissions
-const { data: submissionsData, isLoading: isLoadingSubmissions } = useQuery(
-  computed(() => ({
-    queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'],
-    queryFn: () => useNuxtApp().$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(resolvedHackathonId.value ?? '').registration.submissions.get(),
-    enabled: !!resolvedHackathonId.value && statusData.value?.isParticipant === true,
-  })),
+const { data: submissionsData, isLoading: isLoadingSubmissions } = useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value && statusData.value?.isParticipant === true) } },
 )
 
 const isLoading = computed(() => isLoadingUser.value || isLoadingStatus.value || isLoadingSubmissions.value)

@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathon = useRouteHackathon()
-const resolvedHackathonId = useResolvedHackathonId()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? '')
 
 useHead({ title: 'Team Portal | GeeksHacking Event Portal' })
 
 const { data: user, isLoading: authLoading } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
-const { data: status, isLoading: statusLoading } = useQuery(
-  computed(() => ({
-    ...hackathonQueries.status(resolvedHackathonId.value ?? ''),
-    enabled: !!resolvedHackathonId.value,
-  })),
+const { data: status, isLoading: statusLoading } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value) } },
 )
 
 watch(

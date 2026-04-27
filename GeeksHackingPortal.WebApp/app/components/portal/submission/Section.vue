@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
-import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 
-const hackathonId = useResolvedHackathonId()
-const hackathon = useRouteHackathon()
+const route = useRoute()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const hackathonId = computed(() => hackathon.value?.id ?? '')
 const toast = useToast()
 
 // Fetch participation status
@@ -16,11 +20,9 @@ const { data: statusData } = useGeeksHackingPortalApiEndpointsParticipantsHackat
 )
 
 // Fetch current user's team
-const { data: teamData, isLoading: isLoadingTeam } = useQuery(
-  computed(() => ({
-    ...teamQueries.me(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value && !!statusData.value?.isParticipant,
-  })),
+const { data: teamData, isLoading: isLoadingTeam } = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value && !!statusData.value?.isParticipant) } },
 )
 
 const isParticipant = computed(() => !!statusData.value?.isParticipant)
@@ -36,7 +38,7 @@ const submissionsEndDate = computed(() => hackathon.value?.submissionsEndDate ??
 const hasHackathonStarted = computed(() => {
   if (!eventStartDate.value)
     return true // If no start date, show content
-  return new Date() >= eventStartDate.value
+  return new Date() >= new Date(eventStartDate.value)
 })
 
 // Computed submission status based on dates
@@ -44,9 +46,9 @@ const submissionStatus = computed(() => {
   const now = new Date()
   if (!submissionsStartDate.value)
     return 'upcoming'
-  if (now < submissionsStartDate.value)
+  if (now < new Date(submissionsStartDate.value))
     return 'upcoming'
-  if (submissionsEndDate.value && now > submissionsEndDate.value)
+  if (submissionsEndDate.value && now > new Date(submissionsEndDate.value))
     return 'closed'
   return 'open'
 })
@@ -97,10 +99,9 @@ function isValidUrl(url: string): boolean {
 }
 
 // Mutation to create submission
-const createSubmissionMutation = useCreateSubmission(hackathonId, teamId)
+const createSubmissionMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint()
 
 const isSubmitting = computed(() => createSubmissionMutation.isPending.value)
-const submissionErrorFields = ['repoUri', 'challengeId', 'slidesUri', 'title', 'summary', 'GeneralErrors']
 
 // Validates form and opens confirmation modal
 function openConfirmModal() {
@@ -176,14 +177,21 @@ function confirmSubmit() {
   if (!challengeId.value)
     return
 
+  if (!hackathonId.value || !teamId.value)
+    return
+
   createSubmissionMutation.mutate({
-    challengeId: challengeId.value,
-    title: title.value.trim(),
-    summary: summary.value.trim() || null,
-    repoUri: repoUri.value.trim() || null,
-    demoUri: demoUri.value.trim() || null,
-    slidesUri: slidesUri.value.trim() || null,
-    location: location.value.trim() || null,
+    hackathonId: hackathonId.value,
+    teamId: teamId.value,
+    data: {
+      challengeId: challengeId.value,
+      title: title.value.trim(),
+      summary: summary.value.trim() || undefined,
+      repoUri: repoUri.value.trim() || undefined,
+      demoUri: demoUri.value.trim() || undefined,
+      slidesUri: slidesUri.value.trim() || undefined,
+      location: location.value.trim() || undefined,
+    },
   }, {
     onSuccess() {
       showConfirmModal.value = false
@@ -196,7 +204,7 @@ function confirmSubmit() {
     onError(error) {
       toast.add({
         title: 'Failed to submit',
-        description: getFastEndpointsErrorMessage(error, submissionErrorFields) ?? 'Please try again.',
+        description: error instanceof Error ? error.message : 'Please try again.',
         color: 'error',
       })
     },

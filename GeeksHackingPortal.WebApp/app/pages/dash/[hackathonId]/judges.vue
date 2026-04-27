@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useVirtualList } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import { judgeQueries, useCreateJudgeMutation, useUpdateJudgeMutation } from '~/composables/judges'
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -14,11 +18,9 @@ const hackathonId = computed(() => props.hackathonId || (route.params.hackathonI
 
 const queryClient = useQueryClient()
 
-const { data: judgesData, isLoading: isLoadingJudges } = useQuery(
-  computed(() => ({
-    ...judgeQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: judgesData, isLoading: isLoadingJudges } = useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const judges = computed(() => judgesData.value?.judges ?? [])
@@ -33,8 +35,8 @@ const {
 })
 
 // Mutations
-const createMutation = useCreateJudgeMutation(hackathonId)
-const updateMutation = useUpdateJudgeMutation(hackathonId)
+const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint()
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint()
 
 // Modal state
 const isModalOpen = ref(false)
@@ -77,6 +79,7 @@ function openEditModal(judge: typeof judges.value[number]) {
 async function handleSubmit() {
   if (isEditing.value && editingJudgeId.value) {
     await updateMutation.mutateAsync({
+      hackathonId: hackathonId.value,
       judgeId: editingJudgeId.value,
       data: {
         name: form.value.name,
@@ -86,7 +89,7 @@ async function handleSubmit() {
     })
   }
   else {
-    await createMutation.mutateAsync({ name: form.value.name })
+    await createMutation.mutateAsync({ hackathonId: hackathonId.value, data: { name: form.value.name } })
   }
   await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'judges'] })
   isModalOpen.value = false

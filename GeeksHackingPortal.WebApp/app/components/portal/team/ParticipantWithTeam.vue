@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import type { HackOManiaApiEndpointsParticipantsHackathonTeamsGetMineResponse } from '~/api-client/models'
-import { computed, ref } from 'vue'
+import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint200 } from '@geekshacking/portal-sdk'
+import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 const props = defineProps<{
-  team: HackOManiaApiEndpointsParticipantsHackathonTeamsGetMineResponse
+  team: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint200
   hackathonId: string | null
 }>()
 
@@ -11,7 +16,7 @@ const MAX_TEAM_SIZE = 5
 
 const hackathonIdRef = computed(() => props.hackathonId)
 const teamIdRef = computed(() => props.team.id ?? null)
-const hackathon = useRouteHackathon()
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(computed(() => hackathonIdRef.value ?? ''))
 
 // State
 const isCopied = ref(false)
@@ -25,9 +30,9 @@ const editTeamDescription = ref('')
 const memberCount = computed(() => props.team.members?.length ?? 0)
 
 // Mutations
-const leaveTeamMutation = useLeaveTeam(hackathonIdRef)
-const removeTeamMemberMutation = useRemoveTeamMember(hackathonIdRef, teamIdRef)
-const updateTeamMutation = useUpdateTeam(hackathonIdRef, teamIdRef)
+const leaveTeamMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint()
+const removeTeamMemberMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint()
+const updateTeamMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint()
 
 // Handlers
 function openEditTeam() {
@@ -37,7 +42,9 @@ function openEditTeam() {
 }
 
 function handleUpdateTeam() {
-  updateTeamMutation.mutate({ name: editTeamName.value, description: editTeamDescription.value }, {
+  if (!hackathonIdRef.value || !teamIdRef.value)
+    return
+  updateTeamMutation.mutate({ hackathonId: hackathonIdRef.value, teamId: teamIdRef.value, data: { name: editTeamName.value, description: editTeamDescription.value } }, {
     onSuccess() {
       showEditTeam.value = false
     },
@@ -50,7 +57,9 @@ function handleUpdateTeam() {
 function handleRemoveMember() {
   if (!removeConfirmUserId.value)
     return
-  removeTeamMemberMutation.mutate(removeConfirmUserId.value, {
+  if (!hackathonIdRef.value || !teamIdRef.value)
+    return
+  removeTeamMemberMutation.mutate({ hackathonId: hackathonIdRef.value, teamId: teamIdRef.value, userId: removeConfirmUserId.value }, {
     onSuccess() {
       removeConfirmUserId.value = null
     },
@@ -61,7 +70,9 @@ function handleRemoveMember() {
 }
 
 function handleLeaveTeam() {
-  leaveTeamMutation.mutate(undefined, {
+  if (!hackathonIdRef.value)
+    return
+  leaveTeamMutation.mutate({ hackathonId: hackathonIdRef.value }, {
     onSuccess() {
       showLeaveConfirm.value = false
     },

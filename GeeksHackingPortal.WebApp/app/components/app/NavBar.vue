@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import QRCode from 'qrcode'
 
 const items = [
@@ -24,12 +27,13 @@ const loginUrl = `${config.public.api}/auth/login`
 
 const { data: user, isLoading } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
 
-const hackathonId = useResolvedHackathonId()
-const { data: teamData } = useQuery(
-  computed(() => ({
-    ...teamQueries.me(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
-  })),
+const route = useRoute()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? '')
+const { data: teamData } = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value) } },
 )
 const teamName = computed(() => teamData.value?.name ?? null)
 

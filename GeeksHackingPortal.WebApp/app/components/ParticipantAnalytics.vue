@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint } from '@geekshacking/portal-sdk/hooks'
 import { computed } from 'vue'
-import { HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject } from '~/api-client/models'
 
 const props = defineProps<{
   hackathonId: string
@@ -27,8 +26,7 @@ const stats = computed(() => {
 
   const pending = complete.filter(
     p =>
-      p.concludedStatus
-      === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Pending
+      p.concludedStatus === 'Pending'
       || p.concludedStatus === null
       || p.concludedStatus === undefined,
   )
@@ -47,13 +45,13 @@ const stats = computed(() => {
   const accepted = complete.filter(
     p =>
       p.concludedStatus
-      === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted,
+      === 'Accepted',
   )
 
   const rejected = complete.filter(
     p =>
       p.concludedStatus
-      === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected,
+      === 'Rejected',
   )
 
   const inTeam = accepted.filter(p => !!p.teamId)
@@ -159,28 +157,15 @@ const statItems = computed(() => [
       </h3>
     </template>
 
-    <div
-      v-if="isLoading"
-      class="text-(--ui-text-muted) text-sm"
-    >
+    <div v-if="isLoading" class="text-(--ui-text-muted) text-sm">
       Loading analytics...
     </div>
 
-    <div
-      v-else
-      class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-    >
-      <div
-        v-for="item in statItems"
-        :key="item.label"
-        class="rounded-lg p-4 flex flex-col gap-2" :class="[item.bg]"
-      >
+    <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div v-for="item in statItems" :key="item.label" class="rounded-lg p-4 flex flex-col gap-2" :class="[item.bg]">
         <div class="flex items-center justify-between">
           <span class="text-xs text-(--ui-text-muted) font-medium">{{ item.label }}</span>
-          <UIcon
-            :name="item.icon"
-            class="w-4 h-4" :class="[item.color]"
-          />
+          <UIcon :name="item.icon" class="w-4 h-4" :class="[item.color]" />
         </div>
         <span class="text-2xl font-bold" :class="[item.color]">{{ item.value }}</span>
       </div>

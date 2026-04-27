@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQueryClient } from '@tanstack/vue-query'
+import {
+  geeksHackingPortalApiEndpointsOrganizersHackathonGetEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref, watch } from 'vue'
-import { hackathonOrganizerQueries, useUpdateHackathonMutation } from '~/composables/hackathon'
 
 const route = useRoute()
 const toast = useToast()
 const queryClient = useQueryClient()
 const hackathonId = computed(() => (route.params.hackathonId as string | undefined) ?? '')
 
-const { data: hackathon, isLoading } = useQuery(
-  computed(() => ({
-    ...hackathonOrganizerQueries.detail(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: hackathon, isLoading } = useGeeksHackingPortalApiEndpointsOrganizersHackathonGetEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
-const updateMutation = useUpdateHackathonMutation()
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint()
 
 const form = ref({
   enableRepositoryChecking: false,
@@ -98,7 +100,7 @@ async function handleSubmit() {
     })
 
     await queryClient.invalidateQueries({
-      queryKey: ['hackathons', hackathonId.value, 'organizer', 'detail'],
+      queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonGetEndpointQueryKey(hackathonId.value),
     })
 
     form.value.apiKey = ''

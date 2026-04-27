@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-import { useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint } from '@geekshacking/portal-sdk/hooks'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref, watch } from 'vue'
 import * as XLSX from 'xlsx'
-import { teamOrganizerQueries } from '~/composables/teams'
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -40,11 +41,9 @@ const { data: participantsData, isLoading: isLoadingParticipants } = useGeeksHac
 )
 
 // Fetch teams data
-const { data: teamsData, isLoading: isLoadingTeams } = useQuery(
-  computed(() => ({
-    ...teamOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: teamsData, isLoading: isLoadingTeams } = useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const participants = computed(() => participantsData.value?.participants ?? [])

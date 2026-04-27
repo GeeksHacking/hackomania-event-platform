@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import {
+  geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint,
+  geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpointQueryOptions,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
 
 const props = defineProps<{
   hackathonId?: string | null
@@ -18,16 +24,14 @@ const lastSetupHackathonId = ref<string | null>(null)
 const canJoinFromHere = ref(false)
 
 // Initialize mutations at component level (must be in setup)
-const initQuestionMutation = useInitQuestionMutation()
-const joinMutation = useJoinHackathonMutation()
+const initQuestionMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint()
+const joinMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint()
 const queryClient = useQueryClient()
 
 // Ensure user is a participant before attempting to load registration data.
-const { data: statusData, isLoading: isLoadingStatus, error: statusError } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.status(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
-  })),
+const { data: statusData, isLoading: isLoadingStatus, error: statusError } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  computed(() => hackathonId.value ?? ''),
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 watch(
@@ -55,10 +59,16 @@ watch(
     setupComplete.value = false
 
     try {
-      await registrationSetup({ hackathonId: id, initQuestionMutation })
+      const questionsResponse = await geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint(id)
+      const categories = questionsResponse?.categories ?? []
+      const hasQuestions = categories.some(cat => cat.questions && cat.questions.length > 0)
+
+      if (!hasQuestions)
+        await initQuestionMutation.mutateAsync({ hackathonId: id })
+
       lastSetupHackathonId.value = id
       setupComplete.value = true
-      await queryClient.invalidateQueries({ queryKey: ['hackathons', id, 'status'] })
+      await queryClient.invalidateQueries({ queryKey: [{ url: '/participants/hackathons/:hackathonId/status', params: { hackathonId: id } }] })
     }
     catch (error) {
       console.error('[FORM] Registration setup failed:', error)
@@ -70,8 +80,7 @@ watch(
 
 // Fetch registration questions (only after setup is complete)
 const { data: questions, isLoading, error } = useQuery(computed(() => ({
-  queryKey: ['registration', 'questions', hackathonId.value],
-  queryFn: () => fetchQuestions(hackathonId.value ?? ''),
+  ...geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpointQueryOptions(hackathonId.value ?? ''),
   enabled: setupComplete.value && !!hackathonId.value,
 })))
 
@@ -80,8 +89,8 @@ async function joinHackathonFromRegistration() {
     return
 
   try {
-    await joinMutation.mutateAsync(hackathonId.value)
-    await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'status'] })
+    await joinMutation.mutateAsync({ hackathonId: hackathonId.value })
+    await queryClient.invalidateQueries({ queryKey: [{ url: '/participants/hackathons/:hackathonId/status', params: { hackathonId: hackathonId.value } }] })
     setupError.value = null
   }
   catch (joinError) {

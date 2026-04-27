@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import {
   geeksHackingPortalApiEndpointsParticipantsHackathonChallengesGetEndpointQueryOptions,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
 import { useQueries } from '@tanstack/vue-query'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-const hackathonId = useResolvedHackathonId()
+const route = useRoute()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const hackathonId = computed(() => hackathon.value?.id ?? '')
 
 // Fetch challenges list for the hackathon
 const { data: challengesData, isLoading } = useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint(

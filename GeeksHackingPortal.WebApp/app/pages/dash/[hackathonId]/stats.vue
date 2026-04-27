@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import type { HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem } from '~/api-client/models'
 import type {
-  OrganizerResourceItem,
-  OrganizerResourceStatisticsRecentActivityItem,
-  OrganizerResourceStatisticsResponse,
-  OrganizerResourceStatisticsTeamItem,
-} from '~/composables/resources'
+  GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantItem,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListResponseResponseResource,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsRecentRedemptionItem,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsResponse,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem,
+} from '@geekshacking/portal-sdk'
+import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus } from '@geekshacking/portal-sdk'
 import {
   useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
-import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import * as XLSX from 'xlsx'
-import { HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject } from '~/api-client/models'
-import { resourceOrganizerQueries } from '~/composables/resources'
-import { teamOrganizerQueries } from '~/composables/teams'
-import { venueOverviewQueries } from '~/composables/venue'
 import { HACKATHON_TIME_ZONE, HACKATHON_TIME_ZONE_LABEL, parseHackathonDateTimeValue } from '~/utils/hackathon-date-time'
 
-type ParticipantItem = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem
+type ParticipantItem = GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantItem
 type StatColor = 'primary' | 'success' | 'error' | 'warning' | 'neutral'
 
 interface StatCard {
@@ -76,36 +76,30 @@ const { data: participantsData, isLoading: isLoadingParticipants } = useGeeksHac
   computed(() => hackathonId.value),
 )
 
-const { data: teamsData, isLoading: isLoadingTeams } = useQuery(
-  computed(() => ({
-    ...teamOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: teamsData, isLoading: isLoadingTeams } = useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const { data: challengesData, isLoading: isLoadingChallenges } = useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint(
   computed(() => hackathonId.value),
 )
 
-const { data: venueOverviewData, isLoading: isLoadingVenueOverview } = useQuery(
-  computed(() => ({
-    ...venueOverviewQueries.overview(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: venueOverviewData, isLoading: isLoadingVenueOverview } = useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
-const { data: resourcesData, isLoading: isLoadingResources } = useQuery(
-  computed(() => ({
-    ...resourceOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: resourcesData, isLoading: isLoadingResources } = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const selectedResourceStatsId = ref(ALL_RESOURCES_VALUE)
 const resourceBreakdownSearch = ref('')
 const resourceRedemptionMemberThreshold = ref(3)
 
-const organizerResources = computed<OrganizerResourceItem[]>(() => resourcesData.value?.resources ?? [])
+const organizerResources = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListResponseResponseResource[]>(() => resourcesData.value?.resources ?? [])
 
 watch(organizerResources, (items) => {
   if (selectedResourceStatsId.value === ALL_RESOURCES_VALUE)
@@ -128,11 +122,10 @@ const {
   isLoading: isLoadingResourceStatistics,
   refetch: refetchResourceStatistics,
   dataUpdatedAt: resourceStatisticsUpdatedAt,
-} = useQuery(
-  computed(() => ({
-    ...resourceOrganizerQueries.statistics(hackathonId.value, selectedResourceStatsResourceId.value),
-    enabled: !!hackathonId.value,
-  })),
+} = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsEndpoint(
+  hackathonId,
+  computed(() => selectedResourceStatsResourceId.value ? { resourceId: selectedResourceStatsResourceId.value } : {}),
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const REVIEW_OVERDUE_DAYS = 5
@@ -148,7 +141,7 @@ const participants = computed(() => participantsData.value?.participants ?? [])
 const teams = computed(() => teamsData.value?.teams ?? [])
 const challenges = computed(() => challengesData.value?.challenges ?? [])
 const checkInParticipants = computed(() => venueOverviewData.value?.participants ?? [])
-const resourceStatistics = computed<OrganizerResourceStatisticsResponse | null>(() => resourceStatisticsData.value ?? null)
+const resourceStatistics = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsResponse | null>(() => resourceStatisticsData.value ?? null)
 const isLoading = computed(
   () => isLoadingParticipants.value || isLoadingTeams.value || isLoadingChallenges.value || isLoadingVenueOverview.value,
 )
@@ -185,7 +178,7 @@ function formatResourceStatsTime(value: Date | string | null | undefined) {
   return `${resourceStatsTimeFormatter.format(date)} ${HACKATHON_TIME_ZONE_LABEL}`
 }
 
-function summarizeParticipantResources(teamParticipant: OrganizerResourceStatisticsTeamItem['participants'][number]) {
+function summarizeParticipantResources(teamParticipant: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem['participants'][number]) {
   const resourceNames = [...new Set(teamParticipant.redemptions.map(redemption => redemption.resourceName))]
   if (!resourceNames.length)
     return '—'
@@ -196,7 +189,7 @@ function summarizeParticipantResources(teamParticipant: OrganizerResourceStatist
   return `${resourceNames.slice(0, 2).join(', ')} +${resourceNames.length - 2} more`
 }
 
-function getResourceTeamRedeemerGap(team: OrganizerResourceStatisticsTeamItem) {
+function getResourceTeamRedeemerGap(team: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem) {
   return Math.max((team.memberCount ?? 0) - team.redeemerCount, 0)
 }
 
@@ -225,7 +218,7 @@ const withdrawnParticipants = computed(() => participants.value.filter(participa
 
 const pendingReviewParticipants = computed(() =>
   completeActiveParticipants.value.filter(participant =>
-    participant.concludedStatus === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Pending
+    participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Pending
     || participant.concludedStatus === null
     || participant.concludedStatus === undefined,
   ),
@@ -243,13 +236,13 @@ const overdueParticipants = computed(() =>
 
 const acceptedParticipants = computed(() =>
   completeActiveParticipants.value.filter(
-    participant => participant.concludedStatus === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted,
+    participant => participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted,
   ),
 )
 
 const rejectedParticipants = computed(() =>
   completeActiveParticipants.value.filter(
-    participant => participant.concludedStatus === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected,
+    participant => participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected,
   ),
 )
 
@@ -602,14 +595,14 @@ const resourceLeaderboard = computed(() =>
 )
 
 const hasMultipleResourceScope = computed(() => (resourceStatistics.value?.resourceCount ?? 0) > 1)
-const recentResourceActivity = computed<OrganizerResourceStatisticsRecentActivityItem[]>(() => resourceStatistics.value?.recentActivity ?? [])
+const recentResourceActivity = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsRecentRedemptionItem[]>(() => resourceStatistics.value?.recentActivity ?? [])
 const normalizedResourceBreakdownSearch = computed(() => resourceBreakdownSearch.value.trim().toLowerCase())
 
-const resourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamItem[]>(() => {
+const resourceTeamBreakdown = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem[]>(() => {
   const teamBreakdown = resourceStatistics.value?.teamBreakdown ?? []
   const teamBreakdownById = new Map(
     teamBreakdown
-      .filter((team): team is OrganizerResourceStatisticsTeamItem & { teamId: string } => !!team.teamId)
+      .filter((team): team is GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem & { teamId: string } => !!team.teamId)
       .map(team => [team.teamId, team] as const),
   )
   const noTeamBreakdown = teamBreakdown.find(team => !team.teamId)
@@ -662,7 +655,7 @@ const flaggedResourceTeamSummary = computed(() => {
   return `${count} team${count === 1 ? '' : 's'} below the ${threshold}-member redemption threshold.`
 })
 
-function isResourceTeamFlagged(team: OrganizerResourceStatisticsTeamItem) {
+function isResourceTeamFlagged(team: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem) {
   return !!team.teamId && team.redeemerCount < normalizedResourceRedemptionMemberThreshold.value
 }
 
@@ -804,7 +797,7 @@ function exportResourceStatsExcel() {
   XLSX.writeFile(workbook, createExportFilename('xlsx'))
 }
 
-const filteredResourceTeamBreakdown = computed<OrganizerResourceStatisticsTeamItem[]>(() => {
+const filteredResourceTeamBreakdown = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem[]>(() => {
   const groups = resourceTeamBreakdown.value
   const query = normalizedResourceBreakdownSearch.value
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HackOManiaApiEndpointsOrganizersHackathonSubmissionsListSubmissionItem } from '~/api-client/models'
+import type { GeeksHackingPortalApiEndpointsOrganizersHackathonSubmissionsListSubmissionItem } from '@geekshacking/portal-sdk'
 import {
   geeksHackingPortalApiEndpointsOrganizersHackathonSubmissionsGetEndpointQueryOptions,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint,
@@ -66,7 +66,7 @@ const submissionDetailsMap = computed(() => {
   return map
 })
 
-type EnrichedSubmission = HackOManiaApiEndpointsOrganizersHackathonSubmissionsListSubmissionItem & {
+type EnrichedSubmission = GeeksHackingPortalApiEndpointsOrganizersHackathonSubmissionsListSubmissionItem & {
   description?: string | null
   demoUri?: string | null
   repositoryUri?: string | null

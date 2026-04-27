@@ -1,5 +1,3 @@
-// in the future if social links can be fetched from API, we can do it here
-
 export interface SocialLink {
   name: string
   url: string

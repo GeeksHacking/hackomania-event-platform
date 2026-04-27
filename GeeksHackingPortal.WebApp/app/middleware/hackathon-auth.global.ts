@@ -1,5 +1,6 @@
+import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { $apiClient } = useNuxtApp()
   const config = useRuntimeConfig()
 
   // Define public routes that don't require authentication
@@ -22,7 +23,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // - /dash and /dash/*
   // - /[hackathonId] and /[hackathonId]/* (except registration)
   try {
-    await $apiClient.auth.whoami.get()
+    await geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
   }
   catch (error) {
     const status = getErrorStatusCode(error)

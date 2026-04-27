@@ -234,26 +234,24 @@ jobs:
           tag: latest
 
       - name: Clean up stale images
-        shell: bash
+        shell: pwsh
         run: |
-          KEEP=10
-          REPO="asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api"
+          $keep = 10
+          $repo = "asia-southeast1-docker.pkg.dev/hackomania-event-portal/hackomania-api/hackomania-api"
 
-          # List all image digests sorted by creation time (newest first), then drop the first $KEEP entries.
-          mapfile -t STALE < <(
-            gcloud artifacts docker images list "$REPO" \
-              --include-tags \
-              --sort-by="~CREATE_TIME" \
-              --format="value(version)" \
-              | tail -n +$((KEEP + 1))
-          )
+          # List all image digests sorted by creation time (newest first), then drop the first $keep entries.
+          $stale = gcloud artifacts docker images list $repo `
+            --include-tags `
+            --sort-by="~CREATE_TIME" `
+            --format="value(version)" |
+            Select-Object -Skip $keep
 
-          if [ "${#STALE[@]}" -eq 0 ]; then
-            echo "No stale images to remove."
+          if (-not $stale) {
+            Write-Host "No stale images to remove."
             exit 0
-          fi
+          }
 
-          echo "Removing ${#STALE[@]} stale image(s)..."
-          for digest in "${STALE[@]}"; do
-            gcloud artifacts docker images delete "${REPO}@${digest}" --quiet --delete-tags
-          done
+          Write-Host "Removing $($stale.Count) stale image(s)..."
+          foreach ($digest in $stale) {
+            gcloud artifacts docker images delete "${repo}@${digest}" --quiet --delete-tags
+          }

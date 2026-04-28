@@ -4,7 +4,6 @@ import type {
   GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus,
   GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse,
 } from '@geekshacking/portal-sdk'
-import { geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus } from '@geekshacking/portal-sdk'
 import { useQueries, useQueryClient } from '@tanstack/vue-query'
 import {
   geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey,
@@ -240,9 +239,9 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
   if (!isParticipant)
     return { label: 'Not joined', color: 'neutral' as const }
   switch (status) {
-    case geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Accepted:
+    case 'Accepted':
       return { label: 'Accepted', color: 'success' as const }
-    case geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Rejected:
+    case 'Rejected':
       return { label: 'Rejected', color: 'error' as const }
     default:
       return { label: 'Pending review', color: 'warning' as const }
@@ -362,7 +361,7 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
                 </div>
 
                 <div
-                  v-if="statusDataForIndex(index)?.status === geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Rejected && statusDataForIndex(index)?.reviewReason"
+                  v-if="statusDataForIndex(index)?.status === 'Rejected' && statusDataForIndex(index)?.reviewReason"
                   class="text-xs text-red-500 dark:text-red-400"
                 >
                   Reason: {{ statusDataForIndex(index)?.reviewReason }}

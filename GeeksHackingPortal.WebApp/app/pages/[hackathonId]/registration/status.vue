@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus } from '@geekshacking/portal-sdk'
 import {
   useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
@@ -53,12 +52,12 @@ const registrationState = computed<RegistrationState>(() => {
   }
 
   // Check if approved first.
-  if (statusData.value.status === geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Accepted) {
+  if (statusData.value.status === 'Accepted') {
     return 'approved'
   }
 
   // Check if rejected.
-  if (statusData.value.status === geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Rejected) {
+  if (statusData.value.status === 'Rejected') {
     return 'rejected'
   }
 

@@ -7,10 +7,6 @@ import type {
   GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
 } from '@geekshacking/portal-sdk'
 import {
-  geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus,
-  geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus,
-} from '@geekshacking/portal-sdk'
-import {
   geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpointQueryKey,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
@@ -79,7 +75,7 @@ function isIncomplete(p: ParticipantItem) {
 
 function isPendingStatus(status: ParticipantConcludedStatus | null | undefined) {
   return (
-    status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Pending
+    status === 'Pending'
     || status === null
     || status === undefined
   )
@@ -134,13 +130,13 @@ const statusFilteredParticipants = computed(() => {
       return complete.filter(
         p =>
           p.concludedStatus
-          === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted,
+          === 'Accepted',
       )
     case 'rejected':
       return complete.filter(
         p =>
           p.concludedStatus
-          === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected,
+          === 'Rejected',
       )
     default:
       return complete
@@ -198,12 +194,12 @@ const filterCounts = computed(() => {
     approved: complete.filter(
       p =>
         p.concludedStatus
-        === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted,
+        === 'Accepted',
     ).length,
     rejected: complete.filter(
       p =>
         p.concludedStatus
-        === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected,
+        === 'Rejected',
     ).length,
   }
 })
@@ -223,9 +219,9 @@ function compareStrings(a?: string | null, b?: string | null) {
 }
 
 function getStatusSortValue(status: ParticipantConcludedStatus | null | undefined) {
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted)
+  if (status === 'Accepted')
     return 2
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected)
+  if (status === 'Rejected')
     return 3
   return 1
 }
@@ -616,33 +612,33 @@ function getErrorStatusCode(error: unknown): number | null {
 }
 
 function getStatusColor(status: ParticipantConcludedStatus | null | undefined): 'success' | 'error' | 'warning' {
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted)
+  if (status === 'Accepted')
     return 'success'
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected)
+  if (status === 'Rejected')
     return 'error'
   return 'warning'
 }
 
 function getStatusLabel(status: ParticipantConcludedStatus | null | undefined): string {
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted)
+  if (status === 'Accepted')
     return 'Approved'
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected)
+  if (status === 'Rejected')
     return 'Rejected'
   return 'Pending'
 }
 
 function getReviewStatusLabel(status: ParticipantReviewStatus | null | undefined): string {
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus.Accepted)
+  if (status === 'Accepted')
     return 'Accepted'
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus.Rejected)
+  if (status === 'Rejected')
     return 'Rejected'
   return 'Unknown'
 }
 
 function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined): 'success' | 'error' | 'neutral' {
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus.Accepted)
+  if (status === 'Accepted')
     return 'success'
-  if (status === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus.Rejected)
+  if (status === 'Rejected')
     return 'error'
   return 'neutral'
 }

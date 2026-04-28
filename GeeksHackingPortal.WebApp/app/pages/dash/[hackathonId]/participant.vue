@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus } from '@geekshacking/portal-sdk'
-import { geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus } from '@geekshacking/portal-sdk'
 import { useQueryClient } from '@tanstack/vue-query'
 import {
   geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey,
@@ -220,9 +219,9 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
   if (!isParticipant)
     return { label: 'Not joined', color: 'neutral' as const }
   switch (status) {
-    case geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Accepted:
+    case 'Accepted':
       return { label: 'Accepted', color: 'success' as const }
-    case geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Rejected:
+    case 'Rejected':
       return { label: 'Rejected', color: 'error' as const }
     default:
       return { label: 'Pending review', color: 'warning' as const }
@@ -305,7 +304,7 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
               </div>
 
               <div
-                v-if="statusData?.status === geeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus.Rejected && statusData?.reviewReason"
+                v-if="statusData?.status === 'Rejected' && statusData?.reviewReason"
                 class="mt-3 text-xs text-red-600"
               >
                 Reason: {{ statusData?.reviewReason }}

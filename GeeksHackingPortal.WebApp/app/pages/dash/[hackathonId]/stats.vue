@@ -6,7 +6,6 @@ import type {
   GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsResponse,
   GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsTeamBreakdownItem,
 } from '@geekshacking/portal-sdk'
-import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus } from '@geekshacking/portal-sdk'
 import {
   useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
@@ -218,7 +217,7 @@ const withdrawnParticipants = computed(() => participants.value.filter(participa
 
 const pendingReviewParticipants = computed(() =>
   completeActiveParticipants.value.filter(participant =>
-    participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Pending
+    participant.concludedStatus === 'Pending'
     || participant.concludedStatus === null
     || participant.concludedStatus === undefined,
   ),
@@ -236,13 +235,13 @@ const overdueParticipants = computed(() =>
 
 const acceptedParticipants = computed(() =>
   completeActiveParticipants.value.filter(
-    participant => participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Accepted,
+    participant => participant.concludedStatus === 'Accepted',
   ),
 )
 
 const rejectedParticipants = computed(() =>
   completeActiveParticipants.value.filter(
-    participant => participant.concludedStatus === geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus.Rejected,
+    participant => participant.concludedStatus === 'Rejected',
   ),
 )
 

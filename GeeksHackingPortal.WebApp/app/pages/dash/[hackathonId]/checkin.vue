@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import type { ParticipantCheckInDto, VenueAuditTrailItem } from '~/composables/venue'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { GeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewVenueAuditTrailItemDto } from '@geekshacking/portal-sdk'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueHistoryEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 import { Html5Qrcode } from 'html5-qrcode'
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
-import { participantOrganizerQueries } from '~/composables/participants'
-import { useCheckInMutation, useCheckOutMutation, venueHistoryQueries, venueOverviewQueries } from '~/composables/venue'
 import { HACKATHON_TIME_ZONE, HACKATHON_TIME_ZONE_LABEL, parseHackathonDateTimeValue } from '~/utils/hackathon-date-time'
 
 const props = withDefaults(defineProps<{
@@ -27,37 +32,32 @@ const isHistoryModalOpen = ref(false)
 const availableCameras = ref<Array<{ id: string, label: string }>>([])
 const useFrontCamera = ref(false)
 
-const checkInMutation = useCheckInMutation(hackathonId)
-const checkOutMutation = useCheckOutMutation(hackathonId)
+const checkInMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint()
+const checkOutMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint()
 const queryClient = useQueryClient()
 
 // Fetch participant details when we have a scanned user ID
-const { data: participantDetail } = useQuery(
-  computed(() => ({
-    ...participantOrganizerQueries.detail(hackathonId.value, scannedUserId.value),
-    enabled: !!scannedUserId.value,
-  })),
+const { data: participantDetail } = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint(
+  computed(() => hackathonId.value),
+  computed(() => scannedUserId.value),
 )
 
-const { data: participantHistory, isLoading: isLoadingParticipantHistory } = useQuery(
-  computed(() => ({
-    ...venueHistoryQueries.participant(hackathonId.value, selectedParticipantUserId.value),
-    enabled: !!selectedParticipantUserId.value && !!hackathonId.value,
-  })),
+const { data: participantHistory, isLoading: isLoadingParticipantHistory } = useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueHistoryEndpoint(
+  hackathonId,
+  selectedParticipantUserId,
+  { query: { enabled: computed(() => !!selectedParticipantUserId.value && !!hackathonId.value) } },
 )
 
 // Live check-in history
-const { data: venueOverview, isLoading: isLoadingOverview, dataUpdatedAt } = useQuery(
-  computed(() => ({
-    ...venueOverviewQueries.overview(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: venueOverview, isLoading: isLoadingOverview, dataUpdatedAt } = useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const historySearchQuery = ref('')
 
-const allParticipants = computed<ParticipantCheckInDto[]>(() => venueOverview.value?.participants ?? [])
-const auditTrail = computed<VenueAuditTrailItem[]>(() => venueOverview.value?.auditTrail ?? [])
+const allParticipants = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewParticipantCheckInDto[]>(() => venueOverview.value?.participants ?? [])
+const auditTrail = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewVenueAuditTrailItemDto[]>(() => venueOverview.value?.auditTrail ?? [])
 
 const checkedInCount = computed(() => allParticipants.value.filter(p => p.isCurrentlyCheckedIn).length)
 const checkedOutCount = computed(() => allParticipants.value.length - checkedInCount.value)
@@ -240,7 +240,7 @@ async function handleCheckIn() {
   scanResult.value = null
 
   try {
-    const result = await checkInMutation.mutateAsync(selectedParticipantUserId.value)
+    const result = await checkInMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
     const participantName = selectedParticipantName.value || participantDetail.value?.name || 'Unknown'
 
     scanResult.value = {
@@ -270,7 +270,7 @@ async function handleCheckOut() {
     return
   scanResult.value = null
   try {
-    const result = await checkOutMutation.mutateAsync(selectedParticipantUserId.value)
+    const result = await checkOutMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
     scanResult.value = {
       success: true,
       message: `Participant checked out at ${formatCheckInTime(result.checkOutTime)}.`,
@@ -311,7 +311,7 @@ function openHistory(userId: string, name: string) {
 
 async function handleCheckInFromList(userId: string) {
   try {
-    await checkInMutation.mutateAsync(userId)
+    await checkInMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId })
     refreshOverview()
   }
   catch (err) {
@@ -321,7 +321,7 @@ async function handleCheckInFromList(userId: string) {
 
 async function handleCheckOutFromList(userId: string) {
   try {
-    await checkOutMutation.mutateAsync(userId)
+    await checkOutMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId })
     refreshOverview()
   }
   catch (err) {

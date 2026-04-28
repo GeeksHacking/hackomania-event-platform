@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { CONTACT_EMAIL, SOCIAL_LINKS, SPONSOR_EMAIL } from '~/constants/socials'
+</script>
+
 <template>
   <div id="contacts" class="w-full flex justify-center relative mt-4 md:mt-16 lg:mt-32">
     <NuxtImg

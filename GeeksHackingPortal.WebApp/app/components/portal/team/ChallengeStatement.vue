@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
@@ -13,14 +17,11 @@ const toast = useToast()
 
 const hackathonIdRef = computed(() => props.hackathonId)
 const teamIdRef = computed(() => props.teamId)
-const hackathon = useRouteHackathon()
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(hackathonIdRef)
 
 // Fetch challenges list for the hackathon
-const { data: challengesData } = useQuery(
-  computed(() => ({
-    ...challengeQueries.list(props.hackathonId),
-    enabled: !!props.hackathonId,
-  })),
+const { data: challengesData } = useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint(
+  computed(() => props.hackathonId),
 )
 
 const challenges = computed(() => [...(challengesData.value?.challenges ?? [])].reverse())
@@ -35,7 +36,7 @@ const challengeSelectionEndDate = computed(() => hackathon.value?.challengeSelec
 const isChallengeSelectionClosed = computed(() => {
   if (!challengeSelectionEndDate.value)
     return false
-  return new Date() > challengeSelectionEndDate.value
+  return new Date() > new Date(challengeSelectionEndDate.value)
 })
 
 // Initialize from prop
@@ -47,7 +48,7 @@ watch(() => props.selectedChallengeId, (newVal) => {
 })
 
 // Mutation to persist challenge selection
-const selectChallengeMutation = useSelectChallenge(hackathonIdRef, teamIdRef)
+const selectChallengeMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint()
 
 // Watch for selection changes and persist to API
 watch(selectedChallenge, (newVal, oldVal) => {
@@ -57,7 +58,7 @@ watch(selectedChallenge, (newVal, oldVal) => {
   }
 
   if (newVal && newVal !== oldVal && newVal !== props.selectedChallengeId) {
-    selectChallengeMutation.mutate(newVal, {
+    selectChallengeMutation.mutate({ hackathonId: hackathonIdRef.value, teamId: teamIdRef.value, data: { challengeId: newVal } }, {
       onSuccess() {
         const selectedItem = challengeItems.value.find(item => item.value === newVal)
         toast.add({

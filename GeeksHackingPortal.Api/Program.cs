@@ -223,7 +223,8 @@ builder.Services.AddCors(options =>
                     :
                     [
                         "https://portal.geekshacking.com",
-                        "https://*.hackomania-event-platform.pages.dev",
+                        "https://portal.dev-d73.workers.dev",
+                        "https://*-portal.dev-d73.workers.dev"
                     ]
             )
             .SetIsOriginAllowedToAllowWildcardSubdomains();

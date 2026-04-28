@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 const route = useRoute()
-const hackathon = useRouteHackathon()
-const resolvedHackathonId = useResolvedHackathonId()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? '')
 
 // Middleware handles authentication, just check participant status
-const { data: status, isLoading: statusLoading } = useQuery(
-  computed(() => ({
-    ...hackathonQueries.status(resolvedHackathonId.value ?? ''),
-    enabled: !!resolvedHackathonId.value,
-  })),
+const { data: status, isLoading: statusLoading } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value) } },
 )
 
 watch(

@@ -1,59 +1,58 @@
 <script setup lang="ts">
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import type { GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus } from '@geekshacking/portal-sdk'
+import { useQueryClient } from '@tanstack/vue-query'
+import {
+  geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey,
+  geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryKey,
+  geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref } from 'vue'
-import { HackOManiaApiEndpointsParticipantsHackathonStatusParticipantStatusObject } from '~/api-client/models'
-import { authQueries } from '~/composables/auth'
-import { useJoinHackathonMutation } from '~/composables/hackathon'
-import { formatParticipantStatus, hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
-import { organizerQueries } from '~/composables/organizers'
-import { useReviewParticipantMutation, useWithdrawFromHackathon } from '~/composables/participants'
 
 const route = useRoute()
 const toast = useToast()
 const queryClient = useQueryClient()
 
-const hackathonIdOrShortCode = computed(() => (route.params.hackathonId as string | undefined) ?? null)
+const hackathonIdOrShortCode = computed(() => route.params.hackathonId as string | undefined)
 const participantUserId = computed(() => route.query.userId as string | undefined)
 
-const { data: hackathon, isLoading: isLoadingHackathon, error: hackathonError } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.detail(hackathonIdOrShortCode.value ?? ''),
-    enabled: !!hackathonIdOrShortCode.value,
-  })),
+const { data: hackathon, isLoading: isLoadingHackathon, error: hackathonError } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(
+  hackathonIdOrShortCode,
+  { query: { enabled: computed(() => !!hackathonIdOrShortCode.value) } },
 )
 
-const resolvedHackathonId = computed(() => hackathon.value?.id ?? null)
+const resolvedHackathonId = computed(() => hackathon.value?.id)
 
-const { data: statusData, isLoading: isLoadingStatus, error: statusError } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.status(resolvedHackathonId.value ?? ''),
-    enabled: !!resolvedHackathonId.value,
-  })),
+const { data: statusData, isLoading: isLoadingStatus, error: statusError } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value) } },
 )
 
 // Fetch registration submissions to check completion status
-const { data: submissionsData } = useQuery(
-  computed(() => ({
-    queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'],
-    queryFn: () => useNuxtApp().$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(resolvedHackathonId.value ?? '').registration.submissions.get(),
-    enabled: !!resolvedHackathonId.value && statusData.value?.isParticipant === true,
-  })),
+const { data: submissionsData } = useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value && statusData.value?.isParticipant === true) } },
 )
 
 const isRegistrationComplete = computed(() => submissionsData.value?.requiredQuestionsRemaining === 0)
 
-const joinMutation = useJoinHackathonMutation()
-const withdrawMutation = useWithdrawFromHackathon(resolvedHackathonId)
+const joinMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint()
+const withdrawMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint()
 const isWithdrawModalOpen = ref(false)
 
 // Organizer check
-const { data: user } = useQuery(authQueries.whoAmI)
+const { data: user } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
 
-const { data: organizersData } = useQuery(
-  computed(() => ({
-    ...organizerQueries.list(resolvedHackathonId.value ?? ''),
-    enabled: !!resolvedHackathonId.value,
-  })),
+const { data: organizersData } = useGeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersListEndpoint(
+  resolvedHackathonId,
+  { query: { enabled: computed(() => !!resolvedHackathonId.value) } },
 )
 
 const isOrganizer = computed(() => {
@@ -61,33 +60,6 @@ const isOrganizer = computed(() => {
     return false
   }
 
-  async function withdrawFromHackathon() {
-    try {
-      await withdrawMutation.mutateAsync()
-      await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(resolvedHackathonId.value ?? '').queryKey })
-      await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
-      await queryClient.invalidateQueries({ queryKey: ['hackathons', resolvedHackathonId.value, 'registration', 'submissions'] })
-      isWithdrawModalOpen.value = false
-      toast.add({
-        title: 'Withdrawn',
-        description: 'You have withdrawn from this hackathon.',
-        color: 'success',
-      })
-    }
-    catch (error) {
-      console.error('[DASH] Failed to withdraw from hackathon', error)
-      const statusCode = getErrorStatusCode(error)
-      const description = statusCode === 400
-        ? 'Leave your team before withdrawing from this hackathon.'
-        : 'Please try again in a moment.'
-
-      toast.add({
-        title: 'Could not withdraw',
-        description,
-        color: 'error',
-      })
-    }
-  }
   if (user.value.isRoot)
     return true
   if (organizersData.value?.organizers) {
@@ -96,8 +68,39 @@ const isOrganizer = computed(() => {
   return false
 })
 
+async function withdrawFromHackathon() {
+  if (!resolvedHackathonId.value)
+    return
+
+  try {
+    await withdrawMutation.mutateAsync({ hackathonId: resolvedHackathonId.value })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey(resolvedHackathonId.value) })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey() })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryKey(resolvedHackathonId.value) })
+    isWithdrawModalOpen.value = false
+    toast.add({
+      title: 'Withdrawn',
+      description: 'You have withdrawn from this hackathon.',
+      color: 'success',
+    })
+  }
+  catch (error) {
+    console.error('[DASH] Failed to withdraw from hackathon', error)
+    const statusCode = getErrorStatusCode(error)
+    const description = statusCode === 400
+      ? 'Leave your team before withdrawing from this hackathon.'
+      : 'Please try again in a moment.'
+
+    toast.add({
+      title: 'Could not withdraw',
+      description,
+      color: 'error',
+    })
+  }
+}
+
 // Review functionality
-const reviewMutation = useReviewParticipantMutation(resolvedHackathonId.value ?? '')
+const reviewMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint()
 const isReviewModalOpen = ref(false)
 const reviewForm = ref({
   decision: 'accept',
@@ -114,8 +117,9 @@ async function handleReview() {
     return
   try {
     await reviewMutation.mutateAsync({
+      hackathonId: resolvedHackathonId.value ?? '',
       participantUserId: participantUserId.value,
-      review: {
+      data: {
         decision: reviewForm.value.decision,
         reason: reviewForm.value.reason || null,
       },
@@ -182,9 +186,9 @@ async function joinHackathon() {
   if (!resolvedHackathonId.value || !hackathon.value)
     return
   try {
-    await joinMutation.mutateAsync(resolvedHackathonId.value)
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(resolvedHackathonId.value).queryKey })
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
+    await joinMutation.mutateAsync({ hackathonId: resolvedHackathonId.value })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey(resolvedHackathonId.value) })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey() })
     await navigateTo(`/${hackathon.value.shortCode}/registration`)
   }
   catch (error) {
@@ -209,6 +213,19 @@ function formatReviewedDate(value: Date | string | null | undefined) {
   if (Number.isNaN(parsed.getTime()))
     return '—'
   return `${reviewedDateFormatter.format(parsed)} SGT`
+}
+
+function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus | null | undefined, isParticipant?: boolean | null) {
+  if (!isParticipant)
+    return { label: 'Not joined', color: 'neutral' as const }
+  switch (status) {
+    case 'Accepted':
+      return { label: 'Accepted', color: 'success' as const }
+    case 'Rejected':
+      return { label: 'Rejected', color: 'error' as const }
+    default:
+      return { label: 'Pending review', color: 'warning' as const }
+  }
 }
 </script>
 
@@ -287,7 +304,7 @@ function formatReviewedDate(value: Date | string | null | undefined) {
               </div>
 
               <div
-                v-if="statusData?.status === HackOManiaApiEndpointsParticipantsHackathonStatusParticipantStatusObject.Rejected && statusData?.reviewReason"
+                v-if="statusData?.status === 'Rejected' && statusData?.reviewReason"
                 class="mt-3 text-xs text-red-600"
               >
                 Reason: {{ statusData?.reviewReason }}

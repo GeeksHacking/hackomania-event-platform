@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
@@ -15,16 +19,21 @@ const newTeamDescription = ref('')
 const joinCode = ref(props.initialJoinCode ?? '')
 
 // Mutations
-const createTeamMutation = useCreateTeam(hackathonIdRef)
-const joinTeamMutation = useJoinTeamByCode()
+const createTeamMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint()
+const joinTeamMutation = useGeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint()
 
 // Handlers
 function handleCreateTeam() {
   if (!newTeamName.value.trim())
     return
+  if (!hackathonIdRef.value)
+    return
   createTeamMutation.mutate({
-    name: newTeamName.value.trim(),
-    description: newTeamDescription.value.trim() || '',
+    hackathonId: hackathonIdRef.value,
+    data: {
+      name: newTeamName.value.trim(),
+      description: newTeamDescription.value.trim() || undefined,
+    },
   }, {
     onSuccess() {
       newTeamName.value = ''
@@ -43,7 +52,7 @@ function handleCreateTeam() {
 function handleJoinTeam() {
   if (!joinCode.value.trim())
     return
-  joinTeamMutation.mutate(joinCode.value.trim(), {
+  joinTeamMutation.mutate({ data: { joinCode: joinCode.value.trim() } }, {
     onSuccess() {
       joinCode.value = ''
     },

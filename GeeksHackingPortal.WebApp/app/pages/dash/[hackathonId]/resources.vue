@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import type { OrganizerResourceAuditTrailItem, OrganizerResourceItem, OrganizerResourceOverviewParticipant } from '~/composables/resources'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import type {
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListResponseResponseResource,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewParticipantResourceRedemptionDto,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewResourceAuditTrailItemDto,
+} from '@geekshacking/portal-sdk'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesHistoryEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 import { Html5Qrcode } from 'html5-qrcode'
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
-import { participantOrganizerQueries } from '~/composables/participants'
-import {
-
-  resourceOrganizerQueries,
-  useRedeemResourceMutation,
-} from '~/composables/resources'
 import { HACKATHON_TIME_ZONE, HACKATHON_TIME_ZONE_LABEL, parseHackathonDateTimeValue } from '~/utils/hackathon-date-time'
 
 const props = withDefaults(defineProps<{
@@ -36,14 +41,12 @@ const isScanning = ref(false)
 
 const queryClient = useQueryClient()
 
-const { data: resourcesData, isLoading: isLoadingResources } = useQuery(
-  computed(() => ({
-    ...resourceOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: resourcesData, isLoading: isLoadingResources } = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
-const resources = computed<OrganizerResourceItem[]>(() => resourcesData.value?.resources ?? [])
+const resources = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListResponseResponseResource[]>(() => resourcesData.value?.resources ?? [])
 
 watch(resources, (items) => {
   if (!items.length) {
@@ -61,35 +64,28 @@ const selectedResource = computed(() =>
   resources.value.find(resource => resource.id === selectedResourceId.value) ?? null,
 )
 
-const { data: resourceOverview, isLoading: isLoadingOverview, dataUpdatedAt } = useQuery(
-  computed(() => ({
-    ...resourceOrganizerQueries.overview(hackathonId.value, selectedResourceId.value),
-    enabled: !!hackathonId.value && !!selectedResourceId.value,
-  })),
+const { data: resourceOverview, isLoading: isLoadingOverview, dataUpdatedAt } = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint(
+  hackathonId,
+  selectedResourceId,
+  { query: { enabled: computed(() => !!hackathonId.value && !!selectedResourceId.value) } },
 )
 
-const { data: participantDetail } = useQuery(
-  computed(() => ({
-    ...participantOrganizerQueries.detail(hackathonId.value, scannedUserId.value),
-    enabled: !!scannedUserId.value && !!hackathonId.value,
-  })),
+const { data: participantDetail } = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint(
+  computed(() => hackathonId.value),
+  computed(() => scannedUserId.value),
 )
 
-const { data: participantHistory, isLoading: isLoadingParticipantHistory } = useQuery(
-  computed(() => ({
-    ...resourceOrganizerQueries.participantHistory(
-      hackathonId.value,
-      selectedParticipantUserId.value,
-      selectedResourceId.value,
-    ),
-    enabled: !!hackathonId.value && !!selectedParticipantUserId.value && !!selectedResourceId.value,
-  })),
+const { data: participantHistory, isLoading: isLoadingParticipantHistory } = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesHistoryEndpoint(
+  hackathonId,
+  selectedParticipantUserId,
+  selectedResourceId,
+  { query: { enabled: computed(() => !!hackathonId.value && !!selectedParticipantUserId.value && !!selectedResourceId.value) } },
 )
 
-const redeemMutation = useRedeemResourceMutation(hackathonId, selectedResourceId)
+const redeemMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint()
 
-const participants = computed<OrganizerResourceOverviewParticipant[]>(() => resourceOverview.value?.participants ?? [])
-const auditTrail = computed<OrganizerResourceAuditTrailItem[]>(() => resourceOverview.value?.auditTrail ?? [])
+const participants = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewParticipantResourceRedemptionDto[]>(() => resourceOverview.value?.participants ?? [])
+const auditTrail = computed<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewResourceAuditTrailItemDto[]>(() => resourceOverview.value?.auditTrail ?? [])
 const totalRedemptions = computed(() => resourceOverview.value?.totalRedemptions ?? 0)
 const uniqueRedeemers = computed(() => resourceOverview.value?.uniqueRedeemers ?? 0)
 const neverRedeemedCount = computed(() => participants.value.filter(participant => !participant.hasRedeemed).length)
@@ -305,7 +301,7 @@ async function redeemForParticipant(userId: string, participantName: string) {
   selectedParticipantName.value = participantName
 
   try {
-    const result = await redeemMutation.mutateAsync(userId)
+    const result = await redeemMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId, resourceId: selectedResourceId.value })
     scanResult.value = {
       success: true,
       message: `${participantName || 'Participant'} redeemed ${selectedResource.value?.name || 'resource'} at ${formatRedemptionTime(result.createdAt)}.`,
@@ -563,14 +559,14 @@ onUnmounted(() => {
                           variant="soft"
                           :disabled="!selectedResource?.isPublished"
                           :loading="redeemMutation.isPending.value"
-                          @click="handleRedeemFromList(participant.userId, participant.userName)"
+                          @click="handleRedeemFromList(participant.userId ?? '', participant.userName ?? '')"
                         >
                           Redeem
                         </UButton>
                         <UButton
                           size="xs"
                           variant="ghost"
-                          @click="openHistory(participant.userId, participant.userName)"
+                          @click="openHistory(participant.userId ?? '', participant.userName ?? '')"
                         >
                           View history
                         </UButton>

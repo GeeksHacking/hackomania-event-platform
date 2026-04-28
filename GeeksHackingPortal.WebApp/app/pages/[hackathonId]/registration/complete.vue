@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 definePageMeta({
   // Explicitly mark as public route
@@ -12,18 +15,20 @@ useHead({
 
 const route = useRoute()
 const config = useRuntimeConfig()
-const hackathon = useRouteHackathon()
-const resolvedHackathonId = useResolvedHackathonId()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const resolvedHackathonId = computed(() => hackathon.value?.id ?? '')
 
 // Track if we should show the page
 const showPage = ref(false)
 
 // Check if user is authenticated
-const { data: user, isLoading, isError } = useQuery({
-  ...authQueries.whoAmI,
-  retry: false,
-  staleTime: 0,
-  gcTime: 0,
+const { data: user, isLoading, isError } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint({
+  query: {
+    retry: false,
+    staleTime: 0,
+    gcTime: 0,
+  },
 })
 
 // Compute status page path with joinCode if present

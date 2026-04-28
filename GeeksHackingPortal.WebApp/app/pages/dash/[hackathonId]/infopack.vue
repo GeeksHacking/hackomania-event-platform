@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref, watch } from 'vue'
 import * as XLSX from 'xlsx'
-import { participantOrganizerQueries } from '~/composables/participants'
-import { teamOrganizerQueries } from '~/composables/teams'
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -35,19 +36,14 @@ function setCachedCount(dataType: string, count: number) {
 }
 
 // Fetch participants data
-const { data: participantsData, isLoading: isLoadingParticipants } = useQuery(
-  computed(() => ({
-    ...participantOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: participantsData, isLoading: isLoadingParticipants } = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint(
+  computed(() => hackathonId.value),
 )
 
 // Fetch teams data
-const { data: teamsData, isLoading: isLoadingTeams } = useQuery(
-  computed(() => ({
-    ...teamOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: teamsData, isLoading: isLoadingTeams } = useGeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 const participants = computed(() => participantsData.value?.participants ?? [])

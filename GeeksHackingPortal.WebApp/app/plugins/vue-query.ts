@@ -2,6 +2,7 @@ import type {
   DehydratedState,
   VueQueryPluginOptions,
 } from '@tanstack/vue-query'
+import { setConfig } from '@geekshacking/portal-sdk/client/fetch'
 import {
   dehydrate,
   hydrate,
@@ -10,6 +11,12 @@ import {
 } from '@tanstack/vue-query'
 
 export default defineNuxtPlugin((nuxt) => {
+  const runtimeConfig = useRuntimeConfig()
+  setConfig({
+    baseURL: runtimeConfig.public.api,
+    credentials: 'include',
+  })
+
   const vueQueryState = useState<DehydratedState | null>('vue-query')
 
   const queryClient = new QueryClient({

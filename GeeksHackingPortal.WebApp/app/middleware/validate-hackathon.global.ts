@@ -1,6 +1,6 @@
-export default defineNuxtRouteMiddleware(async (to) => {
-  const { $apiClient } = useNuxtApp()
+import { geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint } from '@geekshacking/portal-sdk/hooks'
 
+export default defineNuxtRouteMiddleware(async (to) => {
   // Check if this is a hackathon route (matches /[hackathonId] or /[hackathonId]/*)
   const pathSegments = to.path.split('/').filter(Boolean)
 
@@ -23,7 +23,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   try {
     // Try to fetch the hackathon to verify it exists
-    await $apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathonId).get()
+    await geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(hackathonId)
   }
   catch (error: any) {
     // Check multiple possible error structures from the API client

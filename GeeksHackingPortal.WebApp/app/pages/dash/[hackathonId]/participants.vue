@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import type {
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus,
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem,
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatus,
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem,
-  HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
-} from '~/api-client/models'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+  GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantItem,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem,
+  GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto,
+} from '@geekshacking/portal-sdk'
+import {
+  geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useVirtualList } from '@vueuse/core'
 import { computed, ref } from 'vue'
-import {
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject,
-  HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject,
-} from '~/api-client/models'
-import { participantOrganizerQueries, useReviewParticipantMutation } from '~/composables/participants'
-import { registrationQuestionQueries } from '~/composables/question'
 import { registrationPageConfig } from '~/config/registration-pages'
 
 const props = withDefaults(defineProps<{
@@ -28,18 +29,15 @@ const hackathonId = computed(() => props.hackathonId || (route.params.hackathonI
 const toast = useToast()
 const queryClient = useQueryClient()
 
-const { data: participantsData, isLoading: isLoadingParticipants } = useQuery(
-  computed(() => ({
-    ...participantOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: participantsData, isLoading: isLoadingParticipants } = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpoint(
+  computed(() => hackathonId.value),
 )
 
-type ParticipantItem = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantItem
-type ParticipantConcludedStatus = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus
-type ParticipantReviewStatus = HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatus
-type RegistrationQuestion = HackOManiaApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto
-type RegistrationSubmission = HackOManiaApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem
+type ParticipantItem = GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantItem
+type ParticipantConcludedStatus = GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatus
+type ParticipantReviewStatus = GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItemParticipantReviewStatus
+type RegistrationQuestion = GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListQuestionDto
+type RegistrationSubmission = GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListRegistrationSubmissionItem
 
 const participants = computed<ParticipantItem[]>(() => participantsData.value?.participants ?? [])
 const REVIEW_OVERDUE_DAYS = 5
@@ -77,7 +75,7 @@ function isIncomplete(p: ParticipantItem) {
 
 function isPendingStatus(status: ParticipantConcludedStatus | null | undefined) {
   return (
-    status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Pending
+    status === 'Pending'
     || status === null
     || status === undefined
   )
@@ -92,7 +90,8 @@ function getParticipantApplicationTimeEpoch(participant: ParticipantItem) {
   if (submissions.length === 0)
     return 0
   return submissions.reduce((max, s) => {
-    const t = s.updatedAt?.getTime() ?? 0
+    const updatedAt = s.updatedAt ? new Date(s.updatedAt) : null
+    const t = updatedAt && !Number.isNaN(updatedAt.getTime()) ? updatedAt.getTime() : 0
     return t > max ? t : max
   }, 0)
 }
@@ -131,13 +130,13 @@ const statusFilteredParticipants = computed(() => {
       return complete.filter(
         p =>
           p.concludedStatus
-          === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted,
+          === 'Accepted',
       )
     case 'rejected':
       return complete.filter(
         p =>
           p.concludedStatus
-          === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected,
+          === 'Rejected',
       )
     default:
       return complete
@@ -195,12 +194,12 @@ const filterCounts = computed(() => {
     approved: complete.filter(
       p =>
         p.concludedStatus
-        === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted,
+        === 'Accepted',
     ).length,
     rejected: complete.filter(
       p =>
         p.concludedStatus
-        === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected,
+        === 'Rejected',
     ).length,
   }
 })
@@ -220,9 +219,9 @@ function compareStrings(a?: string | null, b?: string | null) {
 }
 
 function getStatusSortValue(status: ParticipantConcludedStatus | null | undefined) {
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted)
+  if (status === 'Accepted')
     return 2
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected)
+  if (status === 'Rejected')
     return 3
   return 1
 }
@@ -234,10 +233,13 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   timeZone: REVIEW_TIME_ZONE,
 })
 
-function formatDateTime(value: Date | null | undefined) {
+function formatDateTime(value: Date | string | null | undefined) {
   if (!value)
     return '—'
-  return `${dateTimeFormatter.format(value)} SGT`
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime()))
+    return '—'
+  return `${dateTimeFormatter.format(date)} SGT`
 }
 
 function matchesSearch(participant: ParticipantItem, query: string) {
@@ -284,19 +286,14 @@ function formatSubmissionAnswer(submission: RegistrationSubmission) {
 // Expanded participant detail
 const expandedParticipantId = ref<string | null>(null)
 
-const { data: participantDetail, isLoading: isLoadingDetail } = useQuery(
-  computed(() => ({
-    ...participantOrganizerQueries.detail(hackathonId.value, expandedParticipantId.value ?? ''),
-    enabled: !!expandedParticipantId.value,
-  })),
+const { data: participantDetail, isLoading: isLoadingDetail } = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint(
+  computed(() => hackathonId.value),
+  computed(() => expandedParticipantId.value ?? ''),
 )
 
 // Fetch registration questions for ordering
-const { data: questionsData } = useQuery(
-  computed(() => ({
-    ...registrationQuestionQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: questionsData } = useGeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint(
+  computed(() => hackathonId.value),
 )
 
 const orderedQuestions = computed<RegistrationQuestion[]>(() => {
@@ -462,7 +459,7 @@ function toggleParticipant(participantId: string) {
 }
 
 // Review mutation
-const reviewMutation = useReviewParticipantMutation(hackathonId)
+const reviewMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint()
 
 // Modal state
 const isReviewModalOpen = ref(false)
@@ -560,13 +557,14 @@ async function handleReview(decision: 'accept' | 'reject') {
 
   try {
     await reviewMutation.mutateAsync({
+      hackathonId: hackathonId.value,
       participantUserId: reviewingParticipantId.value,
-      review: {
+      data: {
         decision,
         reason: trimmedReason,
       },
     })
-    await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'participants', 'organizer'] })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpointQueryKey(hackathonId.value) })
     closeReviewModal()
     toast.add({
       title: 'Review submitted',
@@ -577,7 +575,7 @@ async function handleReview(decision: 'accept' | 'reject') {
   catch (error) {
     const statusCode = getErrorStatusCode(error)
     if (statusCode === 409) {
-      await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'participants', 'organizer'] })
+      await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsListEndpointQueryKey(hackathonId.value) })
       closeReviewModal()
       toast.add({
         title: 'Already reviewed',
@@ -614,33 +612,33 @@ function getErrorStatusCode(error: unknown): number | null {
 }
 
 function getStatusColor(status: ParticipantConcludedStatus | null | undefined): 'success' | 'error' | 'warning' {
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted)
+  if (status === 'Accepted')
     return 'success'
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected)
+  if (status === 'Rejected')
     return 'error'
   return 'warning'
 }
 
 function getStatusLabel(status: ParticipantConcludedStatus | null | undefined): string {
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Accepted)
+  if (status === 'Accepted')
     return 'Approved'
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantConcludedStatusObject.Rejected)
+  if (status === 'Rejected')
     return 'Rejected'
   return 'Pending'
 }
 
 function getReviewStatusLabel(status: ParticipantReviewStatus | null | undefined): string {
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject.Accepted)
+  if (status === 'Accepted')
     return 'Accepted'
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject.Rejected)
+  if (status === 'Rejected')
     return 'Rejected'
   return 'Unknown'
 }
 
 function getReviewStatusColor(status: ParticipantReviewStatus | null | undefined): 'success' | 'error' | 'neutral' {
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject.Accepted)
+  if (status === 'Accepted')
     return 'success'
-  if (status === HackOManiaApiEndpointsOrganizersHackathonParticipantsListParticipantReviewItem_ParticipantReviewStatusObject.Rejected)
+  if (status === 'Rejected')
     return 'error'
   return 'neutral'
 }

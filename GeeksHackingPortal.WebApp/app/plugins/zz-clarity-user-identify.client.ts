@@ -1,3 +1,5 @@
+import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+
 declare global {
   interface Window {
     clarity?: (...args: [string, ...unknown[]]) => void
@@ -12,8 +14,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     try {
-      const { $apiClient } = useNuxtApp()
-      const user = await $apiClient.auth.whoami.get()
+      const user = await geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
       const userId = user?.id
 
       if (userId) {

@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import type {
-  HackOManiaApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse,
-  HackOManiaApiEndpointsParticipantsHackathonStatusResponse,
-} from '~/api-client/models'
-import { useQueries, useQuery, useQueryClient } from '@tanstack/vue-query'
+  GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse,
+  GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus,
+  GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse,
+} from '@geekshacking/portal-sdk'
+import { useQueries, useQueryClient } from '@tanstack/vue-query'
+import {
+  geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey,
+  geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey,
+  geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryOptions,
+  geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey,
+  geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryOptions,
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref, unref } from 'vue'
-import { HackOManiaApiEndpointsParticipantsHackathonStatusParticipantStatusObject } from '~/api-client/models'
-import { useCreateHackathonMutation, useJoinHackathonMutation, useUpdateHackathonMutation } from '~/composables/hackathon'
-import { formatParticipantStatus, hackathonQueries as participantHackathonQueries } from '~/composables/hackathons'
 import {
   formatHackathonDate,
   formatHackathonDateTimeInput,
@@ -17,9 +28,9 @@ import {
 
 const toast = useToast()
 const queryClient = useQueryClient()
-const joinMutation = useJoinHackathonMutation()
-const createMutation = useCreateHackathonMutation()
-const updateMutation = useUpdateHackathonMutation()
+const joinMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint()
+const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint()
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint()
 
 // Admin hackathon CRUD
 const isHackathonModalOpen = ref(false)
@@ -94,7 +105,7 @@ async function handleHackathonSubmit() {
     shortCode: hackathonForm.value.shortCode || undefined,
     description: hackathonForm.value.description || undefined,
     venue: hackathonForm.value.venue || undefined,
-    homepageUri: hackathonForm.value.homepageUri || undefined,
+    homepageUri: hackathonForm.value.homepageUri,
     eventStartDate: serializeHackathonDateTimeInput(hackathonForm.value.eventStartDate),
     eventEndDate: serializeHackathonDateTimeInput(hackathonForm.value.eventEndDate),
     submissionsStartDate: serializeHackathonDateTimeInput(hackathonForm.value.submissionsStartDate),
@@ -114,10 +125,11 @@ async function handleHackathonSubmit() {
       toast.add({ title: 'Hackathon updated', color: 'success' })
     }
     else {
-      await createMutation.mutateAsync(formData)
+      await createMutation.mutateAsync({ data: formData })
       toast.add({ title: 'Hackathon created', color: 'success' })
     }
-    await queryClient.invalidateQueries({ queryKey: ['hackathons'] })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey() })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey() })
     isHackathonModalOpen.value = false
     resetHackathonForm()
   }
@@ -133,20 +145,17 @@ async function handleHackathonSubmit() {
 
 const isHackathonSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-const { data: user, isLoading: isLoadingUser } = useQuery(authQueries.whoAmI)
+const { data: user, isLoading: isLoadingUser } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
 
 // Fetch participant hackathons (published ones, for everyone)
-const { data: participantHackathonsData, isLoading: isLoadingParticipantHackathons } = useQuery(
-  participantHackathonQueries.list,
-)
+const { data: participantHackathonsData, isLoading: isLoadingParticipantHackathons } = useGeeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint()
 
 // Fetch organizer hackathons (ones user can manage, only for authenticated users)
-const { data: organizerHackathonsData, isLoading: isLoadingOrganizerHackathons } = useQuery(
-  computed(() => ({
-    ...participantHackathonQueries.organizerList,
-    enabled: !!user.value?.id,
-  })),
-)
+const { data: organizerHackathonsData, isLoading: isLoadingOrganizerHackathons } = useGeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint({
+  query: {
+    enabled: computed(() => !!user.value?.id),
+  },
+})
 
 const isLoadingHackathons = computed(() =>
   isLoadingUser.value || isLoadingParticipantHackathons.value || (!!user.value?.id && isLoadingOrganizerHackathons.value),
@@ -178,10 +187,7 @@ const hackathons = computed(() => {
 // Fetch participation status per hackathon
 const statusQueries = useQueries({
   queries: computed(() =>
-    hackathons.value.map(hackathon => ({
-      ...participantHackathonQueries.status(hackathon.id ?? ''),
-      enabled: !!hackathon.id,
-    })),
+    hackathons.value.map(hackathon => geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryOptions(hackathon.id ?? '')),
   ),
 })
 
@@ -189,23 +195,22 @@ const statusQueries = useQueries({
 const submissionQueries = useQueries({
   queries: computed(() =>
     hackathons.value.map((hackathon) => {
-      const status = statusQueries.value[hackathons.value.indexOf(hackathon)]?.data as HackOManiaApiEndpointsParticipantsHackathonStatusResponse | undefined
+      const status = statusQueries.value[hackathons.value.indexOf(hackathon)]?.data as GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse | undefined
       const isParticipant = status?.isParticipant === true
       return {
-        queryKey: ['hackathons', hackathon.id, 'registration', 'submissions'],
-        queryFn: () => useNuxtApp().$apiClient.participants.hackathons.byHackathonIdOrShortCodeId(hackathon.id ?? '').registration.submissions.get(),
+        ...geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryOptions(hackathon.id ?? ''),
         enabled: !!hackathon.id && isParticipant,
       }
     }),
   ),
 })
 
-function statusDataForIndex(index: number): HackOManiaApiEndpointsParticipantsHackathonStatusResponse | undefined {
-  return unref(statusQueries.value[index]?.data) as HackOManiaApiEndpointsParticipantsHackathonStatusResponse | undefined
+function statusDataForIndex(index: number): GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse | undefined {
+  return unref(statusQueries.value[index]?.data) as GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse | undefined
 }
 
-function submissionsDataForIndex(index: number): HackOManiaApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse | undefined {
-  return unref(submissionQueries.value[index]?.data) as HackOManiaApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse | undefined
+function submissionsDataForIndex(index: number): GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse | undefined {
+  return unref(submissionQueries.value[index]?.data) as GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListResponse | undefined
 }
 
 function isRegistrationComplete(index: number): boolean {
@@ -215,9 +220,9 @@ function isRegistrationComplete(index: number): boolean {
 
 async function joinHackathon(hackathon: { id: string, shortCode: string }) {
   try {
-    await joinMutation.mutateAsync(hackathon.id)
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.status(hackathon.id).queryKey })
-    await queryClient.invalidateQueries({ queryKey: participantHackathonQueries.list.queryKey })
+    await joinMutation.mutateAsync({ hackathonId: hackathon.id })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey(hackathon.id) })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey() })
     navigateTo(`/${hackathon.shortCode}/registration`)
   }
   catch (error) {
@@ -227,6 +232,19 @@ async function joinHackathon(hackathon: { id: string, shortCode: string }) {
       description: 'Please try again in a moment.',
       color: 'error',
     })
+  }
+}
+
+function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus | null | undefined, isParticipant?: boolean | null) {
+  if (!isParticipant)
+    return { label: 'Not joined', color: 'neutral' as const }
+  switch (status) {
+    case 'Accepted':
+      return { label: 'Accepted', color: 'success' as const }
+    case 'Rejected':
+      return { label: 'Rejected', color: 'error' as const }
+    default:
+      return { label: 'Pending review', color: 'warning' as const }
   }
 }
 </script>
@@ -343,7 +361,7 @@ async function joinHackathon(hackathon: { id: string, shortCode: string }) {
                 </div>
 
                 <div
-                  v-if="statusDataForIndex(index)?.status === HackOManiaApiEndpointsParticipantsHackathonStatusParticipantStatusObject.Rejected && statusDataForIndex(index)?.reviewReason"
+                  v-if="statusDataForIndex(index)?.status === 'Rejected' && statusDataForIndex(index)?.reviewReason"
                   class="text-xs text-red-500 dark:text-red-400"
                 >
                   Reason: {{ statusDataForIndex(index)?.reviewReason }}

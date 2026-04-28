@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQueryClient } from '@tanstack/vue-query'
+import {
+  geeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesUpdateEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, ref } from 'vue'
-import { challengeOrganizerQueries, challengeQueries, useCreateChallengeMutation, useDeleteChallengeMutation, useUpdateChallengeMutation } from '~/composables/challenges'
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -13,21 +20,15 @@ const hackathonId = computed(() => props.hackathonId || (route.params.hackathonI
 
 const queryClient = useQueryClient()
 
-const { data: challengesData, isLoading: isLoadingChallenges } = useQuery(
-  computed(() => ({
-    ...challengeOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: challengesData, isLoading: isLoadingChallenges } = useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpoint(
+  computed(() => hackathonId.value),
 )
 
 const challenges = computed(() => challengesData.value?.challenges ?? [])
 
 // Fetch participant challenges list for team counts
-const { data: participantChallengesData } = useQuery(
-  computed(() => ({
-    ...challengeQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: participantChallengesData } = useGeeksHackingPortalApiEndpointsParticipantsHackathonChallengesListEndpoint(
+  computed(() => hackathonId.value),
 )
 
 const teamCountByChallengeId = computed(() => {
@@ -41,9 +42,9 @@ const teamCountByChallengeId = computed(() => {
 })
 
 // Mutations
-const createMutation = useCreateChallengeMutation(hackathonId)
-const updateMutation = useUpdateChallengeMutation(hackathonId)
-const deleteMutation = useDeleteChallengeMutation(hackathonId)
+const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesCreateEndpoint()
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesUpdateEndpoint()
+const deleteMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint()
 
 // Modal state
 const isModalOpen = ref(false)
@@ -92,21 +93,22 @@ function openEditModal(challenge: typeof challenges.value[number]) {
 async function handleSubmit() {
   if (isEditing.value && editingChallengeId.value) {
     await updateMutation.mutateAsync({
+      hackathonId: hackathonId.value,
       challengeId: editingChallengeId.value,
       data: form.value,
     })
   }
   else {
-    await createMutation.mutateAsync(form.value)
+    await createMutation.mutateAsync({ hackathonId: hackathonId.value, data: form.value })
   }
-  await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'challenges', 'organizer'] })
+  await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpointQueryKey(hackathonId.value) })
   isModalOpen.value = false
   resetForm()
 }
 
 async function handleDelete(challengeId: string) {
-  await deleteMutation.mutateAsync(challengeId)
-  await queryClient.invalidateQueries({ queryKey: ['hackathons', hackathonId.value, 'challenges', 'organizer'] })
+  await deleteMutation.mutateAsync({ hackathonId: hackathonId.value, challengeId })
+  await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonChallengesListEndpointQueryKey(hackathonId.value) })
 }
 
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)

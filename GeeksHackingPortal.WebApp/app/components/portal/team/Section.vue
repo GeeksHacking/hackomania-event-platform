@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 import { computed, nextTick, ref, watch } from 'vue'
 
 const route = useRoute()
-const hackathon = useRouteHackathon()
-const hackathonId = useResolvedHackathonId()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
+const hackathonId = computed(() => hackathon.value?.id ?? '')
 
 // Get joinCode from URL query param
 const joinCodeParam = computed(() => {
@@ -16,19 +21,15 @@ const joinCodeParam = computed(() => {
 const sectionRef = ref<HTMLElement | null>(null)
 
 // Fetch participation status
-const { data: statusData, isLoading: isLoadingStatus } = useQuery(
-  computed(() => ({
-    ...hackathonQueries.status(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value,
-  })),
+const { data: statusData, isLoading: isLoadingStatus } = useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value) } },
 )
 
 // Fetch current user's team
-const { data: teamData, isLoading: isLoadingTeam } = useQuery(
-  computed(() => ({
-    ...teamQueries.me(hackathonId.value ?? ''),
-    enabled: !!hackathonId.value && !!statusData.value?.isParticipant,
-  })),
+const { data: teamData, isLoading: isLoadingTeam } = useGeeksHackingPortalApiEndpointsParticipantsHackathonTeamsGetMineEndpoint(
+  hackathonId,
+  { query: { enabled: computed(() => !!hackathonId.value && !!statusData.value?.isParticipant) } },
 )
 
 const isLoading = computed(() => isLoadingStatus.value || isLoadingTeam.value)
@@ -41,7 +42,7 @@ const eventStartDate = computed(() => hackathon.value?.eventStartDate ?? null)
 const hasHackathonStarted = computed(() => {
   if (!eventStartDate.value)
     return true // If no start date, show content
-  return new Date() >= eventStartDate.value
+  return new Date() >= new Date(eventStartDate.value)
 })
 
 // Auto-scroll to team section when user has joinCode param and no team
@@ -139,7 +140,7 @@ watch(
         v-if="hasTeam && hasHackathonStarted"
         :team-name="teamData!.name!"
         :team-id="teamData!.id!"
-        :hackathon-id="hackathonId!"
+        :hackathon-id="hackathonId"
         :selected-challenge-id="teamData!.challengeId ?? null"
         class="mt-12"
       />

@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type {
-  HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto,
-  HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto,
-} from '~/api-client/models'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+  GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto,
+  GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto,
+} from '@geekshacking/portal-sdk'
+import {
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsDeleteEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import { registrationQuestionOrganizerQueries, useCreateQuestionMutation, useDeleteQuestionMutation, useInitQuestionMutation, useUpdateQuestionMutation } from '~/composables/question'
 
-type Question = HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto
+type Question = GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -19,11 +25,8 @@ const hackathonId = computed(() => props.hackathonId || (route.params.hackathonI
 
 const queryClient = useQueryClient()
 
-const { data: questionsData, isLoading } = useQuery(
-  computed(() => ({
-    ...registrationQuestionOrganizerQueries.list(hackathonId.value),
-    enabled: !!hackathonId.value,
-  })),
+const { data: questionsData, isLoading } = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListEndpoint(
+  computed(() => hackathonId.value),
 )
 
 const questions = computed(() => questionsData.value?.questions ?? [])
@@ -61,10 +64,10 @@ const questionTypes = [
   { value: 10, label: 'Dropdown' },
 ]
 
-const updateMutation = useUpdateQuestionMutation(hackathonId)
-const initMutation = useInitQuestionMutation()
-const createMutation = useCreateQuestionMutation(hackathonId)
-const deleteMutation = useDeleteQuestionMutation(hackathonId)
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateEndpoint()
+const initMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint()
+const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsCreateEndpoint()
+const deleteMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsDeleteEndpoint()
 
 async function invalidateQuestions() {
   await queryClient.invalidateQueries({
@@ -75,7 +78,7 @@ async function invalidateQuestions() {
 async function initializeQuestions() {
   if (!hackathonId.value)
     return
-  await initMutation.mutateAsync(hackathonId.value)
+  await initMutation.mutateAsync({ hackathonId: hackathonId.value })
   await invalidateQuestions()
 }
 
@@ -165,9 +168,9 @@ async function saveQuestion() {
       category: editForm.value.category || null,
       conditionalLogic: editForm.value.conditionalLogic || null,
       validationRules: editForm.value.validationRules || null,
-      options: options as typeof options & HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
+      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
     }
-    await createMutation.mutateAsync(createData)
+    await createMutation.mutateAsync({ hackathonId: hackathonId.value, data: createData })
     isCreating.value = false
   }
   else if (editingId.value) {
@@ -180,9 +183,10 @@ async function saveQuestion() {
       category: editForm.value.category || null,
       conditionalLogic: editForm.value.conditionalLogic || null,
       validationRules: editForm.value.validationRules || null,
-      options: options as typeof options & HackOManiaApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
+      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
     }
     await updateMutation.mutateAsync({
+      hackathonId: hackathonId.value,
       questionId: editingId.value,
       data: updateData,
     })
@@ -195,7 +199,7 @@ async function saveQuestion() {
 async function deleteQuestion(questionId: string) {
   if (!confirm('Are you sure you want to delete this question?'))
     return
-  await deleteMutation.mutateAsync(questionId)
+  await deleteMutation.mutateAsync({ hackathonId: hackathonId.value, questionId })
   await invalidateQuestions()
 }
 
@@ -206,7 +210,7 @@ async function deleteAllQuestions() {
 
   for (const question of questions.value) {
     if (question.id) {
-      await deleteMutation.mutateAsync(question.id)
+      await deleteMutation.mutateAsync({ hackathonId: hackathonId.value, questionId: question.id })
     }
   }
 

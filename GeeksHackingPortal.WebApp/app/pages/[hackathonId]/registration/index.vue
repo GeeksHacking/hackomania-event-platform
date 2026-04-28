@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
+import {
+  useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint,
+} from '@geekshacking/portal-sdk/hooks'
 
 definePageMeta({
   // Explicitly mark as public route
@@ -8,18 +11,20 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const route = useRoute()
-const hackathon = useRouteHackathon()
+const routeHackathonId = computed(() => (route.params.hackathonId as string) ?? '')
+const { data: hackathon } = useGeeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(routeHackathonId)
 
 useHead({
   titleTemplate: title => (title ? `${title} - HackOMania` : 'HackOMania'),
 })
 
 // Check if user is authenticated
-const { data: user, isLoading, isSuccess } = useQuery({
-  ...authQueries.whoAmI,
-  retry: false,
-  staleTime: 0,
-  gcTime: 0,
+const { data: user, isLoading, isSuccess } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint({
+  query: {
+    retry: false,
+    staleTime: 0,
+    gcTime: 0,
+  },
 })
 
 // Only redirect to form if query succeeded and we have user data

@@ -1,0 +1,1 @@
+{"type":"object","additionalProperties":false,"properties":{"homepageUri":{"type":"string","format":"uri","nullable":true},"shortCode":{"type":"string","nullable":true},"maxParticipants":{"type":"integer","format":"int32","nullable":true}},"x-readme-ref-name":"GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest"}

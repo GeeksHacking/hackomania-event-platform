@@ -4,9 +4,14 @@ import type {
   GeeksHackingPortalApiEndpointsParticipantsHackathonStatusParticipantStatus,
   GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse,
 } from '@geekshacking/portal-sdk'
-import { useQueries, useQueryClient } from '@tanstack/vue-query'
 import {
+  geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint,
   geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey,
+  geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsAnalyticsEndpointQueryOptions,
+  geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey,
   geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey,
   geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryOptions,
   geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey,
@@ -14,10 +19,12 @@ import {
   useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
+import { useQueries, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, unref } from 'vue'
 import {
   formatHackathonDate,
@@ -30,7 +37,38 @@ const toast = useToast()
 const queryClient = useQueryClient()
 const joinMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint()
 const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint()
-const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonUpdateEndpoint()
+const updateActivityMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint()
+const updateHackathonMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpoint()
+const createStandaloneEventMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint()
+const updateStandaloneEventActivityMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint()
+const updateStandaloneEventMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint()
+
+interface StandaloneEvent {
+  id?: string
+  title?: string
+  description?: string
+  startTime?: string
+  endTime?: string
+  location?: string
+  homepageUri?: string
+  shortCode?: string
+  maxParticipants?: number
+  isPublished?: boolean
+  createdAt?: string
+  emailTemplates?: Record<string, string>
+}
+
+interface StandaloneEventAnalytics {
+  registeredCount?: number
+  withdrawnCount?: number
+  capacityRemaining?: number
+  capacityUsedPercent?: number
+  checkInCount?: number
+  currentlyCheckedInCount?: number
+  resourceCount?: number
+  resourceRedemptionCount?: number
+  emailTemplateCount?: number
+}
 
 // Admin hackathon CRUD
 const isHackathonModalOpen = ref(false)
@@ -118,10 +156,29 @@ async function handleHackathonSubmit() {
 
   try {
     if (isEditingHackathon.value && editingHackathonId.value) {
-      await updateMutation.mutateAsync({
-        hackathonId: editingHackathonId.value,
-        data: formData,
-      })
+      await Promise.all([
+        updateActivityMutation.mutateAsync({
+          activityId: editingHackathonId.value,
+          data: {
+            title: formData.name,
+            description: formData.description,
+            location: formData.venue,
+            startTime: formData.eventStartDate,
+            endTime: formData.eventEndDate,
+            isPublished: formData.isPublished,
+          },
+        }),
+        updateHackathonMutation.mutateAsync({
+          activityId: editingHackathonId.value,
+          data: {
+            submissionsStartDate: formData.submissionsStartDate,
+            challengeSelectionEndDate: formData.challengeSelectionEndDate,
+            submissionsEndDate: formData.submissionsEndDate,
+            judgingStartDate: formData.judgingStartDate,
+            judgingEndDate: formData.judgingEndDate,
+          },
+        }),
+      ])
       toast.add({ title: 'Hackathon updated', color: 'success' })
     }
     else {
@@ -130,6 +187,7 @@ async function handleHackathonSubmit() {
     }
     await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey() })
     await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey() })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey() })
     isHackathonModalOpen.value = false
     resetHackathonForm()
   }
@@ -143,7 +201,164 @@ async function handleHackathonSubmit() {
   }
 }
 
-const isHackathonSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
+const isHackathonSubmitting = computed(() =>
+  createMutation.isPending.value
+  || updateActivityMutation.isPending.value
+  || updateHackathonMutation.isPending.value,
+)
+
+const isStandaloneEventModalOpen = ref(false)
+const isEditingStandaloneEvent = ref(false)
+const editingStandaloneEventId = ref<string | null>(null)
+
+const standaloneEventForm = ref({
+  title: '',
+  description: '',
+  startTime: '',
+  endTime: '',
+  location: '',
+  homepageUri: '',
+  shortCode: '',
+  maxParticipants: 0,
+  isPublished: false,
+  emailTemplates: '{}',
+})
+
+function resetStandaloneEventForm() {
+  standaloneEventForm.value = {
+    title: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+    location: '',
+    homepageUri: '',
+    shortCode: '',
+    maxParticipants: 0,
+    isPublished: false,
+    emailTemplates: '{}',
+  }
+  isEditingStandaloneEvent.value = false
+  editingStandaloneEventId.value = null
+}
+
+function openCreateStandaloneEventModal() {
+  resetStandaloneEventForm()
+  isStandaloneEventModalOpen.value = true
+}
+
+function formatEmailTemplatesInput(templates: Record<string, string> | undefined) {
+  return JSON.stringify(templates ?? {}, null, 2)
+}
+
+function parseEmailTemplatesInput() {
+  try {
+    const value = JSON.parse(standaloneEventForm.value.emailTemplates || '{}')
+    if (value === null || Array.isArray(value) || typeof value !== 'object')
+      throw new Error('Expected an object')
+
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+        .map(([key, value]) => [key, value.trim()]),
+    )
+  }
+  catch {
+    toast.add({
+      title: 'Invalid email templates',
+      description: 'Use a JSON object like { "registration-confirmed": "template-id" }.',
+      color: 'error',
+    })
+    return null
+  }
+}
+
+function openEditStandaloneEventModal(event: typeof standaloneEvents.value[number]) {
+  standaloneEventForm.value = {
+    title: event.title ?? '',
+    description: event.description ?? '',
+    startTime: formatHackathonDateTimeInput(event.startTime),
+    endTime: formatHackathonDateTimeInput(event.endTime),
+    location: event.location ?? '',
+    homepageUri: event.homepageUri ?? '',
+    shortCode: event.shortCode ?? '',
+    maxParticipants: event.maxParticipants ?? 0,
+    isPublished: event.isPublished ?? false,
+    emailTemplates: formatEmailTemplatesInput(event.emailTemplates),
+  }
+  isEditingStandaloneEvent.value = true
+  editingStandaloneEventId.value = event.id ?? null
+  isStandaloneEventModalOpen.value = true
+}
+
+async function handleStandaloneEventSubmit() {
+  const emailTemplates = parseEmailTemplatesInput()
+  if (emailTemplates === null)
+    return
+
+  const formData = {
+    title: standaloneEventForm.value.title || undefined,
+    description: standaloneEventForm.value.description || undefined,
+    startTime: serializeHackathonDateTimeInput(standaloneEventForm.value.startTime),
+    endTime: serializeHackathonDateTimeInput(standaloneEventForm.value.endTime),
+    location: standaloneEventForm.value.location || undefined,
+    homepageUri: standaloneEventForm.value.homepageUri || undefined,
+    shortCode: standaloneEventForm.value.shortCode || undefined,
+    maxParticipants: Number(standaloneEventForm.value.maxParticipants) || undefined,
+    isPublished: standaloneEventForm.value.isPublished,
+    emailTemplates,
+  }
+
+  try {
+    if (isEditingStandaloneEvent.value && editingStandaloneEventId.value) {
+      await Promise.all([
+        updateStandaloneEventActivityMutation.mutateAsync({
+          activityId: editingStandaloneEventId.value,
+          data: {
+            title: formData.title,
+            description: formData.description,
+            startTime: formData.startTime,
+            endTime: formData.endTime,
+            location: formData.location,
+            isPublished: formData.isPublished,
+            emailTemplates,
+          },
+        }),
+        updateStandaloneEventMutation.mutateAsync({
+          activityId: editingStandaloneEventId.value,
+          data: {
+            homepageUri: formData.homepageUri,
+            shortCode: formData.shortCode,
+            maxParticipants: formData.maxParticipants,
+          },
+        }),
+      ])
+      toast.add({ title: 'Standalone event updated', color: 'success' })
+    }
+    else {
+      await createStandaloneEventMutation.mutateAsync({ data: formData })
+      toast.add({ title: 'Standalone event created', color: 'success' })
+    }
+
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey() })
+    await queryClient.invalidateQueries({ queryKey: geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey() })
+    isStandaloneEventModalOpen.value = false
+    resetStandaloneEventForm()
+  }
+  catch (error) {
+    console.error('Failed to save standalone event', error)
+    toast.add({
+      title: 'Failed to save standalone event',
+      description: 'Please try again.',
+      color: 'error',
+    })
+  }
+}
+
+const isStandaloneEventSubmitting = computed(() =>
+  createStandaloneEventMutation.isPending.value
+  || updateStandaloneEventActivityMutation.isPending.value
+  || updateStandaloneEventMutation.isPending.value,
+)
 
 const { data: user, isLoading: isLoadingUser } = useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
 
@@ -152,6 +367,12 @@ const { data: participantHackathonsData, isLoading: isLoadingParticipantHackatho
 
 // Fetch organizer hackathons (ones user can manage, only for authenticated users)
 const { data: organizerHackathonsData, isLoading: isLoadingOrganizerHackathons } = useGeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint({
+  query: {
+    enabled: computed(() => !!user.value?.id),
+  },
+})
+
+const { data: standaloneEventsData, isLoading: isLoadingStandaloneEvents } = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint({
   query: {
     enabled: computed(() => !!user.value?.id),
   },
@@ -183,6 +404,19 @@ const hackathons = computed(() => {
 
   return Array.from(hackathonMap.values())
 })
+
+const standaloneEvents = computed(() => standaloneEventsData.value?.standaloneWorkshops ?? [])
+
+const standaloneEventAnalyticsQueries = useQueries({
+  queries: computed(() => standaloneEvents.value.map(event => ({
+    ...geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsAnalyticsEndpointQueryOptions(event.id ?? ''),
+    enabled: !!event.id,
+  }))),
+})
+
+function standaloneEventAnalyticsForIndex(index: number): StandaloneEventAnalytics | undefined {
+  return unref(standaloneEventAnalyticsQueries.value[index]?.data) as StandaloneEventAnalytics | undefined
+}
 
 // Fetch participation status per hackathon
 const statusQueries = useQueries({
@@ -453,6 +687,161 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
               </div>
             </UCard>
           </div>
+
+          <div class="pt-8 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div class="flex flex-col gap-1">
+                <h2 class="text-lg font-semibold">
+                  Standalone Events
+                </h2>
+                <p class="text-sm text-(--ui-text-muted)">
+                  Manage non-hackathon events, capacity, custom links, notification templates, and live analytics.
+                </p>
+              </div>
+              <UButton
+                v-if="user?.isRoot"
+                icon="i-lucide-plus"
+                size="sm"
+                class="self-start"
+                @click="openCreateStandaloneEventModal"
+              >
+                Add Standalone Event
+              </UButton>
+            </div>
+
+            <div
+              v-if="isLoadingUser || (!!user?.id && isLoadingStandaloneEvents)"
+              class="text-(--ui-text-muted)"
+            >
+              Loading standalone events...
+            </div>
+
+            <div
+              v-else-if="!user?.id"
+              class="text-(--ui-text-muted)"
+            >
+              Sign in to view standalone events you organize.
+            </div>
+
+            <div
+              v-else-if="!standaloneEvents.length"
+              class="text-(--ui-text-muted)"
+            >
+              No standalone events available.
+            </div>
+
+            <div
+              v-else
+              class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              <UCard
+                v-for="(event, index) in standaloneEvents"
+                :key="event.id ?? index"
+              >
+                <template #header>
+                  <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-base font-semibold truncate">
+                      {{ event.title }}
+                    </h3>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <UButton
+                        v-if="user?.isRoot"
+                        size="xs"
+                        variant="ghost"
+                        icon="i-lucide-pencil"
+                        @click.stop="openEditStandaloneEventModal(event)"
+                      />
+                      <UBadge
+                        :color="event.isPublished ? 'success' : 'neutral'"
+                        variant="subtle"
+                        size="sm"
+                      >
+                        {{ event.isPublished ? 'Published' : 'Draft' }}
+                      </UBadge>
+                    </div>
+                  </div>
+                </template>
+
+                <p class="text-sm text-(--ui-text-muted) min-h-14">
+                  {{ event.description }}
+                </p>
+
+                <div class="mt-3 flex flex-col gap-3">
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-(--ui-text-muted)">
+                    <span>Starts: {{ formatHackathonDate(event.startTime) }}</span>
+                    <span>•</span>
+                    <span>Ends: {{ formatHackathonDate(event.endTime) }}</span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="rounded-lg border border-default p-2">
+                      <div class="text-(--ui-text-muted)">
+                        Registered
+                      </div>
+                      <div class="font-semibold">
+                        {{ standaloneEventAnalyticsForIndex(index)?.registeredCount ?? '...' }} / {{ event.maxParticipants ?? 0 }}
+                      </div>
+                    </div>
+                    <div class="rounded-lg border border-default p-2">
+                      <div class="text-(--ui-text-muted)">
+                        Capacity Used
+                      </div>
+                      <div class="font-semibold">
+                        {{ standaloneEventAnalyticsForIndex(index)?.capacityUsedPercent ?? 0 }}%
+                      </div>
+                    </div>
+                    <div class="rounded-lg border border-default p-2">
+                      <div class="text-(--ui-text-muted)">
+                        Checked In
+                      </div>
+                      <div class="font-semibold">
+                        {{ standaloneEventAnalyticsForIndex(index)?.currentlyCheckedInCount ?? 0 }} current
+                      </div>
+                    </div>
+                    <div class="rounded-lg border border-default p-2">
+                      <div class="text-(--ui-text-muted)">
+                        Resources
+                      </div>
+                      <div class="font-semibold">
+                        {{ standaloneEventAnalyticsForIndex(index)?.resourceRedemptionCount ?? 0 }} redemptions
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-(--ui-text-muted)">
+                    <span>{{ standaloneEventAnalyticsForIndex(index)?.withdrawnCount ?? 0 }} withdrawn</span>
+                    <span>•</span>
+                    <span>{{ standaloneEventAnalyticsForIndex(index)?.emailTemplateCount ?? Object.keys(event.emailTemplates ?? {}).length }} email templates</span>
+                    <span>•</span>
+                    <span>{{ event.location }}</span>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2">
+                    <UButton
+                      v-if="event.id"
+                      :to="`/dash/standalone/${event.id}`"
+                      color="neutral"
+                      size="sm"
+                      class="w-full sm:w-auto"
+                    >
+                      Manage
+                    </UButton>
+                    <UButton
+                      v-if="event.homepageUri"
+                      :to="event.homepageUri"
+                      target="_blank"
+                      color="neutral"
+                      variant="outline"
+                      size="sm"
+                      class="w-full sm:w-auto"
+                    >
+                      Homepage
+                    </UButton>
+                  </div>
+                </div>
+              </UCard>
+            </div>
+          </div>
         </div>
       </template>
     </UDashboardPanel>
@@ -598,6 +987,133 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
                 :loading="isHackathonSubmitting"
               >
                 {{ isEditingHackathon ? 'Update' : 'Create' }}
+              </UButton>
+            </div>
+          </form>
+        </UCard>
+      </template>
+    </UModal>
+
+    <UModal
+      v-if="user?.isRoot"
+      v-model:open="isStandaloneEventModalOpen"
+    >
+      <template #content>
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-semibold">
+                {{ isEditingStandaloneEvent ? 'Edit Standalone Event' : 'Create Standalone Event' }}
+              </h3>
+              <UButton
+                variant="ghost"
+                icon="i-lucide-x"
+                size="xs"
+                @click="isStandaloneEventModalOpen = false"
+              />
+            </div>
+          </template>
+
+          <form
+            class="space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto pr-1"
+            @submit.prevent="handleStandaloneEventSubmit"
+          >
+            <UFormField
+              label="Title"
+              required
+            >
+              <UInput
+                v-model="standaloneEventForm.title"
+                placeholder="Event title"
+              />
+            </UFormField>
+
+            <UFormField label="Short Code">
+              <UInput
+                v-model="standaloneEventForm.shortCode"
+                placeholder="e.g., workshop-2026"
+              />
+            </UFormField>
+
+            <UFormField label="Description">
+              <UTextarea
+                v-model="standaloneEventForm.description"
+                placeholder="Standalone event description"
+                :rows="3"
+              />
+            </UFormField>
+
+            <UFormField label="Location">
+              <UInput
+                v-model="standaloneEventForm.location"
+                placeholder="Event location"
+              />
+            </UFormField>
+
+            <UFormField label="Homepage URL">
+              <UInput
+                v-model="standaloneEventForm.homepageUri"
+                placeholder="https://..."
+              />
+            </UFormField>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <p class="text-xs text-(--ui-text-muted) sm:col-span-2">
+                Schedule fields use {{ HACKATHON_TIME_ZONE_LABEL }} (UTC+8).
+              </p>
+              <UFormField label="Event Start">
+                <UInput
+                  v-model="standaloneEventForm.startTime"
+                  type="datetime-local"
+                />
+              </UFormField>
+
+              <UFormField label="Event End">
+                <UInput
+                  v-model="standaloneEventForm.endTime"
+                  type="datetime-local"
+                />
+              </UFormField>
+            </div>
+
+            <UFormField label="Max Participants">
+              <UInput
+                v-model.number="standaloneEventForm.maxParticipants"
+                type="number"
+                min="0"
+              />
+            </UFormField>
+
+            <UFormField
+              label="Email Templates"
+              help="JSON object keyed by event name, e.g. registration-confirmed."
+            >
+              <UTextarea
+                v-model="standaloneEventForm.emailTemplates"
+                :rows="5"
+                class="font-mono text-xs"
+              />
+            </UFormField>
+
+            <UCheckbox
+              v-model="standaloneEventForm.isPublished"
+              label="Published"
+            />
+
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
+              <UButton
+                variant="ghost"
+                class="w-full sm:w-auto"
+                @click="isStandaloneEventModalOpen = false"
+              >
+                Cancel
+              </UButton>
+              <UButton
+                type="submit"
+                class="w-full sm:w-auto"
+                :loading="isStandaloneEventSubmitting"
+              >
+                {{ isEditingStandaloneEvent ? 'Update' : 'Create' }}
               </UButton>
             </div>
           </form>

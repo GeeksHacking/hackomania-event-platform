@@ -61,7 +61,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "dev": "kubb generate",
+    "dev": "tsdown",
+    "generate": "kubb generate",
     "build": "tsdown",
     "postinstall": "tsdown"
   },

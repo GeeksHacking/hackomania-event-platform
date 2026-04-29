@@ -19,6 +19,47 @@ export type ResponseConfig<TData = unknown> = {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
+type ErrorResponsePayload = {
+  message?: string
+  reason?: string
+  title?: string
+  errors?: Record<string, string[] | string>
+}
+
+export class ClientResponseError<TError = unknown> extends Error {
+  status: number
+  statusCode: number
+  responseStatusCode: number
+  response: {
+    status: number
+    statusText: string
+    data: TError
+    headers: Headers
+  }
+  data: TError
+
+  constructor(args: {
+    status: number
+    statusText: string
+    data: TError
+    headers: Headers
+    message: string
+  }) {
+    super(args.message)
+    this.name = 'ClientResponseError'
+    this.status = args.status
+    this.statusCode = args.status
+    this.responseStatusCode = args.status
+    this.data = args.data
+    this.response = {
+      status: args.status,
+      statusText: args.statusText,
+      data: args.data,
+      headers: args.headers,
+    }
+  }
+}
+
 export type Client = <TResponseData, _TError = unknown, TRequestData = unknown>(
   config: RequestConfig<TRequestData>,
 ) => Promise<ResponseConfig<TResponseData>>
@@ -56,6 +97,26 @@ export const mergeConfig = <T extends RequestConfig>(...configs: Array<Partial<T
       ...headersToObject(current.headers),
     },
   }), {})
+}
+
+function getErrorMessage(status: number, statusText: string, data: unknown) {
+  if (data && typeof data === 'object') {
+    const errorPayload = data as ErrorResponsePayload
+    if (typeof errorPayload.message === 'string' && errorPayload.message.trim())
+      return errorPayload.message
+    if (typeof errorPayload.reason === 'string' && errorPayload.reason.trim())
+      return errorPayload.reason
+    if (typeof errorPayload.title === 'string' && errorPayload.title.trim())
+      return errorPayload.title
+
+    const firstFieldError = Object.values(errorPayload.errors ?? {}).flatMap(value =>
+      Array.isArray(value) ? value : [value],
+    )[0]
+    if (typeof firstFieldError === 'string' && firstFieldError.trim())
+      return firstFieldError
+  }
+
+  return statusText || `Request failed with status ${status}`
 }
 
 function withQuery(url: string, params?: RequestConfig['params']) {
@@ -97,6 +158,16 @@ export const client = (async <TResponseData, _TError = unknown, TRequestData = u
   const data = [204, 205, 304].includes(response.status) || !response.body
     ? {}
     : await response.json()
+
+  if (!response.ok) {
+    throw new ClientResponseError({
+      status: response.status,
+      statusText: response.statusText,
+      data,
+      headers: response.headers,
+      message: getErrorMessage(response.status, response.statusText, data),
+    })
+  }
 
   return {
     data: data as TResponseData,

@@ -71,23 +71,23 @@ jobs:
         run: |
           # Capture the migrator output into a file so we can both print it and upload it.
           # The diff command returns 0 when there are no changes and 2 when drift exists.
-          # GitHub's pwsh runner can treat non-zero native process exits as terminating errors.
-          # Drift is an expected diff result, so temporarily disable that behavior and handle
-          # the migrator status explicitly below.
+          # GitHub's pwsh runner can treat non-zero native process exits in pipelines as
+          # terminating errors. Drift is expected, so capture output and status separately.
           $previousNativeCommandPreference = $PSNativeCommandUseErrorActionPreference
           $PSNativeCommandUseErrorActionPreference = $false
           try {
-            dotnet run --project GeeksHackingPortal.DbMigrator --configuration Release -- diff 2>&1 |
-              Tee-Object -FilePath db-schema-diff.txt
+            $diffOutput = dotnet run --project GeeksHackingPortal.DbMigrator --configuration Release -- diff 2>&1
             $status = $LASTEXITCODE
           } finally {
             $PSNativeCommandUseErrorActionPreference = $previousNativeCommandPreference
           }
+          $diffOutput | Tee-Object -FilePath db-schema-diff.txt
+          $hasSchemaChanges = ($diffOutput -join "`n") -match "Pending database schema changes detected"
 
           # Convert the migrator exit code into a workflow output instead of failing the job.
           if ($status -eq 0) {
             "has_changes=false" | Out-File -Append -FilePath $env:GITHUB_OUTPUT -Encoding utf8
-          } elseif ($status -eq 2) {
+          } elseif ($status -eq 2 -or ($status -eq 1 -and $hasSchemaChanges)) {
             "has_changes=true" | Out-File -Append -FilePath $env:GITHUB_OUTPUT -Encoding utf8
           } else {
             exit $status

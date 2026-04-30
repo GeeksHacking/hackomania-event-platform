@@ -14,6 +14,11 @@ public class UriConverter : ISugarDataConverter
             return new SugarParameter(name, uri.ToString());
         }
 
+        if (value is null or DBNull)
+        {
+            return new SugarParameter(name, DBNull.Value);
+        }
+
         return new SugarParameter(name, value.ToString());
     }
 

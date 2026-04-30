@@ -83,6 +83,11 @@ function parseEmailTemplates() {
   }
 }
 
+function normalizeOptionalUrl(value: string | null | undefined) {
+  const trimmed = (value ?? '').trim()
+  return trimmed === '' ? null : trimmed
+}
+
 async function handleSubmit() {
   const emailTemplates = parseEmailTemplates()
   if (emailTemplates === null || !standaloneWorkshopId.value)
@@ -103,9 +108,10 @@ async function handleSubmit() {
         },
       }),
       updateMutation.mutateAsync({
-        activityId: standaloneWorkshopId.value,
+        standaloneWorkshopId: standaloneWorkshopId.value,
         data: {
-          homepageUri: form.value.homepageUri || undefined,
+          // Keep the key present when clearing; null means "remove homepage URL".
+          homepageUri: normalizeOptionalUrl(form.value.homepageUri),
           shortCode: form.value.shortCode || undefined,
           maxParticipants: Number(form.value.maxParticipants) || undefined,
         },

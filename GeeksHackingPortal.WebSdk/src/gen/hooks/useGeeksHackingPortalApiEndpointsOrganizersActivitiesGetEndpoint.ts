@@ -3,29 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryKey = (activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointPathParams["activityId"] | undefined>) => [{ url: '/organizers/activities/:activityId', params: {activityId:activityId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryKey>
-
-/**
- * {@link /organizers/activities/:activityId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint(activityId: GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointPathParams["activityId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpoint403>, unknown>({ method : "GET", url : `/organizers/activities/${activityId}`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointQueryOptions(activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesGetEndpointPathParams["activityId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

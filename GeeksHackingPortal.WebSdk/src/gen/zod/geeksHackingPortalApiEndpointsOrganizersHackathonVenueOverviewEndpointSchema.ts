@@ -7,7 +7,7 @@ import { geeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewResponseS
 import { z } from "zod/v4";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonVenueOverviewEndpointPathParamsSchema = z.object({
-    "hackathonId": z.string()
+    "activityId": z.string()
     })
 
 /**

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import {
-  geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsInitializeEndpoint,
   geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpointQueryOptions,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint,
   useGeeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
@@ -24,7 +23,7 @@ const lastSetupHackathonId = ref<string | null>(null)
 const canJoinFromHere = ref(false)
 
 // Initialize mutations at component level (must be in setup)
-const initQuestionMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint()
+const initQuestionMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsInitializeEndpoint()
 const joinMutation = useGeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint()
 const queryClient = useQueryClient()
 
@@ -59,12 +58,14 @@ watch(
     setupComplete.value = false
 
     try {
-      const questionsResponse = await geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpoint(id)
+      const questionsResponse = await queryClient.fetchQuery(
+        geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationQuestionsListEndpointQueryOptions(id),
+      )
       const categories = questionsResponse?.categories ?? []
       const hasQuestions = categories.some(cat => cat.questions && cat.questions.length > 0)
 
       if (!hasQuestions)
-        await initQuestionMutation.mutateAsync({ hackathonId: id })
+        await initQuestionMutation.mutateAsync({ activityId: id })
 
       lastSetupHackathonId.value = id
       setupComplete.value = true
@@ -101,44 +102,60 @@ async function joinHackathonFromRegistration() {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-900 min-h-screen font-raleway">
+  <div class="min-h-screen bg-(--ui-bg) text-(--ui-text) font-raleway">
     <RegistrationFormHeader :hackathon-id="hackathonId" />
 
-    <div v-if="!hackathonId" class="text-center py-8 space-y-2">
-      <p class="text-gray-900 dark:text-gray-100">
-        Unable to load registration. Please return to the website and try again.
-      </p>
-      <NuxtLink to="https://hackomania.geekshacking.com/" external class="text-blue-600 dark:text-blue-400 underline">
+    <div v-if="!hackathonId" class="mx-auto max-w-xl px-4 py-8">
+      <UAlert
+        color="warning"
+        variant="soft"
+        title="Unable to load registration"
+        description="Please return to the website and try again."
+      />
+      <UButton
+        to="https://hackomania.geekshacking.com/"
+        external
+        variant="link"
+        color="neutral"
+        class="mt-3 px-0"
+      >
         Return to HackOMania
-      </NuxtLink>
+      </UButton>
     </div>
 
     <div
       v-else-if="isLoadingStatus || isLoading"
-      class="text-center py-8"
+      class="flex flex-col items-center justify-center gap-3 px-4 py-8 text-center"
     >
-      <p class="text-gray-900 dark:text-gray-100">
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
+      <p class="text-sm font-medium text-(--ui-text-muted)">
         Loading registration questions...
       </p>
     </div>
 
     <div
       v-else-if="statusError"
-      class="text-center py-8"
+      class="mx-auto max-w-xl px-4 py-8"
     >
-      <p class="text-red-600 dark:text-red-400">
-        Unable to load your participation status. Please return to the dashboard and try again.
-      </p>
+      <UAlert
+        color="error"
+        variant="soft"
+        title="Unable to load your participation status"
+        description="Please return to the dashboard and try again."
+      />
     </div>
 
     <!-- Setup Error State -->
     <div
       v-else-if="setupError"
-      class="text-center py-8"
+      class="mx-auto max-w-xl px-4 py-8 text-center"
     >
-      <p class="text-red-600 dark:text-red-400">
-        {{ setupError }}
-      </p>
+      <UAlert
+        color="error"
+        variant="soft"
+        title="Registration unavailable"
+        :description="setupError"
+      />
       <div
         v-if="canJoinFromHere"
         class="mt-4"
@@ -156,9 +173,10 @@ async function joinHackathonFromRegistration() {
 
     <div
       v-else-if="!setupComplete"
-      class="text-center py-8"
+      class="flex flex-col items-center justify-center gap-3 px-4 py-8 text-center"
     >
-      <p class="text-gray-900 dark:text-gray-100">
+      <UIcon name="i-lucide-loader-circle" class="size-8 animate-spin text-primary" />
+      <p class="text-sm font-medium text-(--ui-text-muted)">
         Preparing your registration form...
       </p>
     </div>
@@ -166,11 +184,14 @@ async function joinHackathonFromRegistration() {
     <!-- Error State -->
     <div
       v-else-if="error"
-      class="text-center py-8"
+      class="mx-auto max-w-xl px-4 py-8"
     >
-      <p class="text-red-600 dark:text-red-400">
-        Error loading questions: {{ error.message }}
-      </p>
+      <UAlert
+        color="error"
+        variant="soft"
+        title="Error loading questions"
+        :description="error.message"
+      />
     </div>
 
     <!-- Render Form with Questions -->
@@ -178,7 +199,6 @@ async function joinHackathonFromRegistration() {
       <RegistrationDynamicForm
         :questions="questions"
         :hackathon-id="hackathonId!"
-        @section-change="onSectionChange"
       />
     </div>
   </div>

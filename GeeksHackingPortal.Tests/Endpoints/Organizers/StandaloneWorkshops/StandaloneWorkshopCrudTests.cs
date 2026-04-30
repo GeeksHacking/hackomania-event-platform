@@ -212,7 +212,7 @@ public class StandaloneWorkshopCrudTests
         var result = await response.Content.ReadFromJsonAsync<ActivityResponse>();
 
         var metadataResponse = await Client.HttpClient.PatchAsJsonAsync(
-            $"/organizers/activities/{workshop.Id}/standalone-workshop",
+            $"/organizers/standalone-workshops/{workshop.Id}",
             new
             {
                 HomepageUri = request.HomepageUri,

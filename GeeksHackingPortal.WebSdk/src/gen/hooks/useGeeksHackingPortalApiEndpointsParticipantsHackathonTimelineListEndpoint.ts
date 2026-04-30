@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointPathParams } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryKey = (hackathonIdOrShortCode: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointPathParams["hackathonIdOrShortCode"] | undefined>) => [{ url: '/participants/hackathons/:hackathonIdOrShortCode/timeline', params: {hackathonIdOrShortCode:hackathonIdOrShortCode} }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryKey>
-
-/**
- * @description Retrieves the timeline of events for a hackathon by ID or short code.
- * @summary Get event timeline for a hackathon
- * {@link /participants/hackathons/:hackathonIdOrShortCode/timeline}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpoint(hackathonIdOrShortCode: GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointPathParams["hackathonIdOrShortCode"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : `/participants/hackathons/${hackathonIdOrShortCode}/timeline`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointQueryOptions(hackathonIdOrShortCode: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsHackathonTimelineListEndpointPathParams["hackathonIdOrShortCode"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsUsersProfileGetEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsUsersProfileGetEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsUsersProfileGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsUsersProfileGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryKey = () => [{ url: '/users/me' }] as const
 
 export type GeeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryKey>
-
-/**
- * @description Returns the current user's profile name information.
- * @summary Get current user profile
- * {@link /users/me}
- */
-export async function geeksHackingPortalApiEndpointsUsersProfileGetEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsUsersProfileGetEndpoint401>, unknown>({ method : "GET", url : `/users/me`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsUsersProfileGetEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

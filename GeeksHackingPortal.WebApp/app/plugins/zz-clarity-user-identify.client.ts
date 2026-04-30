@@ -1,4 +1,5 @@
-import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryOptions } from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 
 declare global {
   interface Window {
@@ -7,6 +8,8 @@ declare global {
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
+  const queryClient = useQueryClient()
+
   nuxtApp.hook('app:mounted', async () => {
     // Skip identification when Clarity is unavailable (blocked script, CSP, etc.)
     if (typeof window.clarity !== 'function') {
@@ -14,7 +17,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     try {
-      const user = await geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
+      const user = await queryClient.fetchQuery(geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryOptions())
       const userId = user?.id
 
       if (userId) {

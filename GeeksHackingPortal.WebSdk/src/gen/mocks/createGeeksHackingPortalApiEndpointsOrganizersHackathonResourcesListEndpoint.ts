@@ -10,7 +10,7 @@ import { createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListRes
 export function createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpointPathParams(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpointPathParams>): GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpointPathParams {
 
   return {
-    ...{"hackathonId": faker.string.alpha()},
+    ...{"activityId": faker.string.alpha()},
     ...data || {}
   }
 }

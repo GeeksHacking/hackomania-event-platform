@@ -31,7 +31,7 @@ var api = builder
     .WaitForCompletion(migrations)
     .WaitFor(db);
 
-var sdk = builder
+builder
     .AddJavaScriptApp("sdk", "../GeeksHackingPortal.WebSdk")
     .WithPnpm()
     .WithReference(api)
@@ -42,7 +42,6 @@ builder
     .WithPnpm(install: false)
     .WithReference(api)
     .WithHttpEndpoint(port: 3000, env: "PORT")
-    .WaitFor(api)
-    .WaitFor(sdk);
+    .WaitFor(api);
 
 builder.Build().Run();

@@ -240,7 +240,7 @@ async function handleCheckIn() {
   scanResult.value = null
 
   try {
-    const result = await checkInMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
+    const result = await checkInMutation.mutateAsync({ activityId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
     const participantName = selectedParticipantName.value || participantDetail.value?.name || 'Unknown'
 
     scanResult.value = {
@@ -270,7 +270,7 @@ async function handleCheckOut() {
     return
   scanResult.value = null
   try {
-    const result = await checkOutMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
+    const result = await checkOutMutation.mutateAsync({ activityId: hackathonId.value, participantUserId: selectedParticipantUserId.value })
     scanResult.value = {
       success: true,
       message: `Participant checked out at ${formatCheckInTime(result.checkOutTime)}.`,
@@ -311,7 +311,7 @@ function openHistory(userId: string, name: string) {
 
 async function handleCheckInFromList(userId: string) {
   try {
-    await checkInMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId })
+    await checkInMutation.mutateAsync({ activityId: hackathonId.value, participantUserId: userId })
     refreshOverview()
   }
   catch (err) {
@@ -321,7 +321,7 @@ async function handleCheckInFromList(userId: string) {
 
 async function handleCheckOutFromList(userId: string) {
   try {
-    await checkOutMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId })
+    await checkOutMutation.mutateAsync({ activityId: hackathonId.value, participantUserId: userId })
     refreshOverview()
   }
   catch (err) {

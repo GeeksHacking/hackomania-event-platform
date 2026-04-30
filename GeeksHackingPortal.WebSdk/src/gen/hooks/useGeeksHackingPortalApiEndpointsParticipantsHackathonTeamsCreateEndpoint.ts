@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationKey>
-
-/**
- * @description Creates a new team for the hackathon and adds the current user as a member.
- * @summary Create a team
- * {@link /participants/hackathons/:hackathonId/teams}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpoint403>, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsCreateEndpointMutationRequest>({ method : "POST", url : `/participants/hackathons/${hackathonId}/teams`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Creates a new team for the hackathon and adds the current user as a member.

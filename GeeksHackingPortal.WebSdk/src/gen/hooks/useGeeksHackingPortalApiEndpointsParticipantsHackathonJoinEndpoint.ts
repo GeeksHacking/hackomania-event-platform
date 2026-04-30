@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/join' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointMutationKey>
-
-/**
- * @description Registers the current user as a participant in the hackathon.
- * @summary Join a hackathon
- * {@link /participants/hackathons/:hackathonId/join}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonJoinEndpoint401>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/join`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Registers the current user as a participant in the hackathon.

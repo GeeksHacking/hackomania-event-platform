@@ -9,7 +9,7 @@ import { faker } from "@faker-js/faker";
 export function createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemResponse(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemResponse>): GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemResponse {
 
   return {
-    ...{"redemptionId": faker.string.alpha(),"resourceId": faker.string.alpha(),"hackathonId": faker.string.alpha(),"createdAt": faker.date.anytime().toISOString()},
+    ...{"redemptionId": faker.string.alpha(),"resourceId": faker.string.alpha(),"activityId": faker.string.alpha(),"createdAt": faker.date.anytime().toISOString()},
     ...data || {}
   }
 }

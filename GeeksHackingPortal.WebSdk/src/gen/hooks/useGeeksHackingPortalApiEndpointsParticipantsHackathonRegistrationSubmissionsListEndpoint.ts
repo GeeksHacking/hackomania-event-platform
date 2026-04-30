@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointPathParams["hackathonId"] | undefined>) => [{ url: '/participants/hackathons/:hackathonId/registration/submissions', params: {hackathonId:hackathonId} }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryKey>
-
-/**
- * @description Get the current user's registration submissions for a hackathon.
- * @summary Get my registration submissions
- * {@link /participants/hackathons/:hackathonId/registration/submissions}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpoint403>, unknown>({ method : "GET", url : `/participants/hackathons/${hackathonId}/registration/submissions`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsHackathonRegistrationSubmissionsListEndpointPathParams["hackathonId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

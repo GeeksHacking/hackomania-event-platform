@@ -3,6 +3,7 @@
 * Do not edit manually.
 */
 
+import type { FastEndpointsErrorResponse } from "./FastEndpointsErrorResponse.ts";
 import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest } from "./GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest.ts";
 import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse } from "./GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse.ts";
 
@@ -10,13 +11,18 @@ export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshop
     /**
      * @type string, guid
     */
-    activityId: string;
+    standaloneWorkshopId: string;
 };
 
 /**
  * @description Success
 */
 export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200 = GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse;
+
+/**
+ * @description Bad Request
+*/
+export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400 = FastEndpointsErrorResponse;
 
 /**
  * @description Unauthorized
@@ -36,5 +42,5 @@ export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshop
     Response: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200;
     Request: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest;
     PathParams: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams;
-    Errors: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403;
+    Errors: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403;
 };

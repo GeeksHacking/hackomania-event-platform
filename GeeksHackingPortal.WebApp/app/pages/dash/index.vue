@@ -170,7 +170,7 @@ async function handleHackathonSubmit() {
           },
         }),
         updateHackathonMutation.mutateAsync({
-          activityId: editingHackathonId.value,
+          hackathonId: editingHackathonId.value,
           data: {
             submissionsStartDate: formData.submissionsStartDate,
             challengeSelectionEndDate: formData.challengeSelectionEndDate,
@@ -291,6 +291,11 @@ function openEditStandaloneEventModal(event: typeof standaloneEvents.value[numbe
   isStandaloneEventModalOpen.value = true
 }
 
+function normalizeOptionalUrl(value: string | null | undefined) {
+  const trimmed = (value ?? '').trim()
+  return trimmed === '' ? null : trimmed
+}
+
 async function handleStandaloneEventSubmit() {
   const emailTemplates = parseEmailTemplatesInput()
   if (emailTemplates === null)
@@ -302,7 +307,7 @@ async function handleStandaloneEventSubmit() {
     startTime: serializeHackathonDateTimeInput(standaloneEventForm.value.startTime),
     endTime: serializeHackathonDateTimeInput(standaloneEventForm.value.endTime),
     location: standaloneEventForm.value.location || undefined,
-    homepageUri: standaloneEventForm.value.homepageUri || undefined,
+    homepageUri: normalizeOptionalUrl(standaloneEventForm.value.homepageUri),
     shortCode: standaloneEventForm.value.shortCode || undefined,
     maxParticipants: Number(standaloneEventForm.value.maxParticipants) || undefined,
     isPublished: standaloneEventForm.value.isPublished,
@@ -325,9 +330,10 @@ async function handleStandaloneEventSubmit() {
           },
         }),
         updateStandaloneEventMutation.mutateAsync({
-          activityId: editingStandaloneEventId.value,
+          standaloneWorkshopId: editingStandaloneEventId.value,
           data: {
-            homepageUri: formData.homepageUri,
+            // Keep the key present when clearing; null means "remove homepage URL".
+            homepageUri: normalizeOptionalUrl(standaloneEventForm.value.homepageUri),
             shortCode: formData.shortCode,
             maxParticipants: formData.maxParticipants,
           },
@@ -336,7 +342,21 @@ async function handleStandaloneEventSubmit() {
       toast.add({ title: 'Standalone event updated', color: 'success' })
     }
     else {
-      await createStandaloneEventMutation.mutateAsync({ data: formData })
+      if (!formData.homepageUri) {
+        toast.add({
+          title: 'Homepage URL is required',
+          description: 'Add a homepage URL before creating the standalone event.',
+          color: 'error',
+        })
+        return
+      }
+
+      await createStandaloneEventMutation.mutateAsync({
+        data: {
+          ...formData,
+          homepageUri: formData.homepageUri,
+        },
+      })
       toast.add({ title: 'Standalone event created', color: 'success' })
     }
 
@@ -349,7 +369,6 @@ async function handleStandaloneEventSubmit() {
     console.error('Failed to save standalone event', error)
     toast.add({
       title: 'Failed to save standalone event',
-      description: getErrorMessage(error, 'Please try again.'),
       description: getApiErrorMessage(error, 'Please try again.'),
       color: 'error',
     })

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey = () => [{ url: '/organizers/standalone-workshops' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey>
-
-/**
- * @description Retrieves all standalone workshops the current user can manage.
- * @summary List organizer standalone workshops
- * {@link /organizers/standalone-workshops}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpoint401>, unknown>({ method : "GET", url : `/organizers/standalone-workshops`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

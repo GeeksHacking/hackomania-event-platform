@@ -39,9 +39,9 @@ watchEffect(() => {
   <!-- Show loading while checking auth or if authenticated (redirecting) -->
   <div
     v-if="isLoading || user"
-    class="bg-white min-h-screen flex flex-col items-center justify-center gap-4 px-4"
+    class="min-h-screen flex flex-col items-center justify-center gap-4 bg-(--ui-bg) px-4 text-(--ui-text)"
   >
-    <p class="text-sm font-medium text-gray-600 animate-pulse">
+    <p class="text-sm font-medium text-(--ui-text-muted) animate-pulse">
       Checking your session...
     </p>
     <UIcon
@@ -53,11 +53,11 @@ watchEffect(() => {
   <!-- Show login UI only if not authenticated -->
   <div
     v-else
-    class="bg-white min-h-screen font-raleway flex items-center justify-center px-4"
+    class="min-h-screen bg-(--ui-bg) font-raleway flex items-center justify-center px-4 text-(--ui-text)"
   >
     <div class="w-full flex justify-center">
       <div class="flex flex-col items-center gap-3">
-        <p class="font-normal text-base text-black text-center">
+        <p class="font-normal text-base text-(--ui-text-highlighted) text-center">
           Register to participate in
         </p>
         <img
@@ -78,10 +78,10 @@ watchEffect(() => {
           </UButton>
         </div>
         <div class="flex flex-col items-center gap-2 mt-6 max-w-md px-4">
-          <p class="font-normal text-base text-black text-center">
+          <p class="font-normal text-base text-(--ui-text-highlighted) text-center">
             Note that due to a large number of registrations, all current registrations will be put on a waiting list.
           </p>
-          <p class="font-normal text-base text-black text-center">
+          <p class="font-normal text-base text-(--ui-text-highlighted) text-center">
             You will be notified when a slot is available.
           </p>
         </div>
@@ -89,7 +89,7 @@ watchEffect(() => {
           <NuxtLink
             to="https://hackomania.geekshacking.com/"
             external
-            class="text-base font-normal text-black underline"
+            class="text-base font-normal text-(--ui-text-highlighted) underline"
           >
             Exit Registration
           </NuxtLink>

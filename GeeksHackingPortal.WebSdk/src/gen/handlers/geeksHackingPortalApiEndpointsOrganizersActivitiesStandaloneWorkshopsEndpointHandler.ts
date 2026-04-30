@@ -3,7 +3,7 @@
 * Do not edit manually.
 */
 
-import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
+import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
 import { http } from "msw";
 
 export function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointHandlerResponse200(data: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse) {
@@ -12,6 +12,16 @@ export function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWork
         status: 200,
           headers: {
           'Content-Type': 'application/json'
+        },
+      })
+}
+
+export function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointHandlerResponse400(data: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400) {
+
+      return new Response(JSON.stringify(data), {
+        status: 400,
+          headers: {
+          'Content-Type': 'application/problem+json'
         },
       })
 }
@@ -35,7 +45,7 @@ export function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWork
 export function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointHandler(data?: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse | ((
         info: Parameters<Parameters<typeof http.patch>[1]>[0],
       ) => Response | Promise<Response>)) {
-  return http.patch(`/organizers/activities/:activityId/standalone-workshop`, function handler(info) {
+  return http.patch(`/organizers/standalone-workshops/:standaloneWorkshopId`, function handler(info) {
       if(typeof data === 'function') return data(info)
 
       return new Response(JSON.stringify(data), {

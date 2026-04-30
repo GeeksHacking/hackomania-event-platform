@@ -3,6 +3,7 @@
 * Do not edit manually.
 */
 
+import type { FastEndpointsErrorResponse } from "./FastEndpointsErrorResponse.ts";
 import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequest } from "./GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequest.ts";
 import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse } from "./GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse.ts";
 
@@ -10,6 +11,11 @@ import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateR
  * @description Success
 */
 export type GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200 = GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse;
+
+/**
+ * @description Bad Request
+*/
+export type GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400 = FastEndpointsErrorResponse;
 
 /**
  * @description Unauthorized
@@ -28,5 +34,5 @@ export type GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEnd
 export type GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutation = {
     Response: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200;
     Request: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationRequest;
-    Errors: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint403;
+    Errors: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint403;
 };

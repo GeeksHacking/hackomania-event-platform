@@ -9,7 +9,7 @@ import { faker } from "@faker-js/faker";
 export function createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest>): GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest {
 
   return {
-    ...{"homepageUri": faker.internet.url(),"shortCode": faker.string.alpha(),"maxParticipants": faker.number.int()},
+    ...{"homepageUri": faker.internet.url(),"shortCode": faker.helpers.fromRegExp("^[A-Za-z0-9-]+$"),"maxParticipants": faker.number.int()},
     ...data || {}
   }
 }

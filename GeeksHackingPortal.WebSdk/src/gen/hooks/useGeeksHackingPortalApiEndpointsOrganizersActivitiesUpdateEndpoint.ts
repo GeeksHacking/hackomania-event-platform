@@ -3,28 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationKey>
-
-/**
- * {@link /organizers/activities/:activityId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint(activityId: GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointPathParams["activityId"], data: GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersActivitiesUpdateEndpointMutationRequest>({ method : "PATCH", url : `/organizers/activities/${activityId}`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * {@link /organizers/activities/:activityId}

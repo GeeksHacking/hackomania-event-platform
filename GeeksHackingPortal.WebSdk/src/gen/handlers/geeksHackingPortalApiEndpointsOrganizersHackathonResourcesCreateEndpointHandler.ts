@@ -35,7 +35,7 @@ export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreate
 export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointHandler(data?: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse | ((
         info: Parameters<Parameters<typeof http.post>[1]>[0],
       ) => Response | Promise<Response>)) {
-  return http.post(`/organizers/hackathons/:hackathonId/resources`, function handler(info) {
+  return http.post(`/organizers/activities/:activityId/resources`, function handler(info) {
       if(typeof data === 'function') return data(info)
 
       return new Response(JSON.stringify(data), {

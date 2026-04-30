@@ -16,7 +16,7 @@ export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemResp
     /**
      * @type string | undefined, guid
     */
-    hackathonId?: string;
+    activityId?: string;
     /**
      * @type string | undefined, date-time
     */

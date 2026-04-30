@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/judges/:judgeId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationKey>
-
-/**
- * @description Updates judge details. Can regenerate the secret to invalidate old links.
- * @summary Update a judge
- * {@link /organizers/hackathons/:hackathonId/judges/:judgeId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointPathParams["hackathonId"], judgeId: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointPathParams["judgeId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesUpdateEndpointMutationRequest>({ method : "PATCH", url : `/organizers/hackathons/${hackathonId}/judges/${judgeId}`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Updates judge details. Can regenerate the secret to invalidate old links.

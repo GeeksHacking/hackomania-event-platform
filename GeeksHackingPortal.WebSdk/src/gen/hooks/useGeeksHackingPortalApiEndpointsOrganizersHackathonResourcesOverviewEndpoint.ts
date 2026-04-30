@@ -3,40 +3,26 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint.ts";
 import { toValue } from "vue";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["hackathonId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>) => [{ url: '/organizers/hackathons/:hackathonId/resources/:resourceId/overview', params: {hackathonId:hackathonId,resourceId:resourceId} }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey = (activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["activityId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>) => [{ url: '/organizers/activities/:activityId/resources/:resourceId/overview', params: {activityId:activityId,resourceId:resourceId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey>
 
-/**
- * @description Returns participant redemption status and recent redemption activity for a resource.
- * @summary Get resource redemption overview
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId/overview}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["hackathonId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
+export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryOptions(activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["activityId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403>, unknown>({ method : "GET", url : `/organizers/hackathons/${hackathonId}/resources/${resourceId}/overview`, ... requestConfig })
-  return res.data
-}
-
-export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["hackathonId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
-
-        const queryKey = geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey(hackathonId, resourceId)
+        const queryKey = geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey(activityId, resourceId)
         return queryOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, typeof queryKey>({
-        enabled: !!(hackathonId && resourceId),
+        enabled: !!(activityId && resourceId),
         queryKey,
         queryFn: async ({ signal }) => {
-            return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint(toValue(hackathonId)!, toValue(resourceId)!, { ...config, signal: config.signal ?? signal })
+            return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint(toValue(activityId)!, toValue(resourceId)!, { ...config, signal: config.signal ?? signal })
          },
         })
 
@@ -45,9 +31,9 @@ export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOvervi
 /**
  * @description Returns participant redemption status and recent redemption activity for a resource.
  * @summary Get resource redemption overview
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId/overview}
+ * {@link /organizers/activities/:activityId/resources/:resourceId/overview}
  */
-export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint<TData = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, TQueryData = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, TQueryKey extends QueryKey = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey>(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["hackathonId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>, options: 
+export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint<TData = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, TQueryData = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, TQueryKey extends QueryKey = GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey>(activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["activityId"] | undefined>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointPathParams["resourceId"] | undefined>, options: 
 {
   query?: Partial<UseQueryOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403>, TData, TQueryData, TQueryKey>> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client }
@@ -56,10 +42,10 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOve
 
          const { query: queryConfig = {}, client: config = {} } = options ?? {}
          const { client: queryClient, ...resolvedOptions } = queryConfig
-         const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey(hackathonId, resourceId)
+         const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryKey(activityId, resourceId)
 
          const query = useQuery({
-          ...geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryOptions(hackathonId, resourceId, config),
+          ...geeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryOptions(activityId, resourceId, config),
           ...resolvedOptions,
           queryKey
          } as unknown as UseQueryOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403>, TData, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpointQueryResponse, TQueryKey>, toValue(queryClient)) as UseQueryReturnType<TData, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesOverviewEndpoint403>> & { queryKey: TQueryKey }

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/workshops/:workshopId/attendance' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointMutationKey>
-
-/**
- * @description Mark attendance for a workshop that the participant has joined.
- * @summary Mark attendance
- * {@link /participants/hackathons/:hackathonId/workshops/:workshopId/attendance}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointPathParams["hackathonId"], workshopId: GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointPathParams["workshopId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsMarkAttendanceEndpoint403>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/workshops/${workshopId}/attendance`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Mark attendance for a workshop that the participant has joined.

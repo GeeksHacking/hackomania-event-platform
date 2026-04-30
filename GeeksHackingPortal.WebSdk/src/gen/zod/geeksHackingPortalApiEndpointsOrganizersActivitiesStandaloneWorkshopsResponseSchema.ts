@@ -7,7 +7,7 @@ import { z } from "zod/v4";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponseSchema = z.object({
     "id": z.optional(z.string()),
-"homepageUri": z.optional(z.url()),
+"homepageUri": z.url().nullish(),
 "shortCode": z.optional(z.string()),
 "maxParticipants": z.optional(z.int())
     })

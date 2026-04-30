@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint401, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointMutationKey = () => [{ url: '/participants/standalone-workshops/:standaloneWorkshopId/withdraw' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointMutationKey>
-
-/**
- * @description Withdraws the current user from a standalone workshop registration.
- * @summary Withdraw from a standalone workshop
- * {@link /participants/standalone-workshops/:standaloneWorkshopId/withdraw}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint(standaloneWorkshopId: GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointPathParams["standaloneWorkshopId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsWithdrawEndpoint403>, unknown>({ method : "POST", url : `/participants/standalone-workshops/${standaloneWorkshopId}/withdraw`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Withdraws the current user from a standalone workshop registration.

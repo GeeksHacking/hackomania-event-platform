@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/:teamId' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationKey>
-
-/**
- * @description Updates the team name and description. Only team members can update.
- * @summary Update team details
- * {@link /participants/hackathons/:hackathonId/teams/:teamId}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointPathParams["hackathonId"], teamId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointPathParams["teamId"], data: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpoint403>, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsUpdateEndpointMutationRequest>({ method : "PATCH", url : `/participants/hackathons/${hackathonId}/teams/${teamId}`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Updates the team name and description. Only team members can update.

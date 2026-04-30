@@ -9,7 +9,7 @@ export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesListEndpoi
     /**
      * @type string, guid
     */
-    hackathonId: string;
+    activityId: string;
 };
 
 /**

@@ -35,7 +35,7 @@ export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesHistor
 export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesHistoryEndpointHandler(data?: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesHistoryEndpointQueryResponse | ((
         info: Parameters<Parameters<typeof http.get>[1]>[0],
       ) => Response | Promise<Response>)) {
-  return http.get(`/organizers/hackathons/:hackathonId/participants/:participantUserId/resources/:resourceId/history`, function handler(info) {
+  return http.get(`/organizers/activities/:activityId/participants/:participantUserId/resources/:resourceId/history`, function handler(info) {
       if(typeof data === 'function') return data(info)
 
       return new Response(JSON.stringify(data), {

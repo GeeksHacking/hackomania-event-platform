@@ -10,6 +10,9 @@ export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshop
     */
     homepageUri?: string | null;
     /**
+     * @minLength 3
+     * @maxLength 16
+     * @pattern ^[A-Za-z0-9-]+$
      * @type string
     */
     shortCode?: string | null;

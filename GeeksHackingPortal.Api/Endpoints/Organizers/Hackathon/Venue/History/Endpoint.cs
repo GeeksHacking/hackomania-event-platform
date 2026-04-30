@@ -11,9 +11,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override void Configure()
     {
         Get(
-            "organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId:guid}/venue/history"
+            "organizers/activities/{ActivityId:guid}/participants/{ParticipantUserId:guid}/venue/history"
         );
-        Policies(PolicyNames.OrganizerForHackathon);
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Venue"));
         Summary(s =>
         {
@@ -24,9 +24,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var participantData = await sql.Queryable<Participant>()
+        var participantData = await sql.Queryable<ActivityRegistration>()
             .LeftJoin<User>((p, u) => p.UserId == u.Id)
-            .Where((p, u) => p.UserId == req.ParticipantUserId && p.HackathonId == req.HackathonId)
+            .Where((p, u) => p.UserId == req.ParticipantUserId && p.ActivityId == req.ActivityId)
             .Select((p, u) => new { Participant = p, User = u })
             .FirstAsync(ct);
 
@@ -39,7 +39,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var history = await sql.Queryable<VenueCheckIn>()
             .Where(v =>
                 v.ActivityRegistrationId == participantData.Participant.Id
-                && v.ActivityId == req.HackathonId
+                && v.ActivityId == req.ActivityId
             )
             .OrderByDescending(v => v.CheckInTime)
             .ToListAsync(ct);

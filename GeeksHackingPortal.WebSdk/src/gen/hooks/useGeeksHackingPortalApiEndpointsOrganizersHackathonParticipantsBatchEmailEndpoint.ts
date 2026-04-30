@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/batch-email' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationKey>
-
-/**
- * @description Send acceptance or rejection emails to multiple participants based on their review status.
- * @summary Send batch emails to participants
- * {@link /organizers/hackathons/:hackathonId/participants/batch-email}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsBatchEmailEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/batch-email`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Send acceptance or rejection emails to multiple participants based on their review status.

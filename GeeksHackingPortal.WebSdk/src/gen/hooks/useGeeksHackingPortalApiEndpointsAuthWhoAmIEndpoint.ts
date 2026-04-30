@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryResponse, GeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from "../clients/geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryKey = () => [{ url: '/auth/whoami' }] as const
 
 export type GeeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryKey>
-
-/**
- * @description Returns the current authenticated user's information including GitHub details.
- * @summary Get current user info
- * {@link /auth/whoami}
- */
-export async function geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint401>, unknown>({ method : "GET", url : `/auth/whoami`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

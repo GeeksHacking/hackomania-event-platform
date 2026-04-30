@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["hackathonId"] | undefined>, judgeId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["judgeId"] | undefined>) => [{ url: '/organizers/hackathons/:hackathonId/judges/:judgeId', params: {hackathonId:hackathonId,judgeId:judgeId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryKey>
-
-/**
- * @description Retrieves details about a specific judge including their secret.
- * @summary Get judge details
- * {@link /organizers/hackathons/:hackathonId/judges/:judgeId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["hackathonId"], judgeId: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["judgeId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpoint403>, unknown>({ method : "GET", url : `/organizers/hackathons/${hackathonId}/judges/${judgeId}`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["hackathonId"] | undefined>, judgeId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesGetEndpointPathParams["judgeId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

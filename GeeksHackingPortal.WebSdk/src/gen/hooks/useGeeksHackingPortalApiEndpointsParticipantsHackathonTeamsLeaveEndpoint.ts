@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/leave' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointMutationKey>
-
-/**
- * @description Removes the current user from their team. If they are the only member, the team will be deleted.
- * @summary Leave current team
- * {@link /participants/hackathons/:hackathonId/teams/leave}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsLeaveEndpoint403>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/teams/leave`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Removes the current user from their team. If they are the only member, the team will be deleted.

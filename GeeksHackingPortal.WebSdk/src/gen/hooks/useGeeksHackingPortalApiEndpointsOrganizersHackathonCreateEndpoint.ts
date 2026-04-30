@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint400, GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationKey = () => [{ url: '/organizers/hackathons' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationKey>
-
-/**
- * @description Creates a new hackathon event. Permissions depend on the platform configuration.
- * @summary Create a new hackathon
- * {@link /organizers/hackathons}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint(data: GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Creates a new hackathon event. Permissions depend on the platform configuration.

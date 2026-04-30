@@ -1,19 +1,37 @@
 <script setup lang="ts">
 import type {
-  GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto,
-  GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto,
+  GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsCreateCreateOptionDto,
+  GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListQuestionDto,
+  GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsUpdateUpdateOptionDto,
+  GeeksHackingPortalApiEntitiesQuestionType,
 } from '@geekshacking/portal-sdk'
 import {
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsCreateEndpoint,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsDeleteEndpoint,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListEndpoint,
-  useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateEndpoint,
+  geeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListEndpointQueryKey,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsCreateEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsDeleteEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsInitializeEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsUpdateEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
-type Question = GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListQuestionDto
+type Question = GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListQuestionDto
+type QuestionType = GeeksHackingPortalApiEntitiesQuestionType
+
+const questionTypeValues = {
+  Text: 'Text',
+  LongText: 'LongText',
+  Number: 'Number',
+  SingleChoice: 'SingleChoice',
+  MultipleChoice: 'MultipleChoice',
+  Boolean: 'Boolean',
+  Email: 'Email',
+  Url: 'Url',
+  Phone: 'Phone',
+  Date: 'Date',
+  Dropdown: 'Dropdown',
+} as const satisfies Record<string, QuestionType>
 
 const props = withDefaults(defineProps<{
   hackathonId?: string
@@ -25,7 +43,7 @@ const hackathonId = computed(() => props.hackathonId || (route.params.hackathonI
 
 const queryClient = useQueryClient()
 
-const { data: questionsData, isLoading } = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsListEndpoint(
+const { data: questionsData, isLoading } = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListEndpoint(
   computed(() => hackathonId.value),
 )
 
@@ -38,7 +56,7 @@ const editForm = ref({
   questionKey: '',
   helpText: '',
   isRequired: false,
-  type: 0 as number,
+  type: questionTypeValues.Text as QuestionType,
   displayOrder: 0,
   category: '',
   conditionalLogic: '',
@@ -46,39 +64,43 @@ const editForm = ref({
   optionsJson: '',
 })
 
-const typesWithOptions = [3, 4, 10] // SingleChoice, MultipleChoice, Dropdown
+const typesWithOptions: QuestionType[] = [
+  questionTypeValues.SingleChoice,
+  questionTypeValues.MultipleChoice,
+  questionTypeValues.Dropdown,
+]
 const showOptions = computed(() => typesWithOptions.includes(editForm.value.type))
 const optionsJsonError = ref('')
 
 const questionTypes = [
-  { value: 0, label: 'Text' },
-  { value: 1, label: 'Long Text' },
-  { value: 2, label: 'Number' },
-  { value: 3, label: 'Single Choice' },
-  { value: 4, label: 'Multiple Choice' },
-  { value: 5, label: 'Boolean' },
-  { value: 6, label: 'Email' },
-  { value: 7, label: 'URL' },
-  { value: 8, label: 'Phone' },
-  { value: 9, label: 'Date' },
-  { value: 10, label: 'Dropdown' },
-]
+  { value: questionTypeValues.Text, label: 'Text' },
+  { value: questionTypeValues.LongText, label: 'Long Text' },
+  { value: questionTypeValues.Number, label: 'Number' },
+  { value: questionTypeValues.SingleChoice, label: 'Single Choice' },
+  { value: questionTypeValues.MultipleChoice, label: 'Multiple Choice' },
+  { value: questionTypeValues.Boolean, label: 'Boolean' },
+  { value: questionTypeValues.Email, label: 'Email' },
+  { value: questionTypeValues.Url, label: 'URL' },
+  { value: questionTypeValues.Phone, label: 'Phone' },
+  { value: questionTypeValues.Date, label: 'Date' },
+  { value: questionTypeValues.Dropdown, label: 'Dropdown' },
+] as const
 
-const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateEndpoint()
-const initMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsInitializeEndpoint()
-const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsCreateEndpoint()
-const deleteMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsDeleteEndpoint()
+const updateMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsUpdateEndpoint()
+const initMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsInitializeEndpoint()
+const createMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsCreateEndpoint()
+const deleteMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsDeleteEndpoint()
 
 async function invalidateQuestions() {
   await queryClient.invalidateQueries({
-    queryKey: ['hackathons', hackathonId.value, 'registration', 'questions', 'organizer'],
+    queryKey: geeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListEndpointQueryKey(hackathonId.value),
   })
 }
 
 async function initializeQuestions() {
   if (!hackathonId.value)
     return
-  await initMutation.mutateAsync({ hackathonId: hackathonId.value })
+  await initMutation.mutateAsync({ activityId: hackathonId.value })
   await invalidateQuestions()
 }
 
@@ -97,7 +119,7 @@ function startEditing(question: Question) {
     questionKey: question.questionKey ?? '',
     helpText: question.helpText ?? '',
     isRequired: question.isRequired ?? false,
-    type: question.type ?? 0,
+    type: question.type ?? questionTypeValues.Text,
     displayOrder: question.displayOrder ?? 0,
     category: question.category ?? '',
     conditionalLogic: question.conditionalLogic ?? '',
@@ -118,7 +140,7 @@ function startCreating() {
     questionKey: '',
     helpText: '',
     isRequired: false,
-    type: 0,
+    type: questionTypeValues.Text,
     displayOrder: nextDisplayOrder,
     category: '',
     conditionalLogic: '',
@@ -160,7 +182,7 @@ async function saveQuestion() {
   if (isCreating.value) {
     const createData = {
       questionText: editForm.value.questionText,
-      questionKey: editForm.value.questionKey || null,
+      questionKey: editForm.value.questionKey || undefined,
       helpText: editForm.value.helpText || null,
       isRequired: editForm.value.isRequired,
       type: editForm.value.type,
@@ -168,9 +190,9 @@ async function saveQuestion() {
       category: editForm.value.category || null,
       conditionalLogic: editForm.value.conditionalLogic || null,
       validationRules: editForm.value.validationRules || null,
-      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
+      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsCreateCreateOptionDto[],
     }
-    await createMutation.mutateAsync({ hackathonId: hackathonId.value, data: createData })
+    await createMutation.mutateAsync({ activityId: hackathonId.value, data: createData })
     isCreating.value = false
   }
   else if (editingId.value) {
@@ -183,10 +205,10 @@ async function saveQuestion() {
       category: editForm.value.category || null,
       conditionalLogic: editForm.value.conditionalLogic || null,
       validationRules: editForm.value.validationRules || null,
-      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersHackathonRegistrationQuestionsUpdateUpdateOptionDto[],
+      options: options as typeof options & GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsUpdateUpdateOptionDto[],
     }
     await updateMutation.mutateAsync({
-      hackathonId: hackathonId.value,
+      activityId: hackathonId.value,
       questionId: editingId.value,
       data: updateData,
     })
@@ -199,7 +221,7 @@ async function saveQuestion() {
 async function deleteQuestion(questionId: string) {
   if (!confirm('Are you sure you want to delete this question?'))
     return
-  await deleteMutation.mutateAsync({ hackathonId: hackathonId.value, questionId })
+  await deleteMutation.mutateAsync({ activityId: hackathonId.value, questionId })
   await invalidateQuestions()
 }
 
@@ -210,14 +232,14 @@ async function deleteAllQuestions() {
 
   for (const question of questions.value) {
     if (question.id) {
-      await deleteMutation.mutateAsync({ hackathonId: hackathonId.value, questionId: question.id })
+      await deleteMutation.mutateAsync({ activityId: hackathonId.value, questionId: question.id })
     }
   }
 
   await invalidateQuestions()
 }
 
-function getTypeName(type: number | null | undefined): string {
+function getTypeName(type: QuestionType | null | undefined): string {
   return questionTypes.find(t => t.value === type)?.label ?? 'Unknown'
 }
 </script>
@@ -326,7 +348,7 @@ function getTypeName(type: number | null | undefined): string {
                     :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
                     size="sm"
                     class="w-full"
-                    @update:model-value="editForm.type = Number($event)"
+                    @update:model-value="editForm.type = $event as QuestionType"
                   />
                 </UFormField>
 
@@ -529,7 +551,7 @@ function getTypeName(type: number | null | undefined): string {
                     :items="questionTypes.map(t => ({ label: t.label, value: t.value }))"
                     size="sm"
                     class="w-full"
-                    @update:model-value="editForm.type = Number($event)"
+                    @update:model-value="editForm.type = $event as QuestionType"
                   />
                 </UFormField>
 

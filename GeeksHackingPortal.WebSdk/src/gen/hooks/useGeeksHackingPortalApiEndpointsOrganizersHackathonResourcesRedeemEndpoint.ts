@@ -3,39 +3,25 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/:participantUserId/resources/:resourceId/redemptions' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/participants/:participantUserId/resources/:resourceId/redemptions' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationKey>
 
 /**
- * @description Creates a redemption record for a resource in the hackathon on behalf of a participant.
+ * @description Creates a redemption record for an activity resource on behalf of a participant.
  * @summary Redeem a resource for a participant
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/resources/:resourceId/redemptions}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["participantUserId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["resourceId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403>, unknown>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/${participantUserId}/resources/${resourceId}/redemptions`, ... requestConfig })
-  return res.data
-}
-
-/**
- * @description Creates a redemption record for a resource in the hackathon on behalf of a participant.
- * @summary Redeem a resource for a participant
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/resources/:resourceId/redemptions}
+ * {@link /organizers/activities/:activityId/participants/:participantUserId/resources/:resourceId/redemptions}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["hackathonId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["participantUserId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["resourceId"]>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["activityId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["participantUserId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["resourceId"]>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client },
 }
  = {}) {
@@ -44,9 +30,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRed
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["participantUserId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["resourceId"]}, TContext>({
-            mutationFn: async({ hackathonId, participantUserId, resourceId }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint(hackathonId, participantUserId, resourceId, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["activityId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["participantUserId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams["resourceId"]}, TContext>({
+            mutationFn: async({ activityId, participantUserId, resourceId }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpoint(activityId, participantUserId, resourceId, config)
             },
             mutationKey,
             ...mutationOptions

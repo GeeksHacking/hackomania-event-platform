@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryResponse } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey = () => [{ url: '/participants/hackathons' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryKey>
-
-/**
- * @description Retrieves all published hackathons.
- * @summary List all hackathons
- * {@link /participants/hackathons}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonListEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : `/participants/hackathons`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsParticipantsHackathonListEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

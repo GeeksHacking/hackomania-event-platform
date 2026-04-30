@@ -9,7 +9,7 @@ import { faker } from "@faker-js/faker";
 export function createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams>): GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams {
 
   return {
-    ...{"hackathonId": faker.string.alpha(),"resourceId": faker.string.alpha()},
+    ...{"activityId": faker.string.alpha(),"resourceId": faker.string.alpha()},
     ...data || {}
   }
 }

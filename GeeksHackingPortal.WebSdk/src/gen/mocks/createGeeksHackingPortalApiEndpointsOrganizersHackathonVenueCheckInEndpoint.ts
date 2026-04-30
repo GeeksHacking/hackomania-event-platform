@@ -10,7 +10,7 @@ import { createGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInResp
 export function createGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams>): GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams {
 
   return {
-    ...{"hackathonId": faker.string.alpha(),"participantUserId": faker.string.alpha()},
+    ...{"activityId": faker.string.alpha(),"participantUserId": faker.string.alpha()},
     ...data || {}
   }
 }

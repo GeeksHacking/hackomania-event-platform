@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/workshops/:workshopId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointMutationKey>
-
-/**
- * @description Deletes an existing workshop.
- * @summary Delete a workshop
- * {@link /organizers/hackathons/:hackathonId/workshops/:workshopId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointPathParams["hackathonId"], workshopId: GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointPathParams["workshopId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsDeleteEndpoint403>, unknown>({ method : "DELETE", url : `/organizers/hackathons/${hackathonId}/workshops/${workshopId}`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Deletes an existing workshop.

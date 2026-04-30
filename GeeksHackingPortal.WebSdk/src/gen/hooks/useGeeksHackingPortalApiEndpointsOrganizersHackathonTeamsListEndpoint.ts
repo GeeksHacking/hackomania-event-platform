@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointPathParams["hackathonId"] | undefined>) => [{ url: '/organizers/hackathons/:hackathonId/teams', params: {hackathonId:hackathonId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryKey>
-
-/**
- * @description Retrieves all teams for a hackathon.
- * @summary List all teams
- * {@link /organizers/hackathons/:hackathonId/teams}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpoint403>, unknown>({ method : "GET", url : `/organizers/hackathons/${hackathonId}/teams`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonTeamsListEndpointPathParams["hackathonId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

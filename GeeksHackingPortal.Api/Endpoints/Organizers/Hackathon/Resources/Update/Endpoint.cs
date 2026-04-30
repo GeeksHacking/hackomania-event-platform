@@ -9,22 +9,22 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Patch("organizers/hackathons/{HackathonId:guid}/resources/{ResourceId}");
-        Policies(PolicyNames.OrganizerForHackathon);
+        Patch("organizers/activities/{ActivityId:guid}/resources/{ResourceId}");
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Resources"));
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity).InSingleAsync(req.HackathonId);
-        if (hackathon is null)
+        var activityExists = await sql.Queryable<Activity>().AnyAsync(a => a.Id == req.ActivityId, ct);
+        if (!activityExists)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
         var resource = await sql.Queryable<Resource>()
-            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == hackathon.Id)
+            .Where(r => r.Id.ToString() == req.ResourceId && r.ActivityId == req.ActivityId)
             .FirstAsync(ct);
 
         if (resource is null)
@@ -59,7 +59,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = resource.Id,
-                HackathonId = hackathon.Id,
+                ActivityId = resource.ActivityId,
                 Name = resource.Name,
                 Description = resource.Description,
                 RedemptionStmt = resource.RedemptionStmt,

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/workshops/:workshopId/join' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointMutationKey>
-
-/**
- * @description Join a workshop as a participant.
- * @summary Join a workshop
- * {@link /participants/hackathons/:hackathonId/workshops/:workshopId/join}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointPathParams["hackathonId"], workshopId: GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointPathParams["workshopId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonWorkshopsJoinEndpoint403>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/workshops/${workshopId}/join`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Join a workshop as a participant.

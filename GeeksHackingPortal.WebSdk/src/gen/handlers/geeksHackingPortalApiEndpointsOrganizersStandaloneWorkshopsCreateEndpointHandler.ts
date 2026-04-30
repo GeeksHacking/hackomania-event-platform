@@ -3,7 +3,7 @@
 * Do not edit manually.
 */
 
-import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint.ts";
+import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint.ts";
 import { http } from "msw";
 
 export function geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointHandlerResponse200(data: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationResponse) {
@@ -12,6 +12,16 @@ export function geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreat
         status: 200,
           headers: {
           'Content-Type': 'application/json'
+        },
+      })
+}
+
+export function geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointHandlerResponse400(data: GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400) {
+
+      return new Response(JSON.stringify(data), {
+        status: 400,
+          headers: {
+          'Content-Type': 'application/problem+json'
         },
       })
 }

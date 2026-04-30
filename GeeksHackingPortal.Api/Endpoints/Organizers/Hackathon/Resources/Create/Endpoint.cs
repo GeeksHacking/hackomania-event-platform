@@ -9,15 +9,15 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Post("organizers/hackathons/{HackathonId:guid}/resources");
-        Policies(PolicyNames.OrganizerForHackathon);
+        Post("organizers/activities/{ActivityId:guid}/resources");
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Resources"));
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity).InSingleAsync(req.HackathonId);
-        if (hackathon is null)
+        var activityExists = await sql.Queryable<Activity>().AnyAsync(a => a.Id == req.ActivityId, ct);
+        if (!activityExists)
         {
             await Send.NotFoundAsync(ct);
             return;
@@ -26,7 +26,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var resource = new Resource
         {
             Id = Guid.NewGuid(),
-            ActivityId = hackathon.Id,
+            ActivityId = req.ActivityId,
             Name = req.Name,
             Description = req.Description ?? string.Empty,
             RedemptionStmt = req.RedemptionStmt,
@@ -39,7 +39,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             new Response
             {
                 Id = resource.Id,
-                HackathonId = hackathon.Id,
+                ActivityId = resource.ActivityId,
                 Name = resource.Name,
                 Description = resource.Description,
                 RedemptionStmt = resource.RedemptionStmt,

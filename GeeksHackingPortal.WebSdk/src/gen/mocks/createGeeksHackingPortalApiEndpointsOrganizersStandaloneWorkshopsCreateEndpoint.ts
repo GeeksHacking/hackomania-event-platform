@@ -3,8 +3,9 @@
 * Do not edit manually.
 */
 
-import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationResponse } from "../types/GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint.ts";
+import type { GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpointMutationResponse } from "../types/GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint.ts";
 import { faker } from "@faker-js/faker";
+import { createFastEndpointsErrorResponse } from "./createFastEndpointsErrorResponse.ts";
 import { createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequest } from "./createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequest.ts";
 import { createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse } from "./createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse.ts";
 
@@ -14,6 +15,14 @@ import { createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreate
 export function createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200>): GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200 {
 
   return createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponse(data)
+}
+
+/**
+ * @description Bad Request
+ */
+export function createGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400>): GeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400 {
+
+  return createFastEndpointsErrorResponse(data)
 }
 
 /**

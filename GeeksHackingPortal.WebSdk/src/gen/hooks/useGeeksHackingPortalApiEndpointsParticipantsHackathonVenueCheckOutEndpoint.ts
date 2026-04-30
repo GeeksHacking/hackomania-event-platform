@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/venue/check-out' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointMutationKey>
-
-/**
- * @description Check out from the hackathon venue.
- * @summary Check out from venue
- * {@link /participants/hackathons/:hackathonId/venue/check-out}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonVenueCheckOutEndpoint403>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/venue/check-out`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Check out from the hackathon venue.

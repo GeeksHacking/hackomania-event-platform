@@ -10,14 +10,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Patch("organizers/activities/{ActivityId:guid}/hackathon");
-        Policies(PolicyNames.OrganizerForActivity);
-        Description(b => b.WithTags("Organizers", "Activities", "Hackathons"));
+        Patch("organizers/hackathons/{HackathonId:guid}");
+        Policies(PolicyNames.OrganizerForHackathon);
+        Description(b => b.WithTags("Organizers", "Hackathons"));
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.ActivityId);
+        var hackathon = await sql.Queryable<Entities.Hackathon>().InSingleAsync(req.HackathonId);
         if (hackathon is null)
         {
             await Send.NotFoundAsync(ct);

@@ -3,29 +3,15 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsAdminCachePurgeEndpointMutationResponse, GeeksHackingPortalApiEndpointsAdminCachePurgeEndpoint401, GeeksHackingPortalApiEndpointsAdminCachePurgeEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsAdminCachePurgeEndpoint.ts";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsAdminCachePurgeEndpoint } from "../clients/geeksHackingPortalApiEndpointsAdminCachePurgeEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsAdminCachePurgeEndpointMutationKey = () => [{ url: '/admin/cache/purge' }] as const
 
 export type GeeksHackingPortalApiEndpointsAdminCachePurgeEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsAdminCachePurgeEndpointMutationKey>
-
-/**
- * @description Clears the in-process SqlSugar data cache used by the API server.
- * @summary Purge server cache
- * {@link /admin/cache/purge}
- */
-export async function geeksHackingPortalApiEndpointsAdminCachePurgeEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsAdminCachePurgeEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsAdminCachePurgeEndpoint401 | GeeksHackingPortalApiEndpointsAdminCachePurgeEndpoint403>, unknown>({ method : "POST", url : `/admin/cache/purge`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Clears the in-process SqlSugar data cache used by the API server.

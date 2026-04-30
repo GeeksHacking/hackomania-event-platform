@@ -1,7 +1,9 @@
-import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint } from '@geekshacking/portal-sdk/hooks'
+import { geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryOptions } from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const config = useRuntimeConfig()
+  const queryClient = useQueryClient()
 
   // Define public routes that don't require authentication
   const publicRoutes = ['/', '/login']
@@ -23,7 +25,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // - /dash and /dash/*
   // - /[hackathonId] and /[hackathonId]/* (except registration)
   try {
-    await geeksHackingPortalApiEndpointsAuthWhoAmIEndpoint()
+    await queryClient.fetchQuery(geeksHackingPortalApiEndpointsAuthWhoAmIEndpointQueryOptions())
   }
   catch (error) {
     const status = getErrorStatusCode(error)

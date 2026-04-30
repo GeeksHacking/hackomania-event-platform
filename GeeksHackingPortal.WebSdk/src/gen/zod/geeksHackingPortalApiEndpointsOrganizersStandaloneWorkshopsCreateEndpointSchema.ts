@@ -3,6 +3,7 @@
 * Do not edit manually.
 */
 
+import { fastEndpointsErrorResponseSchema } from "./fastEndpointsErrorResponseSchema.ts";
 import { geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequestSchema } from "./geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRequestSchema.ts";
 import { geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponseSchema } from "./geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponseSchema.ts";
 import { z } from "zod/v4";
@@ -11,6 +12,11 @@ import { z } from "zod/v4";
  * @description Success
  */
 export const geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint200Schema = z.lazy(() => geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint400Schema = z.lazy(() => fastEndpointsErrorResponseSchema).describe("the dto used to send an error response to the client")
 
 /**
  * @description Unauthorized

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint400, GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationKey = () => [{ url: '/users/me' }] as const
 
 export type GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationKey>
-
-/**
- * @description Updates the current user's first and last name.
- * @summary Update current user profile
- * {@link /users/me}
- */
-export async function geeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint(data: GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint400 | GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpoint401>, GeeksHackingPortalApiEndpointsUsersProfileUpdateEndpointMutationRequest>({ method : "PATCH", url : `/users/me`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Updates the current user's first and last name.

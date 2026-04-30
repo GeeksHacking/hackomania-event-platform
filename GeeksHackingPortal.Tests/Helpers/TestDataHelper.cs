@@ -168,7 +168,7 @@ public static class TestDataHelper
         };
 
         var response = await client.PostAsJsonAsync(
-            $"/organizers/hackathons/{hackathonId}/resources",
+            $"/organizers/activities/{hackathonId}/resources",
             request
         );
         response.EnsureSuccessStatusCode();

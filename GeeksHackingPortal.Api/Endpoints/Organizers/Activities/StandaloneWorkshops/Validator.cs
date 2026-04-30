@@ -7,7 +7,7 @@ public class Validator : Validator<Request>
 {
     public Validator()
     {
-        RuleFor(x => x.ActivityId).NotEmpty();
+        RuleFor(x => x.StandaloneWorkshopId).NotEmpty();
 
         When(x => x.HomepageUri is not null, () =>
         {

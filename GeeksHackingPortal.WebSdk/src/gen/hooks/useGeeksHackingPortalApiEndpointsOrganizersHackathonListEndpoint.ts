@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey = () => [{ url: '/organizers/hackathons' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey>
-
-/**
- * @description Retrieves all hackathons the current user has organizer access to.
- * @summary List organizer hackathons
- * {@link /organizers/hackathons}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint401>, unknown>({ method : "GET", url : `/organizers/hackathons`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

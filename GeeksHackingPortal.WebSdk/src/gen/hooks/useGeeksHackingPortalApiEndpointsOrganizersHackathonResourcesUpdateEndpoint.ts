@@ -3,35 +3,23 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/resources/:resourceId' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/resources/:resourceId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationKey>
 
 /**
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["hackathonId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["resourceId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest>({ method : "PATCH", url : `/organizers/hackathons/${hackathonId}/resources/${resourceId}`, data : requestData, ... requestConfig })
-  return res.data
-}
-
-/**
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId}
+ * {@link /organizers/activities/:activityId/resources/:resourceId}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["hackathonId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["resourceId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["activityId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["resourceId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest>> & { client?: Client },
 }
  = {}) {
@@ -40,9 +28,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpd
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["hackathonId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["resourceId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest}, TContext>({
-            mutationFn: async({ hackathonId, resourceId, data }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint(hackathonId, resourceId, data, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["activityId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParams["resourceId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointMutationRequest}, TContext>({
+            mutationFn: async({ activityId, resourceId, data }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpoint(activityId, resourceId, data, config)
             },
             mutationKey,
             ...mutationOptions

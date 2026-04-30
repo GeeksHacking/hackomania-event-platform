@@ -301,7 +301,7 @@ async function redeemForParticipant(userId: string, participantName: string) {
   selectedParticipantName.value = participantName
 
   try {
-    const result = await redeemMutation.mutateAsync({ hackathonId: hackathonId.value, participantUserId: userId, resourceId: selectedResourceId.value })
+    const result = await redeemMutation.mutateAsync({ activityId: hackathonId.value, participantUserId: userId, resourceId: selectedResourceId.value })
     scanResult.value = {
       success: true,
       message: `${participantName || 'Participant'} redeemed ${selectedResource.value?.name || 'resource'} at ${formatRedemptionTime(result.createdAt)}.`,

@@ -10,7 +10,7 @@ import { createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemR
 export function createGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams>): GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemEndpointPathParams {
 
   return {
-    ...{"hackathonId": faker.string.alpha(),"participantUserId": faker.string.alpha(),"resourceId": faker.string.alpha()},
+    ...{"activityId": faker.string.alpha(),"participantUserId": faker.string.alpha(),"resourceId": faker.string.alpha()},
     ...data || {}
   }
 }

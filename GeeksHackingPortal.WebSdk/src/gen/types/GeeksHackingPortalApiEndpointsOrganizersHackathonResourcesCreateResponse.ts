@@ -12,7 +12,7 @@ export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateResp
     /**
      * @type string | undefined, guid
     */
-    hackathonId?: string;
+    activityId?: string;
     /**
      * @type string | undefined
     */

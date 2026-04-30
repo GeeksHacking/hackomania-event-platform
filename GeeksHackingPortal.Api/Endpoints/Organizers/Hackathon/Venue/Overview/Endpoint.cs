@@ -10,25 +10,23 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Get("organizers/hackathons/{HackathonId:guid}/venue/overview");
-        Policies(PolicyNames.OrganizerForHackathon);
+        Get("organizers/activities/{ActivityId:guid}/venue/overview");
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Venue"));
         Summary(s =>
         {
             s.Summary = "Get venue check-in overview";
             s.Description =
-                "Get an overview of all participant check-ins/check-outs for the hackathon.";
+                "Get an overview of all participant check-ins/check-outs for the activity.";
         });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathonId = req.HackathonId;
-
         // Get all participants
-        var participants = await sql.Queryable<Participant>()
+        var participants = await sql.Queryable<ActivityRegistration>()
             .LeftJoin<User>((p, u) => p.UserId == u.Id)
-            .Where(p => p.HackathonId == hackathonId)
+            .Where(p => p.ActivityId == req.ActivityId)
             
             .Select((p, u) => new { Participant = p, User = u })
             .ToListAsync(ct);
@@ -37,7 +35,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         // See CACHING.md for details. Consider removing  or implementing a short TTL (5-30 seconds)
         // if stale data becomes problematic during high-traffic event periods.
         var checkIns = await sql.Queryable<VenueCheckIn>()
-            .Where(v => v.ActivityId == hackathonId)
+            .Where(v => v.ActivityId == req.ActivityId)
             
             .ToListAsync(ct);
 

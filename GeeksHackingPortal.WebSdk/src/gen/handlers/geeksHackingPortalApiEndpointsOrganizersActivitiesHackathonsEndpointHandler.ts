@@ -35,7 +35,7 @@ export function geeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndp
 export function geeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpointHandler(data?: GeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpointMutationResponse | ((
         info: Parameters<Parameters<typeof http.patch>[1]>[0],
       ) => Response | Promise<Response>)) {
-  return http.patch(`/organizers/activities/:activityId/hackathon`, function handler(info) {
+  return http.patch(`/organizers/hackathons/:hackathonId`, function handler(info) {
       if(typeof data === 'function') return data(info)
 
       return new Response(JSON.stringify(data), {

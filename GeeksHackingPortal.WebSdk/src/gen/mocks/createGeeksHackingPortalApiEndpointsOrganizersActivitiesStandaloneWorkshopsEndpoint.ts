@@ -3,15 +3,16 @@
 * Do not edit manually.
 */
 
-import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
+import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
 import { faker } from "@faker-js/faker";
+import { createFastEndpointsErrorResponse } from "./createFastEndpointsErrorResponse.ts";
 import { createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest } from "./createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequest.ts";
 import { createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse } from "./createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse.ts";
 
 export function createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams>): GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams {
 
   return {
-    ...{"activityId": faker.string.alpha()},
+    ...{"standaloneWorkshopId": faker.string.alpha()},
     ...data || {}
   }
 }
@@ -22,6 +23,14 @@ export function createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandalo
 export function createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200>): GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200 {
 
   return createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponse(data)
+}
+
+/**
+ * @description Bad Request
+ */
+export function createGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400(data?: Partial<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400>): GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400 {
+
+  return createFastEndpointsErrorResponse(data)
 }
 
 /**

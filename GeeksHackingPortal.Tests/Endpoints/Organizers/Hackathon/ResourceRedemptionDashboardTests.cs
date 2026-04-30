@@ -25,16 +25,16 @@ public class ResourceRedemptionDashboardTests
         var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
         await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
 
         var response = await Client.HttpClient.GetAsync(
-            $"/organizers/hackathons/{hackathon.Id}/resources/{resource.Id}/overview"
+            $"/organizers/activities/{hackathon.Id}/resources/{resource.Id}/overview"
         );
         var result = await response.Content.ReadFromJsonAsync<OrganizerResourceOverviewResponse>();
 
@@ -62,12 +62,12 @@ public class ResourceRedemptionDashboardTests
         var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
 
         var response = await Client.HttpClient.GetAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/history"
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/history"
         );
         var result = await response.Content.ReadFromJsonAsync<OrganizerResourceHistoryResponse>();
 

@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint400, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["hackathonId"] | undefined>, userId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["userId"] | undefined>) => [{ url: '/organizers/hackathons/:hackathonId/participants/:userId', params: {hackathonId:hackathonId,userId:userId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryKey>
-
-/**
- * @description Retrieves full details for a participant, including registration responses.
- * @summary Get participant details
- * {@link /organizers/hackathons/:hackathonId/participants/:userId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["hackathonId"], userId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["userId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpoint403>, unknown>({ method : "GET", url : `/organizers/hackathons/${hackathonId}/participants/${userId}`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["hackathonId"] | undefined>, userId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsGetEndpointPathParams["userId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

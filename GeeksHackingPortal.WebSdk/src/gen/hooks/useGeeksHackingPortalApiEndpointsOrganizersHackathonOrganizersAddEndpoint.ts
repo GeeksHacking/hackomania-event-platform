@@ -3,28 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/organizers' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationKey>
-
-/**
- * {@link /organizers/hackathons/:hackathonId/organizers}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersAddEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/organizers`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * {@link /organizers/hackathons/:hackathonId/organizers}

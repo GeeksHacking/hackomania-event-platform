@@ -7,6 +7,6 @@ import { z } from "zod/v4";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequestSchema = z.object({
     "homepageUri": z.url().nullish(),
-"shortCode": z.string().nullish(),
+"shortCode": z.string().min(3).max(16).regex(/^[A-Za-z0-9-]+$/).nullish(),
 "maxParticipants": z.int().nullish()
     })

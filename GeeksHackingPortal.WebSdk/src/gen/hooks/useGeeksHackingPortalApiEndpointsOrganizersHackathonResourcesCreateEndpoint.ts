@@ -3,35 +3,23 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/resources' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/resources' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationKey>
 
 /**
- * {@link /organizers/hackathons/:hackathonId/resources}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/resources`, data : requestData, ... requestConfig })
-  return res.data
-}
-
-/**
- * {@link /organizers/hackathons/:hackathonId/resources}
+ * {@link /organizers/activities/:activityId/resources}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams["hackathonId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams["activityId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest>> & { client?: Client },
 }
  = {}) {
@@ -40,9 +28,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCre
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest}, TContext>({
-            mutationFn: async({ hackathonId, data }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint(hackathonId, data, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointPathParams["activityId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpointMutationRequest}, TContext>({
+            mutationFn: async({ activityId, data }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesCreateEndpoint(activityId, data, config)
             },
             mutationKey,
             ...mutationOptions

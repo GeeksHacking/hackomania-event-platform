@@ -1,6 +1,9 @@
-import { geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint } from '@geekshacking/portal-sdk/hooks'
+import { geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpointQueryOptions } from '@geekshacking/portal-sdk/hooks'
+import { useQueryClient } from '@tanstack/vue-query'
 
 export default defineNuxtRouteMiddleware(async (to) => {
+  const queryClient = useQueryClient()
+
   // Check if this is a hackathon route (matches /[hackathonId] or /[hackathonId]/*)
   const pathSegments = to.path.split('/').filter(Boolean)
 
@@ -23,7 +26,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   try {
     // Try to fetch the hackathon to verify it exists
-    await geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpoint(hackathonId)
+    await queryClient.fetchQuery(geeksHackingPortalApiEndpointsParticipantsHackathonGetEndpointQueryOptions(hackathonId))
   }
   catch (error: any) {
     // Check multiple possible error structures from the API client

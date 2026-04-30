@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/:teamId/members/:userId' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointMutationKey>
-
-/**
- * @description Allows the team member to remove another member from the team. Cannot remove yourself (use leave endpoint instead). If no members remain after removal, the team will be deleted.
- * @summary Remove a member from the team
- * {@link /participants/hackathons/:hackathonId/teams/:teamId/members/:userId}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointPathParams["hackathonId"], teamId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointPathParams["teamId"], userId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointPathParams["userId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsRemoveMemberEndpoint403>, unknown>({ method : "DELETE", url : `/participants/hackathons/${hackathonId}/teams/${teamId}/members/${userId}`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Allows the team member to remove another member from the team. Cannot remove yourself (use leave endpoint instead). If no members remain after removal, the team will be deleted.

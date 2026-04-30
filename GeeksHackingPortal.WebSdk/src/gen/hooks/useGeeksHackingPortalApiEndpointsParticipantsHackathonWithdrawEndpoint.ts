@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/withdraw' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointMutationKey>
-
-/**
- * @description Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing. Historical records are preserved.
- * @summary Withdraw from a hackathon
- * {@link /participants/hackathons/:hackathonId/withdraw}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointPathParams["hackathonId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonWithdrawEndpoint403>, unknown>({ method : "POST", url : `/participants/hackathons/${hackathonId}/withdraw`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Withdraws the current user from the hackathon. The participant must not be in a team before withdrawing. Historical records are preserved.

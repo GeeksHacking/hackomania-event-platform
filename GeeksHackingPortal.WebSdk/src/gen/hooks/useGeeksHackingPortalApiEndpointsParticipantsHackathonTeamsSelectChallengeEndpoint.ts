@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint400, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/:teamId/challenge' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationKey>
-
-/**
- * @description Updates the team's selected challenge.
- * @summary Select a challenge
- * {@link /participants/hackathons/:hackathonId/teams/:teamId/challenge}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointPathParams["hackathonId"], teamId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointPathParams["teamId"], data: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint400 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpoint403>, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsSelectChallengeEndpointMutationRequest>({ method : "PUT", url : `/participants/hackathons/${hackathonId}/teams/${teamId}/challenge`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Updates the team's selected challenge.

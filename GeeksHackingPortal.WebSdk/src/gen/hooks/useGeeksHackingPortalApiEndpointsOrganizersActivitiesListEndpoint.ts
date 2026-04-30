@@ -3,28 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint.ts";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey = () => [{ url: '/organizers/activities' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryKey>
-
-/**
- * {@link /organizers/activities}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint(config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesListEndpoint401>, unknown>({ method : "GET", url : `/organizers/activities`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersActivitiesListEndpointQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
 

@@ -17,7 +17,7 @@ public class StandaloneWorkshopManagementTests
         var suffix = Guid.NewGuid().ToString()[..8];
 
         var createResponse = await Client.HttpClient.PostAsJsonAsync(
-            $"/organizers/standalone-workshops/{workshop.Id}/registration/questions",
+            $"/organizers/activities/{workshop.Id}/registration/questions",
             new
             {
                 QuestionText = "What should we know?",
@@ -29,11 +29,11 @@ public class StandaloneWorkshopManagementTests
         );
         var created = await createResponse.Content.ReadFromJsonAsync<RegistrationQuestionResponse>();
 
-        await Assert.That(createResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+        await Assert.That(createResponse.StatusCode).IsEqualTo(HttpStatusCode.Created);
         await Assert.That(created).IsNotNull();
 
         var updateResponse = await Client.HttpClient.PatchAsJsonAsync(
-            $"/organizers/standalone-workshops/{workshop.Id}/registration/questions/{created!.Id}",
+            $"/organizers/activities/{workshop.Id}/registration/questions/{created!.Id}",
             new { QuestionText = "Updated standalone question", IsRequired = false }
         );
         var updated = await updateResponse.Content.ReadFromJsonAsync<RegistrationQuestionResponse>();
@@ -43,7 +43,7 @@ public class StandaloneWorkshopManagementTests
         await Assert.That(updated.IsRequired).IsFalse();
 
         var listResponse = await Client.HttpClient.GetAsync(
-            $"/organizers/standalone-workshops/{workshop.Id}/registration/questions"
+            $"/organizers/activities/{workshop.Id}/registration/questions"
         );
         var list = await listResponse.Content.ReadFromJsonAsync<RegistrationQuestionListResponse>();
 
@@ -51,7 +51,7 @@ public class StandaloneWorkshopManagementTests
         await Assert.That(list!.Questions.Any(q => q.Id == created.Id)).IsTrue();
 
         var deleteResponse = await Client.HttpClient.DeleteAsync(
-            $"/organizers/standalone-workshops/{workshop.Id}/registration/questions/{created.Id}"
+            $"/organizers/activities/{workshop.Id}/registration/questions/{created.Id}"
         );
 
         await Assert.That(deleteResponse.StatusCode).IsEqualTo(HttpStatusCode.NoContent);

@@ -13,7 +13,7 @@ const dashboardPath = computed(() => (hackathonId.value ? `/dash/${hackathonId.v
 <template>
   <UDashboardPanel id="registration-complete">
     <template #body>
-      <div class="bg-white dark:bg-gray-900 min-h-screen font-raleway flex items-center justify-center px-4">
+      <div class="min-h-screen bg-(--ui-bg) font-raleway flex items-center justify-center px-4 text-(--ui-text)">
         <div class="w-full flex justify-center">
           <div class="flex flex-col items-center gap-6 max-w-2xl">
             <img
@@ -23,11 +23,11 @@ const dashboardPath = computed(() => (hackathonId.value ? `/dash/${hackathonId.v
             >
 
             <div class="flex flex-col items-center gap-4 mt-8">
-              <h1 class="font-raleway text-2xl md:text-3xl font-semibold text-gray-900 dark:text-gray-100 text-center">
+              <h1 class="font-raleway text-2xl md:text-3xl font-semibold text-(--ui-text-highlighted) text-center">
                 Registration Complete!
               </h1>
 
-              <div class="font-raleway text-base md:text-lg font-normal text-gray-900 dark:text-gray-100 text-center max-w-lg space-y-4">
+              <div class="font-raleway text-base md:text-lg font-normal text-(--ui-text) text-center max-w-lg space-y-4">
                 <p>Thank you for registering for HackOMania 2026!</p>
 
                 <p>Our team will review your details and notify you once your registration is verified.</p>
@@ -41,19 +41,24 @@ const dashboardPath = computed(() => (hackathonId.value ? `/dash/${hackathonId.v
             </div>
 
             <div class="flex flex-col gap-3 mt-8 w-full max-w-sm">
-              <NuxtLink
+              <UButton
                 :to="dashboardPath"
-                class="w-full h-14 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg flex items-center justify-center font-raleway text-lg font-normal hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                size="xl"
+                color="neutral"
+                class="w-full justify-center font-raleway"
               >
                 Go to Dashboard
-              </NuxtLink>
+              </UButton>
 
-              <NuxtLink
+              <UButton
                 to="/"
-                class="w-full h-14 border border-gray-900 dark:border-gray-100 bg-transparent text-gray-900 dark:text-gray-100 rounded-lg flex items-center justify-center font-raleway text-lg font-normal hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                size="xl"
+                color="neutral"
+                variant="outline"
+                class="w-full justify-center font-raleway"
               >
                 Back to Home
-              </NuxtLink>
+              </UButton>
             </div>
           </div>
         </div>

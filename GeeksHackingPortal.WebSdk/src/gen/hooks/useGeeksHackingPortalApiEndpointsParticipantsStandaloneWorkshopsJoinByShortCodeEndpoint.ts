@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationKey = () => [{ url: '/participants/standalone-workshops/join' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationKey>
-
-/**
- * @description Registers the current user for a standalone workshop using its short code.
- * @summary Join a standalone workshop by short code
- * {@link /participants/standalone-workshops/join}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint(data: GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpoint401>, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsJoinByShortCodeEndpointMutationRequest>({ method : "POST", url : `/participants/standalone-workshops/join`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Registers the current user for a standalone workshop using its short code.

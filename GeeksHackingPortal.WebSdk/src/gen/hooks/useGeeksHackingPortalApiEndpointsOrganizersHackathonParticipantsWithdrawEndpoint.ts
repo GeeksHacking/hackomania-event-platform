@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/:userId/withdraw' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointMutationKey>
-
-/**
- * @description Withdraws a participant from the hackathon. Organizers can withdraw any active participant.
- * @summary Withdraw a participant
- * {@link /organizers/hackathons/:hackathonId/participants/:userId/withdraw}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointPathParams["hackathonId"], userId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointPathParams["userId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsWithdrawEndpoint403>, unknown>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/${userId}/withdraw`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Withdraws a participant from the hackathon. Organizers can withdraw any active participant.

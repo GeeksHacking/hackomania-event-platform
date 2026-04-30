@@ -22,9 +22,9 @@ export type GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetResp
     */
     location?: string;
     /**
-     * @type string | undefined, uri
+     * @type string, uri
     */
-    homepageUri?: string;
+    homepageUri?: string | null;
     /**
      * @type string | undefined
     */

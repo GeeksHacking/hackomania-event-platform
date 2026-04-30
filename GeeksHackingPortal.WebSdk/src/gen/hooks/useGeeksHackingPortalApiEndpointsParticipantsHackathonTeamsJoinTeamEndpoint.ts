@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/:teamId/join' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationKey>
-
-/**
- * @description Joins the current user to a team using the team's join code.
- * @summary Join a team
- * {@link /participants/hackathons/:hackathonId/teams/:teamId/join}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointPathParams["hackathonId"], teamId: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointPathParams["teamId"], data: GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpoint403>, GeeksHackingPortalApiEndpointsParticipantsHackathonTeamsJoinTeamEndpointMutationRequest>({ method : "POST", url : `/participants/hackathons/${hackathonId}/teams/${teamId}/join`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Joins the current user to a team using the team's join code.

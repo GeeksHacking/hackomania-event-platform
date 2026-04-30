@@ -9,7 +9,7 @@ export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatistics
     /**
      * @type string, guid
     */
-    hackathonId: string;
+    activityId: string;
 };
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesStatisticsEndpointQueryParams = {

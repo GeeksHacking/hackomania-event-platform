@@ -14,7 +14,7 @@ const exitTo = 'https://hackomania.geekshacking.com/'
         <NuxtLink
           :to="exitTo"
           external
-          class="font-raleway text-sm sm:text-base font-normal text-gray-900 dark:text-gray-100 underline"
+          class="font-raleway text-sm sm:text-base font-normal text-(--ui-text-highlighted) underline"
         >
           Exit Registration
         </NuxtLink>

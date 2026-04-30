@@ -315,7 +315,11 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseFastEndpoints(c => c.Serializer.Options.Converters.Add(new JsonStringEnumConverter()));
+app.UseFastEndpoints(c =>
+{
+    c.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
+    c.Endpoints.AllowEmptyRequestDtos = true;
+});
 app.UseSwaggerGen(options => options.Path = "/openapi/{documentName}.json");
 app.MapScalarApiReference();
 app.MapDefaultEndpoints();

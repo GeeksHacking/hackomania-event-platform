@@ -3,28 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/organizers/:userId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointMutationKey>
-
-/**
- * {@link /organizers/hackathons/:hackathonId/organizers/:userId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointPathParams["hackathonId"], userId: GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointPathParams["userId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonOrganizersDeleteEndpoint403>, unknown>({ method : "DELETE", url : `/organizers/hackathons/${hackathonId}/organizers/${userId}`, ... requestConfig })
-  return res.data
-}
 
 /**
  * {@link /organizers/hackathons/:hackathonId/organizers/:userId}

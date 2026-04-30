@@ -3,28 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointPathParams, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint400, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint401, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationKey = () => [{ url: '/participants/hackathons/:hackathonId/teams/:teamId/submissions' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationKey>
-
-/**
- * {@link /participants/hackathons/:hackathonId/teams/:teamId/submissions}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointPathParams["hackathonId"], teamId: GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointPathParams["teamId"], data: GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint400 | GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint401 | GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpoint403>, GeeksHackingPortalApiEndpointsParticipantsHackathonSubmissionsCreateEndpointMutationRequest>({ method : "POST", url : `/participants/hackathons/${hackathonId}/teams/${teamId}/submissions`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * {@link /participants/hackathons/:hackathonId/teams/:teamId/submissions}

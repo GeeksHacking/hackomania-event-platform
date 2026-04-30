@@ -394,7 +394,7 @@ const isFormValid = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center bg-white dark:bg-gray-900 px-4 pt-8 md:pt-16 pb-24">
+  <div class="min-h-screen flex flex-col items-center bg-(--ui-bg) text-(--ui-text) px-4 pt-8 md:pt-16 pb-24">
     <div class="w-full max-w-2xl">
       <UForm
         v-if="isDataReady"
@@ -418,7 +418,7 @@ const isFormValid = computed(() => {
                   alt="icon"
                   class="w-8 h-8 md:w-10 md:h-10"
                 >
-                <h2 class="ml-3 font-raleway text-lg md:text-xl font-normal text-gray-900 dark:text-gray-100">
+                <h2 class="ml-3 font-raleway text-lg md:text-xl font-normal text-(--ui-text-highlighted)">
                   {{ section.pageName }}
                 </h2>
               </div>
@@ -433,7 +433,7 @@ const isFormValid = computed(() => {
                   class="col-span-1"
                 >
                   <template #label>
-                    <span class="font-raleway text-base font-normal text-gray-900 dark:text-gray-100">
+                    <span class="font-raleway text-base font-normal text-(--ui-text-highlighted)">
                       First Name
                     </span>
                   </template>
@@ -441,9 +441,7 @@ const isFormValid = computed(() => {
                     v-model="state.first_name as string"
                     type="text"
                     class="w-full"
-                    :ui="{
-                      base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                    }"
+                    size="lg"
                   />
                 </UFormField>
 
@@ -452,7 +450,7 @@ const isFormValid = computed(() => {
                   class="col-span-1"
                 >
                   <template #label>
-                    <span class="font-raleway text-base font-normal text-gray-900 dark:text-gray-100">
+                    <span class="font-raleway text-base font-normal text-(--ui-text-highlighted)">
                       Last Name
                     </span>
                   </template>
@@ -460,9 +458,7 @@ const isFormValid = computed(() => {
                     v-model="state.last_name as string"
                     type="text"
                     class="w-full"
-                    :ui="{
-                      base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                    }"
+                    size="lg"
                   />
                 </UFormField>
               </div>
@@ -483,7 +479,7 @@ const isFormValid = computed(() => {
                       alt="icon"
                       class="w-8 h-8 md:w-10 md:h-10"
                     >
-                    <h2 class="ml-3 font-raleway text-lg md:text-xl font-normal text-gray-900 dark:text-gray-100">
+                    <h2 class="ml-3 font-raleway text-lg md:text-xl font-normal text-(--ui-text-highlighted)">
                       {{ getCategoryGroupName(section.sectionIndex, category.name ?? '') }}
                     </h2>
                   </div>
@@ -498,7 +494,7 @@ const isFormValid = computed(() => {
                       :class="[shouldBeFullWidth(question, category.questions) ? 'md:col-span-2' : 'col-span-1']"
                     >
                       <template #label>
-                        <span class="font-raleway text-base font-normal text-gray-900 dark:text-gray-100">
+                        <span class="font-raleway text-base font-normal text-(--ui-text-highlighted)">
                           {{ question.questionText ?? '' }}
                         </span>
                       </template>
@@ -513,9 +509,7 @@ const isFormValid = computed(() => {
                         label-key="label"
                         placeholder="Select options"
                         class="w-full"
-                        :ui="{
-                          base: 'bg-white dark:bg-gray-800 rounded-lg min-h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                        }"
+                        size="lg"
                         :ui-menu="{
                           option: {
                             base: 'whitespace-normal break-words py-2',
@@ -532,7 +526,7 @@ const isFormValid = computed(() => {
                         v-else-if="question.hasOptions && question.items.length === 1"
                         :model-value="state[question.questionKey ?? ''] === question.items[0]?.value"
                         :label="question.items[0]?.label"
-                        class="font-raleway text-base text-gray-900 dark:text-gray-100"
+                        class="font-raleway text-base"
                         @update:model-value="(checked) => {
                           const value = question.items[0]?.value
                           if (value !== undefined) {
@@ -549,9 +543,7 @@ const isFormValid = computed(() => {
                         label-key="label"
                         placeholder="Select one"
                         class="w-full"
-                        :ui="{
-                          base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                        }"
+                        size="lg"
                         :ui-menu="{
                           option: {
                             base: 'whitespace-normal break-words py-2',
@@ -568,9 +560,7 @@ const isFormValid = computed(() => {
                         v-model="state[question.questionKey ?? ''] as string"
                         type="text"
                         class="w-full"
-                        :ui="{
-                          base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                        }"
+                        size="lg"
                       />
 
                       <!-- Follow-up text fields for selected options -->
@@ -579,16 +569,14 @@ const isFormValid = computed(() => {
                         :key="`${question.questionKey}-${followUpOption.value}-followup`"
                         class="mt-3"
                       >
-                        <label class="block font-raleway text-base font-normal text-gray-900 dark:text-gray-100 mb-1">
+                        <label class="block font-raleway text-base font-normal text-(--ui-text-highlighted) mb-1">
                           {{ followUpOption.followUpPlaceholder || `Please specify for "${followUpOption.label}"` }}
                         </label>
                         <UInput
                           v-model="followUpState[`${question.questionKey}:${followUpOption.value}`]"
                           type="text"
                           class="w-full"
-                          :ui="{
-                            base: 'bg-white dark:bg-gray-800 rounded-lg h-11 border border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-raleway',
-                          }"
+                          size="lg"
                         />
                       </div>
 
@@ -614,7 +602,7 @@ const isFormValid = computed(() => {
                             alt="T-shirt size guide"
                             class="rounded-lg max-w-full hover:opacity-90 transition-opacity"
                           >
-                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-raleway">
+                          <p class="text-xs text-(--ui-text-muted) mt-1 font-raleway">
                             <span class="md:hidden">Pinch to zoom</span>
                             <span class="hidden md:inline">Click to view larger or download</span>
                           </p>
@@ -624,7 +612,7 @@ const isFormValid = computed(() => {
                       <!-- Help text below the field -->
                       <p
                         v-if="question.helpText"
-                        class="mt-1 text-xs text-gray-500 dark:text-gray-400 font-raleway"
+                        class="mt-1 text-xs text-(--ui-text-muted) font-raleway"
                       >
                         {{ question.helpText }}
                       </p>
@@ -633,7 +621,7 @@ const isFormValid = computed(() => {
                         v-if="fieldErrors[question.questionKey ?? '']"
                         class="mt-1"
                       >
-                        <span class="font-raleway text-sm text-red-600 dark:text-red-400">
+                        <span class="font-raleway text-sm text-error">
                           {{ fieldErrors[question.questionKey ?? ''] }}
                         </span>
                       </div>
@@ -655,7 +643,7 @@ const isFormValid = computed(() => {
               href="https://www.instagram.com/geekshacking"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-700 dark:text-gray-300 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+              class="text-(--ui-text-muted) transition-colors hover:text-primary"
             >
               <Icon
                 name="fa6-brands:instagram"
@@ -666,7 +654,7 @@ const isFormValid = computed(() => {
               href="https://www.linkedin.com/company/geekshacking/"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              class="text-(--ui-text-muted) transition-colors hover:text-primary"
             >
               <Icon
                 name="fa6-brands:linkedin"
@@ -677,7 +665,7 @@ const isFormValid = computed(() => {
               href="https://www.facebook.com/GeeksHacking"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-gray-700 dark:text-gray-300 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
+              class="text-(--ui-text-muted) transition-colors hover:text-primary"
             >
               <Icon
                 name="fa6-brands:facebook"
@@ -695,7 +683,8 @@ const isFormValid = computed(() => {
               size="xl"
               :disabled="!isFormValid || isSubmitting"
               :loading="isSubmitting"
-              class="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-8 rounded-md font-raleway disabled:opacity-50 disabled:cursor-not-allowed"
+              color="neutral"
+              class="px-8 font-raleway disabled:cursor-not-allowed"
             >
               SUBMIT
             </UButton>
@@ -704,7 +693,7 @@ const isFormValid = computed(() => {
             v-if="submissionError"
             class="mt-2 text-right"
           >
-            <span class="font-raleway text-sm text-red-600 dark:text-red-400">
+            <span class="font-raleway text-sm text-error">
               One or more errors in the fields, please check!
             </span>
           </div>
@@ -713,23 +702,21 @@ const isFormValid = computed(() => {
     </div>
 
     <!-- T-shirt size image modal -->
-    <UModal
-      v-model:open="isTshirtImageModalOpen"
-      :ui="{ container: 'items-center' }"
-    >
+    <UModal v-model:open="isTshirtImageModalOpen">
       <template #content>
-        <div class="p-6 max-w-6xl mx-auto">
+        <div class="p-6 max-w-6xl mx-auto bg-(--ui-bg) text-(--ui-text)">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-raleway font-semibold text-gray-900 dark:text-gray-100">
+            <h3 class="text-lg font-raleway font-semibold text-(--ui-text-highlighted)">
               T-shirt Size Guide
             </h3>
-            <button
+            <UButton
               type="button"
-              class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              aria-label="Close"
               @click="isTshirtImageModalOpen = false"
-            >
-              ✕
-            </button>
+            />
           </div>
 
           <div class="overflow-auto max-h-[70vh]">
@@ -747,7 +734,7 @@ const isFormValid = computed(() => {
             </a>
           </div>
 
-          <div class="mt-4 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 font-raleway">
+          <div class="mt-4 flex justify-between items-center text-xs text-(--ui-text-muted) font-raleway">
             <div>
               <span class="hidden sm:hidden md:block">Click image to open full size in new tab</span>
               <span class="block md:hidden">Pinch to zoom</span>
@@ -755,7 +742,7 @@ const isFormValid = computed(() => {
             <a
               href="/appendix/tshirtsize.jpg"
               download="tshirt-size-guide.jpg"
-              class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline"
+              class="text-(--ui-text-highlighted) underline"
             >
               Download
             </a>

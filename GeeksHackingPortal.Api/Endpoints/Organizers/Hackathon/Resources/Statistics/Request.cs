@@ -4,7 +4,7 @@ namespace GeeksHackingPortal.Api.Endpoints.Organizers.Hackathon.Resources.Statis
 
 public class Request
 {
-    public Guid HackathonId { get; set; }
+    public Guid ActivityId { get; set; }
 
     [QueryParam]
     public Guid? ResourceId { get; set; }

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationRequest, GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationResponse, GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint401 } from "../types/GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationKey = () => [{ url: '/participants/teams/join' }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationKey>
-
-/**
- * @description Joins the current user to a team using only the team's join code. If the user is not already a participant in the hackathon, they will be automatically registered.
- * @summary Join a team by join code
- * {@link /participants/teams/join}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint(data: GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpoint401>, GeeksHackingPortalApiEndpointsParticipantsTeamsJoinByCodeEndpointMutationRequest>({ method : "POST", url : `/participants/teams/join`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Joins the current user to a team using only the team's join code. If the user is not already a participant in the hackathon, they will be automatically registered.

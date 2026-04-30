@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/timeline' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationKey>
-
-/**
- * @description Creates a new timeline item for a hackathon.
- * @summary Create timeline item
- * {@link /organizers/hackathons/:hackathonId/timeline}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineCreateEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/timeline`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Creates a new timeline item for a hackathon.

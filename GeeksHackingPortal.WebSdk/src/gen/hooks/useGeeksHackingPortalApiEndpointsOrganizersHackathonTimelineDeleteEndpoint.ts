@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/timeline/:timelineItemId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointMutationKey>
-
-/**
- * @description Deletes a timeline item from a hackathon.
- * @summary Delete timeline item
- * {@link /organizers/hackathons/:hackathonId/timeline/:timelineItemId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointPathParams["hackathonId"], timelineItemId: GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointPathParams["timelineItemId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonTimelineDeleteEndpoint403>, unknown>({ method : "DELETE", url : `/organizers/hackathons/${hackathonId}/timeline/${timelineItemId}`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Deletes a timeline item from a hackathon.

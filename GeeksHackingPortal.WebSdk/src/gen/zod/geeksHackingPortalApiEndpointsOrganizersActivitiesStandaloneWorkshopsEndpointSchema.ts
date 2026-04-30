@@ -3,18 +3,24 @@
 * Do not edit manually.
 */
 
+import { fastEndpointsErrorResponseSchema } from "./fastEndpointsErrorResponseSchema.ts";
 import { geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequestSchema } from "./geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsRequestSchema.ts";
 import { geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponseSchema } from "./geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponseSchema.ts";
 import { z } from "zod/v4";
 
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParamsSchema = z.object({
-    "activityId": z.string()
+    "standaloneWorkshopId": z.string()
     })
 
 /**
  * @description Success
  */
 export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint200Schema = z.lazy(() => geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsResponseSchema)
+
+/**
+ * @description Bad Request
+ */
+export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400Schema = z.lazy(() => fastEndpointsErrorResponseSchema).describe("the dto used to send an error response to the client")
 
 /**
  * @description Unauthorized

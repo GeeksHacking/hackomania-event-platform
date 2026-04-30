@@ -3,35 +3,23 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/resources/:resourceId' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/resources/:resourceId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationKey>
 
 /**
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["hackathonId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["resourceId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403>, unknown>({ method : "DELETE", url : `/organizers/hackathons/${hackathonId}/resources/${resourceId}`, ... requestConfig })
-  return res.data
-}
-
-/**
- * {@link /organizers/hackathons/:hackathonId/resources/:resourceId}
+ * {@link /organizers/activities/:activityId/resources/:resourceId}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["hackathonId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["resourceId"]>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["activityId"]>, resourceId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["resourceId"]>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client },
 }
  = {}) {
@@ -40,9 +28,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDel
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["hackathonId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["resourceId"]}, TContext>({
-            mutationFn: async({ hackathonId, resourceId }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint(hackathonId, resourceId, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["activityId"], resourceId: GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointPathParams["resourceId"]}, TContext>({
+            mutationFn: async({ activityId, resourceId }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpoint(activityId, resourceId, config)
             },
             mutationKey,
             ...mutationOptions

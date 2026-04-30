@@ -9,22 +9,22 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Get("organizers/hackathons/{HackathonId:guid}/resources");
-        Policies(PolicyNames.OrganizerForHackathon);
+        Get("organizers/activities/{ActivityId:guid}/resources");
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Resources"));
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>().Includes(h => h.Activity).InSingleAsync(req.HackathonId);
-        if (hackathon is null)
+        var activityExists = await sql.Queryable<Activity>().AnyAsync(a => a.Id == req.ActivityId, ct);
+        if (!activityExists)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
         var resources = await sql.Queryable<Resource>()
-            .Where(r => r.ActivityId == hackathon.Id)
+            .Where(r => r.ActivityId == req.ActivityId)
             .Select(r => new Response.ResponseResource
             {
                 Id = r.Id,

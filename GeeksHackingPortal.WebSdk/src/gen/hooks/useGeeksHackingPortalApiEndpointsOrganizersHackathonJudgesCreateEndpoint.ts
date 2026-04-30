@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/judges' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationKey>
-
-/**
- * @description Creates a new judge for the hackathon. Returns the judge secret that should be shared with the judge for authentication.
- * @summary Create a judge
- * {@link /organizers/hackathons/:hackathonId/judges}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointPathParams["hackathonId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonJudgesCreateEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/judges`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Creates a new judge for the hackathon. Returns the judge secret that should be shared with the judge for authentication.

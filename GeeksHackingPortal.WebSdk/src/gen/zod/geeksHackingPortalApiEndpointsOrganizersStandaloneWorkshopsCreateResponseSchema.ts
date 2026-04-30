@@ -12,7 +12,7 @@ export const geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRe
 "startTime": z.optional(z.iso.datetime()),
 "endTime": z.optional(z.iso.datetime()),
 "location": z.optional(z.string()),
-"homepageUri": z.optional(z.url()),
+"homepageUri": z.url().nullish(),
 "shortCode": z.optional(z.string()),
 "maxParticipants": z.optional(z.int()),
 "isPublished": z.optional(z.boolean()),

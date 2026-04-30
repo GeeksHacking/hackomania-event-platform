@@ -11,9 +11,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override void Configure()
     {
         Get(
-            "organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId:guid}/resources/{ResourceId:guid}/history"
+            "organizers/activities/{ActivityId:guid}/participants/{ParticipantUserId:guid}/resources/{ResourceId:guid}/history"
         );
-        Policies(PolicyNames.OrganizerForHackathon);
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Resources"));
         Summary(s =>
         {
@@ -24,19 +24,16 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>()
-            
-            .FirstAsync(h => h.Id == req.HackathonId, ct);
-
-        if (hackathon is null)
+        var activityExists = await sql.Queryable<Activity>().AnyAsync(a => a.Id == req.ActivityId, ct);
+        if (!activityExists)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        var participantData = await sql.Queryable<Participant>()
+        var participantData = await sql.Queryable<ActivityRegistration>()
             .LeftJoin<User>((p, u) => p.UserId == u.Id)
-            .Where((p, u) => p.UserId == req.ParticipantUserId && p.HackathonId == req.HackathonId)
+            .Where((p, u) => p.UserId == req.ParticipantUserId && p.ActivityId == req.ActivityId)
             .Select((p, u) => new { Participant = p, User = u })
             .FirstAsync(ct);
 
@@ -47,7 +44,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var resource = await sql.Queryable<Resource>()
-            .Where(r => r.Id == req.ResourceId && r.ActivityId == hackathon.Id)
+            .Where(r => r.Id == req.ResourceId && r.ActivityId == req.ActivityId)
             .FirstAsync(ct);
 
         if (resource is null)
@@ -58,7 +55,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
         var history = await sql.Queryable<ResourceRedemption>()
             .Where(r =>
-                r.ActivityId == hackathon.Id
+                r.ActivityId == req.ActivityId
                 && r.ResourceId == req.ResourceId
                 && r.UserId == req.ParticipantUserId
             )

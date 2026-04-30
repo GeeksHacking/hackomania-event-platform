@@ -86,7 +86,7 @@ async function handleSubmit() {
 
   try {
     const result = await updateMutation.mutateAsync({
-      activityId: hackathonId.value,
+      hackathonId: hackathonId.value,
       data: {
         gitHubRepositorySettings: {
           isRepositoryCheckingEnabled: form.value.enableRepositoryChecking,

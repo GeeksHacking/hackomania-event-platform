@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryKey = (hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["hackathonId"] | undefined>, challengeId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["challengeId"] | undefined>) => [{ url: '/organizers/hackathons/:hackathonId/challenges/:challengeId', params: {hackathonId:hackathonId,challengeId:challengeId} }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryKey>
-
-/**
- * @description Retrieves detailed information about a specific challenge.
- * @summary Get challenge details
- * {@link /organizers/hackathons/:hackathonId/challenges/:challengeId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["hackathonId"], challengeId: GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["challengeId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpoint403>, unknown>({ method : "GET", url : `/organizers/hackathons/${hackathonId}/challenges/${challengeId}`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointQueryOptions(hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["hackathonId"] | undefined>, challengeId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesGetEndpointPathParams["challengeId"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

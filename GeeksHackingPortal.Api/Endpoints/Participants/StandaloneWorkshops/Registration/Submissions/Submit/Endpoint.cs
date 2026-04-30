@@ -19,7 +19,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         {
             s.Summary = "Submit standalone workshop registration responses";
             s.Description =
-                "Submits or updates answers to standalone workshop registration questions. Existing answers will be replaced.";
+                "Submits answers to standalone workshop registration questions. Completed registrations cannot be modified.";
         });
     }
 
@@ -46,6 +46,23 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         if (registration is null)
         {
             AddError("User must be registered for this standalone workshop before submitting responses.");
+            await Send.ErrorsAsync(cancellation: ct);
+            return;
+        }
+
+        var allRequiredQuestions = await sql.Queryable<RegistrationQuestion>()
+            .Where(q => q.ActivityId == req.StandaloneWorkshopId && q.IsRequired)
+            .ToListAsync(ct);
+
+        var existingSubmissions = await sql.Queryable<ParticipantRegistrationSubmission>()
+            .Where(s => s.ActivityRegistrationId == registration.Id)
+            .ToListAsync(ct);
+
+        var existingAnsweredQuestionIds = existingSubmissions.Select(s => s.QuestionId).ToHashSet();
+        var isRegistrationAlreadyComplete = allRequiredQuestions.All(q => existingAnsweredQuestionIds.Contains(q.Id));
+        if (isRegistrationAlreadyComplete)
+        {
+            AddError("Registration has already been completed and can no longer be modified.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
@@ -101,10 +118,6 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
-
-        var allRequiredQuestions = await sql.Queryable<RegistrationQuestion>()
-            .Where(q => q.ActivityId == req.StandaloneWorkshopId && q.IsRequired)
-            .ToListAsync(ct);
 
         var submittedQuestionIds = req.Submissions.Select(s => s.QuestionId).ToHashSet();
         var missingRequired = allRequiredQuestions

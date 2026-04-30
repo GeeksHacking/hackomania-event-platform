@@ -11,9 +11,9 @@ export const geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateRe
 "startTime": z.optional(z.iso.datetime()),
 "endTime": z.optional(z.iso.datetime()),
 "location": z.optional(z.string()),
-"homepageUri": z.optional(z.url()),
-"shortCode": z.optional(z.string()),
-"maxParticipants": z.optional(z.int()),
+"homepageUri": z.url().nullish(),
+"shortCode": z.optional(z.string().min(3).max(16).regex(/^[A-Za-z0-9-]+$/)),
+"maxParticipants": z.optional(z.int().gt(0)),
 "isPublished": z.optional(z.boolean()),
 "emailTemplates": z.object({
     

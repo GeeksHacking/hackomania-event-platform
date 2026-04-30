@@ -33,7 +33,7 @@ export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDelete
 export function geeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndpointHandler(data?: string | number | boolean | null | object | ((
         info: Parameters<Parameters<typeof http.delete>[1]>[0],
       ) => Response | Promise<Response>)) {
-  return http.delete(`/organizers/hackathons/:hackathonId/resources/:resourceId`, function handler(info) {
+  return http.delete(`/organizers/activities/:activityId/resources/:resourceId`, function handler(info) {
       if(typeof data === 'function') return data(info)
 
       return new Response(JSON.stringify(data), {

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/:participantUserId/review' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationKey>
-
-/**
- * @description Accept or reject a participant's application.
- * @summary Review a participant
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/review}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointPathParams["participantUserId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonParticipantsReviewEndpointMutationRequest>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/${participantUserId}/review`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Accept or reject a participant's application.

@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/workshops/:workshopId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationKey>
-
-/**
- * @description Updates an existing workshop.
- * @summary Update a workshop
- * {@link /organizers/hackathons/:hackathonId/workshops/:workshopId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointPathParams["hackathonId"], workshopId: GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointPathParams["workshopId"], data: GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersHackathonWorkshopsUpdateEndpointMutationRequest>({ method : "PUT", url : `/organizers/hackathons/${hackathonId}/workshops/${workshopId}`, data : requestData, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Updates an existing workshop.

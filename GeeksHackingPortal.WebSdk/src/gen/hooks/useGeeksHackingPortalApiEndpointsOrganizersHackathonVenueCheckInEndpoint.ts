@@ -3,39 +3,25 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-in' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/participants/:participantUserId/venue/check-in' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationKey>
 
 /**
- * @description Checks a participant into the hackathon venue.
+ * @description Checks a participant into the activity venue.
  * @summary Check in a participant to the venue
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-in}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["participantUserId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403>, unknown>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/${participantUserId}/venue/check-in`, ... requestConfig })
-  return res.data
-}
-
-/**
- * @description Checks a participant into the hackathon venue.
- * @summary Check in a participant to the venue
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-in}
+ * {@link /organizers/activities/:activityId/participants/:participantUserId/venue/check-in}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["hackathonId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["participantUserId"]>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["activityId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["participantUserId"]>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client },
 }
  = {}) {
@@ -44,9 +30,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckIn
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["participantUserId"]}, TContext>({
-            mutationFn: async({ hackathonId, participantUserId }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint(hackathonId, participantUserId, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["activityId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpointPathParams["participantUserId"]}, TContext>({
+            mutationFn: async({ activityId, participantUserId }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckInEndpoint(activityId, participantUserId, config)
             },
             mutationKey,
             ...mutationOptions

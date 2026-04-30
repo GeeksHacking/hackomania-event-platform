@@ -59,9 +59,9 @@ watchEffect(() => {
   <!-- Show loading while checking auth -->
   <div
     v-if="isLoading || !showPage"
-    class="bg-white min-h-screen flex flex-col items-center justify-center gap-4 px-4"
+    class="min-h-screen flex flex-col items-center justify-center gap-4 bg-(--ui-bg) px-4 text-(--ui-text)"
   >
-    <p class="text-sm font-medium text-gray-600 animate-pulse">
+    <p class="text-sm font-medium text-(--ui-text-muted) animate-pulse">
       Checking your session...
     </p>
     <UIcon name="i-lucide-loader-circle" class="w-8 h-8 animate-spin text-primary" />
@@ -70,7 +70,7 @@ watchEffect(() => {
   <!-- Show content if authenticated -->
   <div
     v-else
-    class="bg-white min-h-screen font-raleway flex items-center justify-center px-4"
+    class="min-h-screen bg-(--ui-bg) font-raleway flex items-center justify-center px-4 text-(--ui-text)"
   >
     <div class="w-full flex justify-center">
       <div class="flex flex-col items-center gap-6 max-w-2xl">
@@ -81,11 +81,11 @@ watchEffect(() => {
         >
 
         <div class="flex flex-col items-center gap-4 mt-8">
-          <h1 class="font-raleway text-2xl md:text-3xl font-semibold text-black text-center">
+          <h1 class="font-raleway text-2xl md:text-3xl font-semibold text-(--ui-text-highlighted) text-center">
             Registration Complete!
           </h1>
 
-          <div class="font-raleway text-base md:text-lg font-normal text-black text-center max-w-lg space-y-4">
+          <div class="font-raleway text-base md:text-lg font-normal text-(--ui-text) text-center max-w-lg space-y-4">
             <p>Our team will review your details and notify you once your registration is verified.</p>
 
             <p>You may check your application status below or return to HackOMania2026 website.</p>

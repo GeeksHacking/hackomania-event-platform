@@ -3,30 +3,16 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint.ts";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/challenges/:challengeId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointMutationKey>
-
-/**
- * @description Deletes a challenge from the hackathon.
- * @summary Delete a challenge
- * {@link /organizers/hackathons/:hackathonId/challenges/:challengeId}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointPathParams["hackathonId"], challengeId: GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointPathParams["challengeId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonChallengesDeleteEndpoint403>, unknown>({ method : "DELETE", url : `/organizers/hackathons/${hackathonId}/challenges/${challengeId}`, ... requestConfig })
-  return res.data
-}
 
 /**
  * @description Deletes a challenge from the hackathon.

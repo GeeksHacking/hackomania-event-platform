@@ -295,8 +295,9 @@ async function submitRegistration() {
 
       let followUpValue: string | null = null
       const followUpEntries = Object.entries(followUpValues)
-      if (followUpEntries.length === 1) {
-        followUpValue = followUpEntries[0][1]
+      const onlyFollowUp = followUpEntries[0]
+      if (onlyFollowUp && followUpEntries.length === 1) {
+        followUpValue = onlyFollowUp[1]
       }
       else if (followUpEntries.length > 1) {
         followUpValue = JSON.stringify(followUpValues)
@@ -368,9 +369,9 @@ async function submitRegistration() {
     <div
       v-for="category in formattedCategories"
       :key="category.name"
-      class="rounded-[1.5rem] border border-black/6 bg-white/86 p-4 shadow-[0_14px_36px_-34px_rgba(0,0,0,0.12)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white/92 sm:p-5"
+      class="rounded-[1.5rem] border border-(--ui-border) bg-(--ui-bg) p-4 shadow-xl shadow-black/8 ring-1 ring-(--ui-border) transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-black/12 sm:p-5"
     >
-      <div class="space-y-1 border-b border-black/5 pb-3">
+      <div class="space-y-1 border-b border-(--ui-border) pb-3">
         <h3 class="text-sm font-semibold tracking-[0.02em] text-(--ui-text-highlighted) sm:text-base">
           {{ category.name }}
         </h3>
@@ -386,7 +387,7 @@ async function submitRegistration() {
           :ui="{
             container: 'space-y-2',
             label: 'text-sm leading-6 font-medium text-(--ui-text-highlighted)',
-            help: 'text-xs leading-5 text-black/55',
+            help: 'text-xs leading-5 text-(--ui-text-muted)',
             error: 'text-sm text-error',
           }"
         >
@@ -457,11 +458,11 @@ async function submitRegistration() {
           <div
             v-for="followUpOption in getSelectedFollowUpOptions(question.questionKey ?? '', question.items)"
             :key="`${question.key}-${followUpOption.value}-follow-up`"
-            class="mt-3 rounded-2xl border border-black/5 bg-black/[0.02] p-3"
+            class="mt-3 rounded-2xl border border-(--ui-border) bg-(--ui-bg-elevated) p-3 shadow-md shadow-black/5"
           >
             <UFormField
               :label="followUpOption.followUpPlaceholder || `Please specify for ${followUpOption.label}`"
-              :ui="{ label: 'text-xs font-medium tracking-[0.01em] text-black/60' }"
+              :ui="{ label: 'text-xs font-medium tracking-[0.01em] text-(--ui-text-muted)' }"
             >
               <UInput
                 v-model="followUpState[`${question.questionKey}:${followUpOption.value}`]"
@@ -487,10 +488,10 @@ async function submitRegistration() {
       </div>
     </div>
 
-    <div class="rounded-[1.5rem] border border-black/6 bg-white/88 px-4 py-4 shadow-[0_14px_36px_-34px_rgba(0,0,0,0.12)] sm:px-5 sm:py-5">
+    <div class="rounded-[1.5rem] border border-(--ui-border) bg-(--ui-bg) px-4 py-4 shadow-xl shadow-black/8 ring-1 ring-(--ui-border) sm:px-5 sm:py-5">
       <div class="flex flex-col gap-4">
         <div class="text-sm leading-6 text-(--ui-text-muted)">
-          Review your answers before submitting. You can return later to update them.
+          Review your answers before submitting. You will not be able to modify them after signup is complete.
         </div>
 
         <div class="flex flex-col items-stretch gap-2">

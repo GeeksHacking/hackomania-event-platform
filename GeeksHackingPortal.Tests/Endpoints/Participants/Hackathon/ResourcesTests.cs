@@ -54,7 +54,7 @@ public class ResourcesTests
             IsPublished = true,
         };
         var resourceResponse = await client.HttpClient.PostAsJsonAsync(
-            $"/organizers/hackathons/{hackathon!.Id}/resources",
+            $"/organizers/activities/{hackathon!.Id}/resources",
             resourceRequest
         );
         var resource = await resourceResponse.Content.ReadFromJsonAsync<ResourceResponse>();
@@ -141,7 +141,7 @@ public class ResourcesTests
 
         // Act
         var response = await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathonId}/participants/{participantUserId}/resources/{resourceId}/redemptions",
+            $"/organizers/activities/{hackathonId}/participants/{participantUserId}/resources/{resourceId}/redemptions",
             null
         );
         var result = await response.Content.ReadFromJsonAsync<ResourceRedemptionResponse>();
@@ -150,7 +150,7 @@ public class ResourcesTests
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result).IsNotNull();
         await Assert.That(result!.ResourceId).IsEqualTo(resourceId);
-        await Assert.That(result.HackathonId).IsEqualTo(hackathonId);
+        await Assert.That(result.ActivityId).IsEqualTo(hackathonId);
     }
 
     [Test]
@@ -168,7 +168,7 @@ public class ResourcesTests
 
         // Act
         var response = await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{Guid.NewGuid()}/redemptions",
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{Guid.NewGuid()}/redemptions",
             null
         );
 
@@ -189,7 +189,7 @@ public class ResourcesTests
         var participantUserId = await GetCurrentUserIdAsync(Client.HttpClient);
 
         var response = await Client.HttpClient.PostAsync(
-            $"/organizers/hackathons/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
+            $"/organizers/activities/{hackathon.Id}/participants/{participantUserId}/resources/{resource.Id}/redemptions",
             null
         );
 
@@ -213,7 +213,7 @@ public class ResourcesTests
     {
         // Act
         var response = await AnonymousClient.HttpClient.PostAsync(
-            $"/organizers/hackathons/{Guid.NewGuid()}/participants/{Guid.NewGuid()}/resources/{Guid.NewGuid()}/redemptions",
+            $"/organizers/activities/{Guid.NewGuid()}/participants/{Guid.NewGuid()}/resources/{Guid.NewGuid()}/redemptions",
             null
         );
 

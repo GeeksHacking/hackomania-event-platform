@@ -67,12 +67,12 @@
     "postinstall": "tsdown"
   },
   "dependencies": {
+    "@kubb/plugin-client": "^4.37.4",
     "axios": "^1.15.2"
   },
   "devDependencies": {
     "@kubb/cli": "^4.37.4",
     "@kubb/core": "^4.37.4",
-    "@kubb/plugin-client": "^4.37.4",
     "@kubb/plugin-faker": "^4.37.4",
     "@kubb/plugin-msw": "^4.37.4",
     "@kubb/plugin-oas": "^4.37.4",

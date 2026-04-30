@@ -212,7 +212,7 @@ public class HackathonCrudTests
         };
 
         var response = await Client.HttpClient.PatchAsJsonAsync(
-            $"/organizers/activities/{createdHackathon!.Id}/hackathon",
+            $"/organizers/hackathons/{createdHackathon!.Id}",
             updateRequest
         );
         var result = await response.Content.ReadFromJsonAsync<HackathonActivityResponse>();

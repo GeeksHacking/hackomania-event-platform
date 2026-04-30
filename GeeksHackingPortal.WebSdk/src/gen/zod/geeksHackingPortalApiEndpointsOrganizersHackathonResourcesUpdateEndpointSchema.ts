@@ -8,7 +8,7 @@ import { geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateRespons
 import { z } from "zod/v4";
 
 export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesUpdateEndpointPathParamsSchema = z.object({
-    "hackathonId": z.string(),
+    "activityId": z.string(),
 "resourceId": z.string()
     })
 

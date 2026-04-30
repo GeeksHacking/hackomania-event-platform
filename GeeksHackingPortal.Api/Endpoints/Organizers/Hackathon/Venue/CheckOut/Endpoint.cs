@@ -11,21 +11,28 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
     public override void Configure()
     {
         Post(
-            "organizers/hackathons/{HackathonId:guid}/participants/{ParticipantUserId:guid}/venue/check-out"
+            "organizers/activities/{ActivityId:guid}/participants/{ParticipantUserId:guid}/venue/check-out"
         );
-        Policies(PolicyNames.OrganizerForHackathon);
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Venue").Accepts<Request>());
         Summary(s =>
         {
             s.Summary = "Check out a participant from the venue";
-            s.Description = "Checks a participant out from the hackathon venue.";
+            s.Description = "Checks a participant out from the activity venue.";
         });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var participant = await sql.Queryable<Participant>()
-            .FirstAsync(p => p.UserId == req.ParticipantUserId && p.HackathonId == req.HackathonId, ct);
+        var participant = await sql.Queryable<ActivityRegistration>()
+            .FirstAsync(
+                p =>
+                    p.UserId == req.ParticipantUserId
+                    && p.ActivityId == req.ActivityId
+                    && p.Status == ActivityRegistrationStatus.Registered
+                    && p.WithdrawnAt == null,
+                ct
+            );
 
         if (participant is null)
         {
@@ -36,7 +43,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         var checkIn = await sql.Queryable<VenueCheckIn>()
             .Where(v =>
                 v.ActivityRegistrationId == participant.Id
-                && v.ActivityId == req.HackathonId
+                && v.ActivityId == req.ActivityId
                 && v.IsCheckedIn
             )
             .OrderByDescending(v => v.CheckInTime)

@@ -8,6 +8,6 @@ import { z } from "zod/v4";
 export const geeksHackingPortalApiEndpointsOrganizersHackathonResourcesRedeemResponseSchema = z.object({
     "redemptionId": z.optional(z.string()),
 "resourceId": z.optional(z.string()),
-"hackathonId": z.optional(z.string()),
+"activityId": z.optional(z.string()),
 "createdAt": z.optional(z.iso.datetime())
     })

@@ -9,14 +9,14 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Patch("organizers/activities/{ActivityId:guid}/standalone-workshop");
+        Patch("organizers/standalone-workshops/{StandaloneWorkshopId:guid}");
         Policies(PolicyNames.OrganizerForActivity);
-        Description(b => b.WithTags("Organizers", "Activities", "Standalone Workshops"));
+        Description(b => b.WithTags("Organizers", "Standalone Workshops"));
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var workshop = await sql.Queryable<StandaloneWorkshop>().InSingleAsync(req.ActivityId);
+        var workshop = await sql.Queryable<StandaloneWorkshop>().InSingleAsync(req.StandaloneWorkshopId);
         if (workshop is null)
         {
             await Send.NotFoundAsync(ct);
@@ -35,7 +35,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             }
         }
 
-        if (req.HomepageUri is not null)
+        if (req.HasHomepageUri)
         {
             workshop.HomepageUri = req.HomepageUri;
         }

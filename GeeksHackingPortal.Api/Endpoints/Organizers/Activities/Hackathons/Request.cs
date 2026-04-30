@@ -4,7 +4,7 @@ namespace GeeksHackingPortal.Api.Endpoints.Organizers.Activities.Hackathons;
 
 public class Request
 {
-    public Guid ActivityId { get; set; }
+    public Guid HackathonId { get; set; }
     public DateTimeOffset? SubmissionsStartDate { get; set; }
     public DateTimeOffset? ChallengeSelectionEndDate { get; set; }
     public DateTimeOffset? SubmissionsEndDate { get; set; }

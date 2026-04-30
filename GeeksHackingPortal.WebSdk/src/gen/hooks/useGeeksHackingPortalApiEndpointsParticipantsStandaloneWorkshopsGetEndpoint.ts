@@ -3,31 +3,17 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryResponse, GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointPathParams } from "../types/GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { queryOptions, useQuery } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpoint } from "../clients/geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpoint.ts";
 import { toValue } from "vue";
 
 export const geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryKey = (standaloneWorkshopIdOrShortCode: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointPathParams["standaloneWorkshopIdOrShortCode"] | undefined>) => [{ url: '/participants/standalone-workshops/:standaloneWorkshopIdOrShortCode', params: {standaloneWorkshopIdOrShortCode:standaloneWorkshopIdOrShortCode} }] as const
 
 export type GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryKey = ReturnType<typeof geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryKey>
-
-/**
- * @description Retrieves public details about a standalone workshop by ID or short code.
- * @summary Get standalone workshop details
- * {@link /participants/standalone-workshops/:standaloneWorkshopIdOrShortCode}
- */
-export async function geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpoint(standaloneWorkshopIdOrShortCode: GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointPathParams["standaloneWorkshopIdOrShortCode"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryResponse, ResponseErrorConfig<Error>, unknown>({ method : "GET", url : `/participants/standalone-workshops/${standaloneWorkshopIdOrShortCode}`, ... requestConfig })
-  return res.data
-}
 
 export function geeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointQueryOptions(standaloneWorkshopIdOrShortCode: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsParticipantsStandaloneWorkshopsGetEndpointPathParams["standaloneWorkshopIdOrShortCode"] | undefined>, config: Partial<RequestConfig> & { client?: Client } = {}) {
 

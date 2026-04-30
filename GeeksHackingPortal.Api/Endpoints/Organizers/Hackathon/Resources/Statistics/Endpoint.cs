@@ -10,8 +10,8 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Get("organizers/hackathons/{HackathonId:guid}/resources/statistics");
-        Policies(PolicyNames.OrganizerForHackathon);
+        Get("organizers/activities/{ActivityId:guid}/resources/statistics");
+        Policies(PolicyNames.OrganizerForActivity);
         Description(b => b.WithTags("Organizers", "Resources"));
         Summary(s =>
         {
@@ -23,18 +23,15 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        var hackathon = await sql.Queryable<Entities.Hackathon>()
-            
-            .FirstAsync(h => h.Id == req.HackathonId, ct);
-
-        if (hackathon is null)
+        var activityExists = await sql.Queryable<Activity>().AnyAsync(a => a.Id == req.ActivityId, ct);
+        if (!activityExists)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
         var resources = await sql.Queryable<Resource>()
-            .Where(r => r.ActivityId == hackathon.Id)
+            .Where(r => r.ActivityId == req.ActivityId)
             
             .ToListAsync(ct);
 
@@ -49,15 +46,16 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        var participants = await sql.Queryable<Participant>()
-            .LeftJoin<User>((p, u) => p.UserId == u.Id)
-            .Where((p, u) => p.HackathonId == req.HackathonId)
+        var participants = await sql.Queryable<ActivityRegistration>()
+            .LeftJoin<User>((r, u) => r.UserId == u.Id)
+            .LeftJoin<Participant>((r, u, p) => r.Id == p.Id)
+            .Where((r, u, p) => r.ActivityId == req.ActivityId)
             .Select(
-                (p, u) =>
+                (r, u, p) =>
                     new ParticipantProjection
                     {
-                        ParticipantId = p.Id,
-                        UserId = p.UserId,
+                        ParticipantId = r.Id,
+                        UserId = r.UserId,
                         TeamId = p.TeamId,
                         FirstName = u.FirstName,
                         LastName = u.LastName,
@@ -66,7 +64,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .ToListAsync(ct);
 
         var teams = await sql.Queryable<Team>()
-            .Where(team => team.HackathonId == req.HackathonId)
+            .Where(team => team.HackathonId == req.ActivityId)
             
             .ToListAsync(ct);
 
@@ -79,7 +77,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
                 ? []
                 : await sql.Queryable<ResourceRedemption>()
                     .Where(redemption =>
-                        redemption.ActivityId == hackathon.Id
+                        redemption.ActivityId == req.ActivityId
                         && scopedResourceIds.Contains(redemption.ResourceId)
                         && participantUserIds.Contains(redemption.UserId)
                     )

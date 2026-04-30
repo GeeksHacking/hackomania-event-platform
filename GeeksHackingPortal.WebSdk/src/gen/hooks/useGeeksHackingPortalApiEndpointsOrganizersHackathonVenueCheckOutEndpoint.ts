@@ -3,39 +3,25 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
 import type { GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401, GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationKey = () => [{ url: '/organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-out' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/participants/:participantUserId/venue/check-out' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationKey>
 
 /**
- * @description Checks a participant out from the hackathon venue.
+ * @description Checks a participant out from the activity venue.
  * @summary Check out a participant from the venue
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-out}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint(hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["participantUserId"], config: Partial<RequestConfig> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403>, unknown>({ method : "POST", url : `/organizers/hackathons/${hackathonId}/participants/${participantUserId}/venue/check-out`, ... requestConfig })
-  return res.data
-}
-
-/**
- * @description Checks a participant out from the hackathon venue.
- * @summary Check out a participant from the venue
- * {@link /organizers/hackathons/:hackathonId/participants/:participantUserId/venue/check-out}
+ * {@link /organizers/activities/:activityId/participants/:participantUserId/venue/check-out}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403>, {hackathonId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["hackathonId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["participantUserId"]>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["activityId"]>, participantUserId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["participantUserId"]>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig> & { client?: Client },
 }
  = {}) {
@@ -44,9 +30,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOu
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403>, {hackathonId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["hackathonId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["participantUserId"]}, TContext>({
-            mutationFn: async({ hackathonId, participantUserId }) => {
-              return geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint(hackathonId, participantUserId, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["activityId"], participantUserId: GeeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpointPathParams["participantUserId"]}, TContext>({
+            mutationFn: async({ activityId, participantUserId }) => {
+              return geeksHackingPortalApiEndpointsOrganizersHackathonVenueCheckOutEndpoint(activityId, participantUserId, config)
             },
             mutationKey,
             ...mutationOptions

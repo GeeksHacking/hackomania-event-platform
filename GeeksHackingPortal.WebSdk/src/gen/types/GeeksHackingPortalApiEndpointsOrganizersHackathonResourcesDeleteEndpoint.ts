@@ -8,7 +8,7 @@ export type GeeksHackingPortalApiEndpointsOrganizersHackathonResourcesDeleteEndp
     /**
      * @type string, guid
     */
-    hackathonId: string;
+    activityId: string;
     /**
      * @type string
     */

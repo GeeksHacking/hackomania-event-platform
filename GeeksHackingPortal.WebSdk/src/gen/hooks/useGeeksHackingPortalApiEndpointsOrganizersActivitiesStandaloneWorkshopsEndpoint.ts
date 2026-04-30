@@ -3,35 +3,23 @@
 * Do not edit manually.
 */
 
-import fetch from "../../client/fetch";
-import type { Client, RequestConfig, ResponseErrorConfig } from "../../client/fetch";
+import type { Client, RequestConfig, ResponseErrorConfig } from "@kubb/plugin-client/clients/axios";
 import type { MutationObserverOptions, QueryClient } from "@tanstack/vue-query";
-import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
+import type { GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403 } from "../types/GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
 import type { MaybeRefOrGetter } from "vue";
 import { useMutation } from "@tanstack/vue-query";
+import { geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint } from "../clients/geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint.ts";
 
-export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationKey = () => [{ url: '/organizers/activities/:activityId/standalone-workshop' }] as const
+export const geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationKey = () => [{ url: '/organizers/standalone-workshops/:standaloneWorkshopId' }] as const
 
 export type GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationKey = ReturnType<typeof geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationKey>
 
 /**
- * {@link /organizers/activities/:activityId/standalone-workshop}
- */
-export async function geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint(activityId: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams["activityId"], data: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest, config: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest>> & { client?: Client } = {}) {
-  const { client: request = fetch, ...requestConfig } = config
-
-  const requestData = data
-
-  const res = await request<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403>, GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest>({ method : "PATCH", url : `/organizers/activities/${activityId}/standalone-workshop`, data : requestData, ... requestConfig })
-  return res.data
-}
-
-/**
- * {@link /organizers/activities/:activityId/standalone-workshop}
+ * {@link /organizers/standalone-workshops/:standaloneWorkshopId}
  */
 export function useGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint<TContext>(options: 
 {
-  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403>, {activityId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams["activityId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest>}, TContext> & { client?: QueryClient },
+  mutation?: MutationObserverOptions<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403>, {standaloneWorkshopId: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams["standaloneWorkshopId"]>, data: MaybeRefOrGetter<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest>}, TContext> & { client?: QueryClient },
   client?: Partial<RequestConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest>> & { client?: Client },
 }
  = {}) {
@@ -40,9 +28,9 @@ export function useGeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneW
           const { client: queryClient, ...mutationOptions } = mutation;
           const mutationKey = mutationOptions?.mutationKey ?? geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationKey()
 
-          return useMutation<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403>, {activityId: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams["activityId"], data: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest}, TContext>({
-            mutationFn: async({ activityId, data }) => {
-              return geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint(activityId, data, config)
+          return useMutation<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationResponse, ResponseErrorConfig<GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint400 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint401 | GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint403>, {standaloneWorkshopId: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointPathParams["standaloneWorkshopId"], data: GeeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpointMutationRequest}, TContext>({
+            mutationFn: async({ standaloneWorkshopId, data }) => {
+              return geeksHackingPortalApiEndpointsOrganizersActivitiesStandaloneWorkshopsEndpoint(standaloneWorkshopId, data, config)
             },
             mutationKey,
             ...mutationOptions

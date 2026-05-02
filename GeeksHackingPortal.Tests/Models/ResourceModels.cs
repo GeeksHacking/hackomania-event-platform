@@ -40,7 +40,7 @@ public class ResourceRedemptionResponse
 {
     public Guid RedemptionId { get; set; }
     public Guid ResourceId { get; set; }
-    public Guid HackathonId { get; set; }
+    public Guid ActivityId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
 

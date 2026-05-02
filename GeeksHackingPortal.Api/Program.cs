@@ -18,11 +18,18 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Client;
 using Scalar.AspNetCore;
 using SqlSugar;
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 
+var startupStopwatch = Stopwatch.StartNew();
+var startupPhaseTimestamp = Stopwatch.GetTimestamp();
+LogStartupPhase("process-started", startupStopwatch, ref startupPhaseTimestamp);
+
 var builder = WebApplication.CreateBuilder(args);
+LogStartupPhase("builder-created", startupStopwatch, ref startupPhaseTimestamp);
 
 builder.AddServiceDefaults();
+LogStartupPhase("service-defaults-registered", startupStopwatch, ref startupPhaseTimestamp);
 
 if (builder.Environment.IsProduction())
 {
@@ -34,6 +41,7 @@ if (builder.Environment.IsProduction())
         }
     );
 }
+LogStartupPhase("cloud-diagnostics-configured", startupStopwatch, ref startupPhaseTimestamp);
 
 var dataProtectionBuilder = builder
     .Services.AddDataProtection()
@@ -52,6 +60,7 @@ if (!string.IsNullOrWhiteSpace(dataProtectionBucketName))
         );
     });
 }
+LogStartupPhase("data-protection-configured", startupStopwatch, ref startupPhaseTimestamp);
 
 builder.Services.AddOptions<AppOptions>().Bind(builder.Configuration.GetSection("App"));
 builder.Services.AddOptions<GitHubOptions>().Bind(builder.Configuration.GetSection("GitHub"));
@@ -80,6 +89,7 @@ builder.Services.AddSingleton<ISqlSugarClient>(s =>
         _ => { }
     );
 });
+LogStartupPhase("database-client-registered", startupStopwatch, ref startupPhaseTimestamp);
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -232,6 +242,8 @@ builder.Services.AddCors(options =>
         policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
+LogStartupPhase("platform-services-registered", startupStopwatch, ref startupPhaseTimestamp);
+
 builder.Services.AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All);
 builder.Services.SwaggerDocument(options =>
 {
@@ -260,6 +272,7 @@ builder.Services.SwaggerDocument(options =>
         t["Admin"] = "Administrative and operational endpoints";
     };
 });
+LogStartupPhase("fastendpoints-and-openapi-registered", startupStopwatch, ref startupPhaseTimestamp);
 
 builder.Services.AddHttpContextAccessor();
 
@@ -278,36 +291,54 @@ builder.Services.AddScoped<IAuthorizationHandler, TeamMemberForHackathonTeamHand
 builder.Services.AddScoped<IAuthorizationHandler, TeamCreatorForHackathonTeamHandler>();
 
 await using var app = builder.Build();
+LogStartupPhase("application-built", startupStopwatch, ref startupPhaseTimestamp);
 
-var schemaMismatchLogged = false;
-try
+var validateDatabaseSchema = builder.Configuration.GetValue(
+    "Startup:ValidateDatabaseSchema",
+    !builder.Environment.IsProduction()
+);
+
+if (validateDatabaseSchema)
 {
-    await using var scope = app.Services.CreateAsyncScope();
-    var sql = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-    var schemaReport = SchemaDifferenceInspector.Inspect(sql);
-
-    if (schemaReport.HasDifferences)
+    var schemaMismatchLogged = false;
+    try
     {
-        app.Logger.LogCritical(
-            "Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API."
-        );
-        SchemaDifferenceLogger.Write(app.Logger, schemaReport, LogLevel.Critical);
-        schemaMismatchLogged = true;
+        await using var scope = app.Services.CreateAsyncScope();
+        var sql = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+        var schemaReport = SchemaDifferenceInspector.Inspect(sql);
 
-        throw new InvalidOperationException(
-            "Database schema does not match the current SqlSugar models. Review the diff and apply the schema changes before starting the API."
+        if (schemaReport.HasDifferences)
+        {
+            app.Logger.LogCritical(
+                "Database schema does not match the current SqlSugar models. Apply the pending changes before starting the API."
+            );
+            SchemaDifferenceLogger.Write(app.Logger, schemaReport, LogLevel.Critical);
+            schemaMismatchLogged = true;
+
+            throw new InvalidOperationException(
+                "Database schema does not match the current SqlSugar models. Review the diff and apply the schema changes before starting the API."
+            );
+        }
+
+        app.Logger.LogInformation(
+            "Database schema validation passed for {EntityCount} entities.",
+            schemaReport.EntityTypes.Count
         );
     }
+    catch (Exception exception) when (!schemaMismatchLogged)
+    {
+        app.Logger.LogCritical(exception, "Database schema validation failed during startup.");
+        throw;
+    }
 
-    app.Logger.LogInformation(
-        "Database schema validation passed for {EntityCount} entities.",
-        schemaReport.EntityTypes.Count
-    );
+    LogStartupPhase("database-schema-validated", startupStopwatch, ref startupPhaseTimestamp);
 }
-catch (Exception exception) when (!schemaMismatchLogged)
+else
 {
-    app.Logger.LogCritical(exception, "Database schema validation failed during startup.");
-    throw;
+    app.Logger.LogInformation(
+        "Database schema validation skipped during startup. Run the database migrator workflow before deployment to detect or apply schema changes."
+    );
+    LogStartupPhase("database-schema-validation-skipped", startupStopwatch, ref startupPhaseTimestamp);
 }
 
 app.UseForwardedHeaders();
@@ -323,5 +354,27 @@ app.UseFastEndpoints(c =>
 app.UseSwaggerGen(options => options.Path = "/openapi/{documentName}.json");
 app.MapScalarApiReference();
 app.MapDefaultEndpoints();
+LogStartupPhase("request-pipeline-configured", startupStopwatch, ref startupPhaseTimestamp);
+
+app.Lifetime.ApplicationStarted.Register(() =>
+    app.Logger.LogInformation(
+        "API startup completed in {ElapsedMilliseconds} ms.",
+        startupStopwatch.ElapsedMilliseconds
+    )
+);
 
 await app.RunAsync();
+
+static void LogStartupPhase(string phase, Stopwatch startupStopwatch, ref long previousTimestamp)
+{
+    var currentTimestamp = Stopwatch.GetTimestamp();
+    var phaseElapsed = Stopwatch.GetElapsedTime(previousTimestamp, currentTimestamp);
+    previousTimestamp = currentTimestamp;
+
+    Console.WriteLine(
+        "[startup] {Phase} phase={PhaseElapsedMilliseconds}ms total={TotalElapsedMilliseconds}ms",
+        phase,
+        phaseElapsed.TotalMilliseconds.ToString("F0"),
+        startupStopwatch.ElapsedMilliseconds
+    );
+}

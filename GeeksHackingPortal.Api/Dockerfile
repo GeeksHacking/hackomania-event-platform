@@ -17,7 +17,14 @@ RUN dotnet build "./GeeksHackingPortal.Api.csproj" -c $BUILD_CONFIGURATION -o /a
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./GeeksHackingPortal.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./GeeksHackingPortal.Api.csproj" \
+    -c $BUILD_CONFIGURATION \
+    -r linux-x64 \
+    --self-contained false \
+    -o /app/publish \
+    /p:PublishReadyToRun=true \
+    /p:PublishReadyToRunShowWarnings=true \
+    /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

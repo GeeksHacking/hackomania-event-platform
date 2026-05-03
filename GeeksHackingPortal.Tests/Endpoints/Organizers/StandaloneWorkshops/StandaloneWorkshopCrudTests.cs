@@ -47,7 +47,7 @@ public class StandaloneWorkshopCrudTests
         );
         request.EmailTemplates = new Dictionary<string, string>
         {
-            ["registration-confirmed"] = "template-registration-confirmed",
+            ["participant.review.accepted"] = "template-participant-review-accepted",
         };
 
         // Act
@@ -60,8 +60,8 @@ public class StandaloneWorkshopCrudTests
         // Assert
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         await Assert.That(result).IsNotNull();
-        await Assert.That(result!.EmailTemplates["registration-confirmed"])
-            .IsEqualTo("template-registration-confirmed");
+        await Assert.That(result!.EmailTemplates["participant.review.accepted"])
+            .IsEqualTo("template-participant-review-accepted");
     }
 
     [Test]
@@ -191,7 +191,7 @@ public class StandaloneWorkshopCrudTests
             IsPublished = false,
             EmailTemplates = new Dictionary<string, string>
             {
-                ["registration-confirmed"] = "updated-template",
+                ["participant.review.rejected"] = "updated-template",
             },
         };
 
@@ -212,7 +212,7 @@ public class StandaloneWorkshopCrudTests
         await Assert.That(result.MaxParticipants).IsEqualTo(request.MaxParticipants);
         await Assert.That(result.HomepageUri).IsEqualTo(request.HomepageUri);
         await Assert.That(result.IsPublished).IsFalse();
-        await Assert.That(result.EmailTemplates["registration-confirmed"]).IsEqualTo("updated-template");
+        await Assert.That(result.EmailTemplates["participant.review.rejected"]).IsEqualTo("updated-template");
     }
 
     [Test]

@@ -3,7 +3,7 @@ namespace GeeksHackingPortal.Tests.Models;
 public class ResourceResponse
 {
     public Guid Id { get; set; }
-    public Guid HackathonId { get; set; }
+    public Guid ActivityId { get; set; }
     public string Name { get; set; } = "";
     public string Description { get; set; } = "";
     public string? RedemptionStmt { get; set; }

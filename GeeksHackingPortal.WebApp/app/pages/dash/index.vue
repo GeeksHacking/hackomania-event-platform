@@ -5,7 +5,6 @@ import type {
   GeeksHackingPortalApiEndpointsParticipantsHackathonStatusResponse,
 } from '@geekshacking/portal-sdk'
 import {
-  useGeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpoint,
   geeksHackingPortalApiEndpointsOrganizersHackathonListEndpointQueryKey,
   geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsAnalyticsEndpointQueryOptions,
   geeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsListEndpointQueryKey,
@@ -14,6 +13,7 @@ import {
   geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryKey,
   geeksHackingPortalApiEndpointsParticipantsHackathonStatusEndpointQueryOptions,
   useGeeksHackingPortalApiEndpointsAuthWhoAmIEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonCreateEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersHackathonListEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint,
@@ -24,13 +24,13 @@ import {
 } from '@geekshacking/portal-sdk/hooks'
 import { useQueries, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, unref } from 'vue'
+import { getApiErrorMessage } from '~/utils/api-errors'
 import {
   formatHackathonDate,
   formatHackathonDateTimeInput,
   HACKATHON_TIME_ZONE_LABEL,
   serializeHackathonDateTimeInput,
 } from '~/utils/hackathon-date-time'
-import { getApiErrorMessage } from '~/utils/api-errors'
 
 const toast = useToast()
 const queryClient = useQueryClient()
@@ -39,21 +39,6 @@ const createMutation = useGeeksHackingPortalApiEndpointsOrganizersHackathonCreat
 const updateHackathonMutation = useGeeksHackingPortalApiEndpointsOrganizersActivitiesHackathonsEndpoint()
 const createStandaloneEventMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsCreateEndpoint()
 const updateStandaloneEventMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsUpdateEndpoint()
-
-interface StandaloneEvent {
-  id?: string
-  title?: string
-  description?: string
-  startTime?: string
-  endTime?: string
-  location?: string
-  homepageUri?: string
-  shortCode?: string
-  maxParticipants?: number
-  isPublished?: boolean
-  createdAt?: string
-  emailTemplates?: Record<string, string>
-}
 
 interface StandaloneEventAnalytics {
   registeredCount?: number
@@ -86,6 +71,7 @@ const hackathonForm = ref({
   judgingStartDate: '',
   judgingEndDate: '',
   isPublished: false,
+  emailTemplates: {} as Record<string, string>,
 })
 
 function resetHackathonForm() {
@@ -103,6 +89,7 @@ function resetHackathonForm() {
     judgingStartDate: '',
     judgingEndDate: '',
     isPublished: false,
+    emailTemplates: {},
   }
   isEditingHackathon.value = false
   editingHackathonId.value = null
@@ -128,6 +115,7 @@ function openEditHackathonModal(hackathon: typeof hackathons.value[number]) {
     judgingStartDate: formatHackathonDateTimeInput(hackathon.judgingStartDate),
     judgingEndDate: formatHackathonDateTimeInput(hackathon.judgingEndDate),
     isPublished: hackathon.isPublished ?? false,
+    emailTemplates: hackathon.emailTemplates ?? {},
   }
   isEditingHackathon.value = true
   editingHackathonId.value = hackathon.id ?? null
@@ -149,6 +137,7 @@ async function handleHackathonSubmit() {
     judgingStartDate: serializeHackathonDateTimeInput(hackathonForm.value.judgingStartDate),
     judgingEndDate: serializeHackathonDateTimeInput(hackathonForm.value.judgingEndDate),
     isPublished: hackathonForm.value.isPublished,
+    emailTemplates: hackathonForm.value.emailTemplates,
   }
 
   try {
@@ -169,6 +158,7 @@ async function handleHackathonSubmit() {
           judgingStartDate: formData.judgingStartDate,
           judgingEndDate: formData.judgingEndDate,
           isPublished: formData.isPublished,
+          emailTemplates: formData.emailTemplates,
         },
       })
       toast.add({ title: 'Hackathon updated', color: 'success' })
@@ -211,7 +201,7 @@ const standaloneEventForm = ref({
   shortCode: '',
   maxParticipants: 0,
   isPublished: false,
-  emailTemplates: '{}',
+  emailTemplates: {} as Record<string, string>,
 })
 
 function resetStandaloneEventForm() {
@@ -225,7 +215,7 @@ function resetStandaloneEventForm() {
     shortCode: '',
     maxParticipants: 0,
     isPublished: false,
-    emailTemplates: '{}',
+    emailTemplates: {},
   }
   isEditingStandaloneEvent.value = false
   editingStandaloneEventId.value = null
@@ -234,32 +224,6 @@ function resetStandaloneEventForm() {
 function openCreateStandaloneEventModal() {
   resetStandaloneEventForm()
   isStandaloneEventModalOpen.value = true
-}
-
-function formatEmailTemplatesInput(templates: Record<string, string> | undefined) {
-  return JSON.stringify(templates ?? {}, null, 2)
-}
-
-function parseEmailTemplatesInput() {
-  try {
-    const value = JSON.parse(standaloneEventForm.value.emailTemplates || '{}')
-    if (value === null || Array.isArray(value) || typeof value !== 'object')
-      throw new Error('Expected an object')
-
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
-        .map(([key, value]) => [key, value.trim()]),
-    )
-  }
-  catch {
-    toast.add({
-      title: 'Invalid email templates',
-      description: 'Use a JSON object like { "registration-confirmed": "template-id" }.',
-      color: 'error',
-    })
-    return null
-  }
 }
 
 function openEditStandaloneEventModal(event: typeof standaloneEvents.value[number]) {
@@ -273,7 +237,7 @@ function openEditStandaloneEventModal(event: typeof standaloneEvents.value[numbe
     shortCode: event.shortCode ?? '',
     maxParticipants: event.maxParticipants ?? 0,
     isPublished: event.isPublished ?? false,
-    emailTemplates: formatEmailTemplatesInput(event.emailTemplates),
+    emailTemplates: event.emailTemplates ?? {},
   }
   isEditingStandaloneEvent.value = true
   editingStandaloneEventId.value = event.id ?? null
@@ -286,10 +250,6 @@ function normalizeOptionalUrl(value: string | null | undefined) {
 }
 
 async function handleStandaloneEventSubmit() {
-  const emailTemplates = parseEmailTemplatesInput()
-  if (emailTemplates === null)
-    return
-
   const formData = {
     title: standaloneEventForm.value.title || undefined,
     description: standaloneEventForm.value.description || undefined,
@@ -300,7 +260,7 @@ async function handleStandaloneEventSubmit() {
     shortCode: standaloneEventForm.value.shortCode || undefined,
     maxParticipants: Number(standaloneEventForm.value.maxParticipants) || undefined,
     isPublished: standaloneEventForm.value.isPublished,
-    emailTemplates,
+    emailTemplates: standaloneEventForm.value.emailTemplates,
   }
 
   try {
@@ -314,7 +274,7 @@ async function handleStandaloneEventSubmit() {
           endTime: formData.endTime,
           location: formData.location,
           isPublished: formData.isPublished,
-          emailTemplates,
+          emailTemplates: formData.emailTemplates,
           // Keep the key present when clearing; null means "remove homepage URL".
           homepageUri: normalizeOptionalUrl(standaloneEventForm.value.homepageUri),
           shortCode: formData.shortCode,
@@ -974,6 +934,13 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
               label="Published"
             />
 
+            <UFormField label="Email Templates">
+              <OrganizersEmailTemplateEditor
+                v-model="hackathonForm.emailTemplates"
+                event-kind="hackathon"
+              />
+            </UFormField>
+
             <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
               <UButton
                 variant="ghost"
@@ -1085,14 +1052,10 @@ function formatParticipantStatus(status: GeeksHackingPortalApiEndpointsParticipa
               />
             </UFormField>
 
-            <UFormField
-              label="Email Templates"
-              help="JSON object keyed by event name, e.g. registration-confirmed."
-            >
-              <UTextarea
+            <UFormField label="Email Templates">
+              <OrganizersEmailTemplateEditor
                 v-model="standaloneEventForm.emailTemplates"
-                :rows="5"
-                class="font-mono text-xs"
+                event-kind="standalone"
               />
             </UFormField>
 

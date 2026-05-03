@@ -31,7 +31,7 @@ const form = ref({
   shortCode: '',
   maxParticipants: 0,
   isPublished: false,
-  emailTemplates: '{}',
+  emailTemplates: {} as Record<string, string>,
 })
 
 watch(
@@ -50,7 +50,7 @@ watch(
       shortCode: value.shortCode ?? '',
       maxParticipants: value.maxParticipants ?? 0,
       isPublished: value.isPublished ?? false,
-      emailTemplates: JSON.stringify(value.emailTemplates ?? {}, null, 2),
+      emailTemplates: value.emailTemplates ?? {},
     }
   },
   { immediate: true },
@@ -58,36 +58,13 @@ watch(
 
 const isSubmitting = computed(() => updateMutation.isPending.value)
 
-function parseEmailTemplates() {
-  try {
-    const value = JSON.parse(form.value.emailTemplates || '{}')
-    if (value === null || Array.isArray(value) || typeof value !== 'object')
-      throw new Error('Expected object')
-
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
-        .map(([key, value]) => [key, value.trim()]),
-    )
-  }
-  catch {
-    toast.add({
-      title: 'Invalid email templates',
-      description: 'Use a JSON object like { "registration-confirmed": "template-id" }.',
-      color: 'error',
-    })
-    return null
-  }
-}
-
 function normalizeOptionalUrl(value: string | null | undefined) {
   const trimmed = (value ?? '').trim()
   return trimmed === '' ? null : trimmed
 }
 
 async function handleSubmit() {
-  const emailTemplates = parseEmailTemplates()
-  if (emailTemplates === null || !standaloneWorkshopId.value)
+  if (!standaloneWorkshopId.value)
     return
 
   try {
@@ -100,7 +77,7 @@ async function handleSubmit() {
         endTime: serializeHackathonDateTimeInput(form.value.endTime),
         location: form.value.location || undefined,
         isPublished: form.value.isPublished,
-        emailTemplates,
+        emailTemplates: form.value.emailTemplates,
         // Keep the key present when clearing; null means "remove homepage URL".
         homepageUri: normalizeOptionalUrl(form.value.homepageUri),
         shortCode: form.value.shortCode || undefined,
@@ -213,14 +190,10 @@ async function handleSubmit() {
             />
           </UFormField>
 
-          <UFormField
-            label="Email Templates"
-            help="JSON object keyed by event name, e.g. registration-confirmed."
-          >
-            <UTextarea
+          <UFormField label="Email Templates">
+            <OrganizersEmailTemplateEditor
               v-model="form.emailTemplates"
-              :rows="5"
-              class="font-mono text-xs"
+              event-kind="standalone"
             />
           </UFormField>
 

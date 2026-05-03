@@ -19,6 +19,12 @@ import { computed } from 'vue'
 type Question = GeeksHackingPortalApiEndpointsOrganizersActivitiesRegistrationQuestionsListQuestionDto
 type QuestionType = GeeksHackingPortalApiEntitiesQuestionType
 
+const props = withDefaults(defineProps<{
+  hackathonId?: string
+}>(), {
+  hackathonId: '',
+})
+
 const questionTypeValues = {
   Text: 'Text',
   LongText: 'LongText',
@@ -33,11 +39,6 @@ const questionTypeValues = {
   Dropdown: 'Dropdown',
 } as const satisfies Record<string, QuestionType>
 
-const props = withDefaults(defineProps<{
-  hackathonId?: string
-}>(), {
-  hackathonId: '',
-})
 const route = useRoute()
 const hackathonId = computed(() => props.hackathonId || (route.params.hackathonId as string | undefined) || '')
 
@@ -48,9 +49,13 @@ const { data: questionsData, isLoading } = useGeeksHackingPortalApiEndpointsOrga
 )
 
 const questions = computed(() => questionsData.value?.questions ?? [])
+const sortedQuestions = computed(() =>
+  [...questions.value].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+)
 
 const editingId = ref<string | null>(null)
 const isCreating = ref(false)
+const draggingQuestionId = ref<string | null>(null)
 const editForm = ref({
   questionText: '',
   questionKey: '',
@@ -219,6 +224,7 @@ async function saveQuestion() {
 }
 
 async function deleteQuestion(questionId: string) {
+  // eslint-disable-next-line no-alert
   if (!confirm('Are you sure you want to delete this question?'))
     return
   await deleteMutation.mutateAsync({ activityId: hackathonId.value, questionId })
@@ -227,10 +233,11 @@ async function deleteQuestion(questionId: string) {
 
 async function deleteAllQuestions() {
   const count = questions.value.length
+  // eslint-disable-next-line no-alert
   if (!confirm(`Are you sure you want to delete all ${count} questions? This action cannot be undone.`))
     return
 
-  for (const question of questions.value) {
+  for (const question of sortedQuestions.value) {
     if (question.id) {
       await deleteMutation.mutateAsync({ activityId: hackathonId.value, questionId: question.id })
     }
@@ -241,6 +248,54 @@ async function deleteAllQuestions() {
 
 function getTypeName(type: QuestionType | null | undefined): string {
   return questionTypes.find(t => t.value === type)?.label ?? 'Unknown'
+}
+
+async function updateQuestionOrder(question: Question, displayOrder: number) {
+  if (!hackathonId.value || !question.id)
+    return
+
+  await updateMutation.mutateAsync({
+    activityId: hackathonId.value,
+    questionId: question.id,
+    data: { displayOrder },
+  })
+}
+
+async function moveQuestion(question: Question, direction: -1 | 1) {
+  const currentIndex = sortedQuestions.value.findIndex(item => item.id === question.id)
+  const targetIndex = currentIndex + direction
+  if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sortedQuestions.value.length)
+    return
+
+  const reordered = [...sortedQuestions.value]
+  const [moved] = reordered.splice(currentIndex, 1)
+  reordered.splice(targetIndex, 0, moved)
+
+  await Promise.all(reordered.map((item, index) => updateQuestionOrder(item, index)))
+  await invalidateQuestions()
+}
+
+function onQuestionDragStart(question: Question) {
+  draggingQuestionId.value = question.id ?? null
+}
+
+async function onQuestionDrop(targetQuestion: Question) {
+  const sourceId = draggingQuestionId.value
+  draggingQuestionId.value = null
+  if (!sourceId || sourceId === targetQuestion.id)
+    return
+
+  const reordered = [...sortedQuestions.value]
+  const sourceIndex = reordered.findIndex(question => question.id === sourceId)
+  const targetIndex = reordered.findIndex(question => question.id === targetQuestion.id)
+  if (sourceIndex < 0 || targetIndex < 0)
+    return
+
+  const [moved] = reordered.splice(sourceIndex, 1)
+  reordered.splice(targetIndex, 0, moved)
+
+  await Promise.all(reordered.map((item, index) => updateQuestionOrder(item, index)))
+  await invalidateQuestions()
 }
 </script>
 
@@ -432,78 +487,104 @@ function getTypeName(type: QuestionType | null | undefined): string {
             </div>
 
             <div
-              v-for="question in questions"
+              v-for="(question, index) in sortedQuestions"
               :key="question.id ?? ''"
-              class="py-2"
+              draggable="true"
+              class="py-2 transition-colors"
+              :class="draggingQuestionId === question.id ? 'bg-(--ui-bg-muted)' : ''"
+              @dragstart="onQuestionDragStart(question)"
+              @dragend="draggingQuestionId = null"
+              @dragover.prevent
+              @drop="onQuestionDrop(question)"
             >
               <!-- View mode -->
               <div
                 v-if="editingId !== question.id"
                 class="flex items-center justify-between"
               >
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium">
-                    {{ question.questionText }}
-                    <UBadge
-                      v-if="question.isRequired"
-                      color="error"
-                      variant="subtle"
-                      size="xs"
-                      class="ml-1"
+                <div class="flex min-w-0 flex-1 gap-3">
+                  <UIcon
+                    name="i-lucide-grip-vertical"
+                    class="mt-1 size-4 shrink-0 cursor-grab text-(--ui-text-muted)"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium">
+                      {{ question.questionText }}
+                      <UBadge
+                        v-if="question.isRequired"
+                        color="error"
+                        variant="subtle"
+                        size="xs"
+                        class="ml-1"
+                      >
+                        Required
+                      </UBadge>
+                    </p>
+                    <p
+                      v-if="question.helpText"
+                      class="text-xs text-(--ui-text-muted)"
                     >
-                      Required
-                    </UBadge>
-                  </p>
-                  <p
-                    v-if="question.helpText"
-                    class="text-xs text-(--ui-text-muted)"
-                  >
-                    {{ question.helpText }}
-                  </p>
-                  <div class="flex flex-wrap gap-2 mt-1">
-                    <UBadge
-                      variant="subtle"
-                      size="xs"
+                      {{ question.helpText }}
+                    </p>
+                    <div class="flex flex-wrap gap-2 mt-1">
+                      <UBadge
+                        variant="subtle"
+                        size="xs"
+                      >
+                        {{ getTypeName(question.type) }}
+                      </UBadge>
+                      <UBadge
+                        v-if="question.questionKey"
+                        variant="outline"
+                        size="xs"
+                      >
+                        {{ question.questionKey }}
+                      </UBadge>
+                      <UBadge
+                        v-if="question.category"
+                        variant="outline"
+                        size="xs"
+                      >
+                        {{ question.category }}
+                      </UBadge>
+                      <UBadge
+                        variant="outline"
+                        size="xs"
+                      >
+                        Order: {{ question.displayOrder ?? 0 }}
+                      </UBadge>
+                    </div>
+                    <div
+                      v-if="question.options?.length"
+                      class="flex flex-wrap gap-1 mt-1"
                     >
-                      {{ getTypeName(question.type) }}
-                    </UBadge>
-                    <UBadge
-                      v-if="question.questionKey"
-                      variant="outline"
-                      size="xs"
-                    >
-                      {{ question.questionKey }}
-                    </UBadge>
-                    <UBadge
-                      v-if="question.category"
-                      variant="outline"
-                      size="xs"
-                    >
-                      {{ question.category }}
-                    </UBadge>
-                    <UBadge
-                      variant="outline"
-                      size="xs"
-                    >
-                      Order: {{ question.displayOrder ?? 0 }}
-                    </UBadge>
-                  </div>
-                  <div
-                    v-if="question.options?.length"
-                    class="flex flex-wrap gap-1 mt-1"
-                  >
-                    <UBadge
-                      v-for="opt in question.options"
-                      :key="opt.id ?? ''"
-                      variant="subtle"
-                      color="neutral"
-                      size="xs"
-                    >
-                      {{ opt.optionText }}
-                    </UBadge>
+                      <UBadge
+                        v-for="opt in question.options"
+                        :key="opt.id ?? ''"
+                        variant="subtle"
+                        color="neutral"
+                        size="xs"
+                      >
+                        {{ opt.optionText }}
+                      </UBadge>
+                    </div>
                   </div>
                 </div>
                 <div class="flex gap-1">
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    icon="i-lucide-arrow-up"
+                    :disabled="index === 0 || updateMutation.isPending.value"
+                    @click="moveQuestion(question, -1)"
+                  />
+                  <UButton
+                    size="xs"
+                    variant="ghost"
+                    icon="i-lucide-arrow-down"
+                    :disabled="index === sortedQuestions.length - 1 || updateMutation.isPending.value"
+                    @click="moveQuestion(question, 1)"
+                  />
                   <UButton
                     size="xs"
                     variant="ghost"

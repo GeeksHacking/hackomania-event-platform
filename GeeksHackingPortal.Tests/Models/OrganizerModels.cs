@@ -18,6 +18,7 @@ public class OrganizerInviteResponse
     public string Code { get; set; } = "";
     public string Type { get; set; } = "";
     public DateTimeOffset ExpiresAt { get; set; }
+    public int? MaxUses { get; set; }
 }
 
 public class AcceptInviteResponse

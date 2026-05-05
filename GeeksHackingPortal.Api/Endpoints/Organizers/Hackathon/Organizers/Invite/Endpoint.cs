@@ -17,7 +17,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         {
             s.Summary = "Create an organizer invite code for a hackathon";
             s.Description =
-                "Generates a single-use invite code that another user can redeem to join the hackathon as an organizer.";
+                "Generates a reusable invite code that other users can redeem to join the hackathon as an organizer.";
         });
     }
 
@@ -49,10 +49,11 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             CreatedByUserId = userId.Value,
             CreatedAt = DateTimeOffset.UtcNow,
             ExpiresAt = expiresAt,
+            MaxUses = req.MaxUses,
         };
 
         await sql.Insertable(invite).ExecuteCommandAsync(ct);
 
-        await Send.OkAsync(new Response { Code = code, Type = req.Type, ExpiresAt = expiresAt }, ct);
+        await Send.OkAsync(new Response { Code = code, Type = req.Type, ExpiresAt = expiresAt, MaxUses = req.MaxUses }, ct);
     }
 }

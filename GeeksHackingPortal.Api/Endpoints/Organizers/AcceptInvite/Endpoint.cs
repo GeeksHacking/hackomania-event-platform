@@ -20,7 +20,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         {
             s.Summary = "Accept an organizer invite";
             s.Description =
-                "Redeems an invite code and registers the current user as an organizer for the activity the code was issued for.";
+                "Redeems an invite code and registers the current user as an organizer for the activity the code was issued for. Codes are reusable unless a MaxUses limit is set.";
         });
     }
 
@@ -43,16 +43,30 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             return;
         }
 
-        if (invite.UsedAt is not null)
+        if (invite.ExpiresAt is not null && invite.ExpiresAt < DateTimeOffset.UtcNow)
         {
-            AddError(r => r.Code, "Invite code has already been used.");
+            AddError(r => r.Code, "Invite code has expired.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
 
-        if (invite.ExpiresAt is not null && invite.ExpiresAt < DateTimeOffset.UtcNow)
+        if (invite.MaxUses is not null)
         {
-            AddError(r => r.Code, "Invite code has expired.");
+            var useCount = await sql.Queryable<ActivityOrganizerInviteUse>()
+                .CountAsync(u => u.InviteId == invite.Id, ct);
+            if (useCount >= invite.MaxUses)
+            {
+                AddError(r => r.Code, "Invite code has reached its maximum number of uses.");
+                await Send.ErrorsAsync(cancellation: ct);
+                return;
+            }
+        }
+
+        var alreadyUsed = await sql.Queryable<ActivityOrganizerInviteUse>()
+            .AnyAsync(u => u.InviteId == invite.Id && u.UserId == userId.Value, ct);
+        if (alreadyUsed)
+        {
+            AddError(r => r.Code, "You have already used this invite code.");
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
@@ -74,9 +88,6 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         }
 
         var now = DateTimeOffset.UtcNow;
-        invite.UsedByUserId = userId.Value;
-        invite.UsedAt = now;
-
         var activityOrganizerId = Guid.NewGuid();
         var activityOrganizer = new ActivityOrganizer
         {
@@ -85,6 +96,13 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             UserId = userId.Value,
             Type = invite.Type,
             CreatedAt = now,
+        };
+        var inviteUse = new ActivityOrganizerInviteUse
+        {
+            Id = Guid.NewGuid(),
+            InviteId = invite.Id,
+            UserId = userId.Value,
+            UsedAt = now,
         };
 
         if (activity.Kind == ActivityKind.Hackathon)
@@ -101,9 +119,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             {
                 await sql.Insertable(organizer).ExecuteCommandAsync(ct);
                 await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
-                await sql.Updateable(invite)
-                    .UpdateColumns(i => new { i.UsedByUserId, i.UsedAt })
-                    .ExecuteCommandAsync(ct);
+                await sql.Insertable(inviteUse).ExecuteCommandAsync(ct);
             });
 
             if (!transactionResult.IsSuccess)
@@ -116,9 +132,7 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             var transactionResult = await sql.Ado.UseTranAsync(async () =>
             {
                 await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
-                await sql.Updateable(invite)
-                    .UpdateColumns(i => new { i.UsedByUserId, i.UsedAt })
-                    .ExecuteCommandAsync(ct);
+                await sql.Insertable(inviteUse).ExecuteCommandAsync(ct);
             });
 
             if (!transactionResult.IsSuccess)
@@ -133,3 +147,4 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
         );
     }
 }
+

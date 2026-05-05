@@ -7,4 +7,5 @@ public class Response
     public string Code { get; set; } = null!;
     public OrganizerType Type { get; set; }
     public DateTimeOffset ExpiresAt { get; set; }
+    public int? MaxUses { get; set; }
 }

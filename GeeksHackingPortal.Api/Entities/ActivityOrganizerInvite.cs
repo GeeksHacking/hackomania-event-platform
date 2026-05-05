@@ -20,10 +20,16 @@ public class ActivityOrganizerInvite
 
     public DateTimeOffset? ExpiresAt { get; set; }
 
-    public Guid? UsedByUserId { get; set; }
-
-    public DateTimeOffset? UsedAt { get; set; }
+    /// <summary>
+    /// Maximum number of times the invite can be used. Null means unlimited.
+    /// </summary>
+    [SugarColumn(IsNullable = true)]
+    public int? MaxUses { get; set; }
 
     [Navigate(NavigateType.ManyToOne, nameof(ActivityId))]
     public Activity Activity { get; set; } = null!;
+
+    [Navigate(NavigateType.OneToMany, nameof(ActivityOrganizerInviteUse.InviteId))]
+    public List<ActivityOrganizerInviteUse> Uses { get; set; } = null!;
 }
+

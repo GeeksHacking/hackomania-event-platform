@@ -7,4 +7,6 @@ public class Request
     public Guid StandaloneWorkshopId { get; set; }
     public OrganizerType Type { get; set; } = OrganizerType.Volunteer;
     public DateTimeOffset? ExpiresAt { get; set; }
+    /// <summary>Maximum number of redemptions. Null means unlimited.</summary>
+    public int? MaxUses { get; set; }
 }

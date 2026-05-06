@@ -105,40 +105,27 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             UsedAt = now,
         };
 
-        if (activity.Kind == ActivityKind.Hackathon)
+        var transactionResult = await sql.Ado.UseTranAsync(async () =>
         {
-            var organizer = new Organizer
+            if (activity.Kind == ActivityKind.Hackathon)
             {
-                Id = activityOrganizerId,
-                HackathonId = invite.ActivityId,
-                UserId = userId.Value,
-                Type = invite.Type,
-            };
-
-            var transactionResult = await sql.Ado.UseTranAsync(async () =>
-            {
+                var organizer = new Organizer
+                {
+                    Id = activityOrganizerId,
+                    HackathonId = invite.ActivityId,
+                    UserId = userId.Value,
+                    Type = invite.Type,
+                };
                 await sql.Insertable(organizer).ExecuteCommandAsync(ct);
-                await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
-                await sql.Insertable(inviteUse).ExecuteCommandAsync(ct);
-            });
-
-            if (!transactionResult.IsSuccess)
-            {
-                throw transactionResult.ErrorException!;
             }
-        }
-        else
+
+            await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
+            await sql.Insertable(inviteUse).ExecuteCommandAsync(ct);
+        });
+
+        if (!transactionResult.IsSuccess)
         {
-            var transactionResult = await sql.Ado.UseTranAsync(async () =>
-            {
-                await sql.Insertable(activityOrganizer).ExecuteCommandAsync(ct);
-                await sql.Insertable(inviteUse).ExecuteCommandAsync(ct);
-            });
-
-            if (!transactionResult.IsSuccess)
-            {
-                throw transactionResult.ErrorException!;
-            }
+            throw transactionResult.ErrorException!;
         }
 
         await Send.OkAsync(

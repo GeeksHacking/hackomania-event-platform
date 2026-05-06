@@ -4,6 +4,7 @@ import {
   useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersAddEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersDeleteEndpoint,
   useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersListEndpoint,
+  useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersInviteEndpoint,
 } from '@geekshacking/portal-sdk/hooks'
 import { useQueryClient } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
@@ -22,20 +23,41 @@ const organizers = computed(() => organizersData.value?.organizers ?? [])
 
 const addMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersAddEndpoint()
 const deleteMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersDeleteEndpoint()
+const inviteMutation = useGeeksHackingPortalApiEndpointsOrganizersStandaloneWorkshopsOrganizersInviteEndpoint()
 
 const isAddModalOpen = ref(false)
+const isInviteModalOpen = ref(false)
 const form = ref({
   userId: '',
   type: 'Volunteer' as 'Admin' | 'Volunteer',
 })
+const inviteForm = ref({
+  type: 'Volunteer' as 'Admin' | 'Volunteer',
+  maxUses: null as number | null,
+})
+const generatedInviteCode = ref<string | null>(null)
+const generatedInviteExpiresAt = ref<string | null>(null)
+const generatedInviteMaxUses = ref<number | null>(null)
 
 function resetForm() {
   form.value = { userId: '', type: 'Volunteer' }
 }
 
+function resetInviteForm() {
+  inviteForm.value = { type: 'Volunteer', maxUses: null }
+  generatedInviteCode.value = null
+  generatedInviteExpiresAt.value = null
+  generatedInviteMaxUses.value = null
+}
+
 function openAddModal() {
   resetForm()
   isAddModalOpen.value = true
+}
+
+function openInviteModal() {
+  resetInviteForm()
+  isInviteModalOpen.value = true
 }
 
 async function handleAdd() {
@@ -61,6 +83,31 @@ async function handleAdd() {
   }
 }
 
+async function handleGenerateInvite() {
+  try {
+    const result = await inviteMutation.mutateAsync({
+      standaloneWorkshopId: standaloneWorkshopId.value,
+      data: {
+        type: inviteForm.value.type,
+        maxUses: inviteForm.value.maxUses ?? undefined,
+      },
+    })
+    generatedInviteCode.value = result?.code ?? null
+    generatedInviteExpiresAt.value = result?.expiresAt ?? null
+    generatedInviteMaxUses.value = result?.maxUses ?? null
+  }
+  catch {
+    toast.add({ title: 'Failed to generate invite code', color: 'error' })
+  }
+}
+
+function copyInviteCode() {
+  if (generatedInviteCode.value) {
+    navigator.clipboard.writeText(generatedInviteCode.value)
+    toast.add({ title: 'Invite code copied!', color: 'success' })
+  }
+}
+
 async function handleDelete(userId: string) {
   try {
     await deleteMutation.mutateAsync({ standaloneWorkshopId: standaloneWorkshopId.value, userId })
@@ -75,6 +122,7 @@ async function handleDelete(userId: string) {
 }
 
 const isSubmitting = computed(() => addMutation.isPending.value)
+const isGeneratingInvite = computed(() => inviteMutation.isPending.value)
 </script>
 
 <template>
@@ -97,14 +145,25 @@ const isSubmitting = computed(() => addMutation.isPending.value)
           >
             {{ organizers.length }} total
           </UBadge>
-          <UButton
-            size="xs"
-            icon="i-lucide-plus"
-            class="w-full sm:w-auto"
-            @click="openAddModal"
-          >
-            Add Organizer
-          </UButton>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <UButton
+              size="xs"
+              icon="i-lucide-link"
+              variant="outline"
+              class="w-full sm:w-auto"
+              @click="openInviteModal"
+            >
+              Create Invite Link
+            </UButton>
+            <UButton
+              size="xs"
+              icon="i-lucide-plus"
+              class="w-full sm:w-auto"
+              @click="openAddModal"
+            >
+              Add Organizer
+            </UButton>
+          </div>
         </div>
 
         <div class="rounded-xl border border-(--ui-border) bg-(--ui-bg)">
@@ -161,6 +220,7 @@ const isSubmitting = computed(() => addMutation.isPending.value)
           </div>
         </div>
 
+        <!-- Add Organizer Modal -->
         <UModal v-model:open="isAddModalOpen">
           <template #content>
             <UCard>
@@ -214,7 +274,113 @@ const isSubmitting = computed(() => addMutation.isPending.value)
             </UCard>
           </template>
         </UModal>
+
+        <!-- Create Invite Link Modal -->
+        <UModal v-model:open="isInviteModalOpen">
+          <template #content>
+            <UCard>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-semibold">
+                    Create Invite Link
+                  </h3>
+                  <UButton
+                    variant="ghost"
+                    icon="i-lucide-x"
+                    size="xs"
+                    @click="isInviteModalOpen = false"
+                  />
+                </div>
+              </template>
+
+              <div class="space-y-4">
+                <div
+                  v-if="!generatedInviteCode"
+                  class="space-y-4"
+                >
+                  <UFormField label="Role">
+                    <USelect
+                      v-model="inviteForm.type"
+                      :items="[{ label: 'Volunteer', value: 'Volunteer' }, { label: 'Admin', value: 'Admin' }]"
+                    />
+                  </UFormField>
+
+                  <UFormField
+                    label="Max Uses"
+                    description="Leave empty for unlimited uses."
+                  >
+                    <UInput
+                      v-model.number="inviteForm.maxUses"
+                      type="number"
+                      placeholder="Unlimited"
+                      :min="1"
+                    />
+                  </UFormField>
+
+                  <div class="flex justify-end gap-2">
+                    <UButton
+                      variant="ghost"
+                      @click="isInviteModalOpen = false"
+                    >
+                      Cancel
+                    </UButton>
+                    <UButton
+                      :loading="isGeneratingInvite"
+                      icon="i-lucide-link"
+                      @click="handleGenerateInvite"
+                    >
+                      Generate
+                    </UButton>
+                  </div>
+                </div>
+
+                <div
+                  v-else
+                  class="space-y-4"
+                >
+                  <div class="rounded-lg border border-(--ui-border) bg-(--ui-bg-elevated) p-4 space-y-2">
+                    <p class="text-xs text-(--ui-text-muted)">
+                      Invite code
+                    </p>
+                    <div class="flex items-center gap-2">
+                      <code class="flex-1 text-base font-mono font-semibold tracking-widest">{{ generatedInviteCode }}</code>
+                      <UButton
+                        size="xs"
+                        variant="ghost"
+                        icon="i-lucide-copy"
+                        @click="copyInviteCode"
+                      />
+                    </div>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      Expires: {{ generatedInviteExpiresAt ? new Date(generatedInviteExpiresAt).toLocaleString() : 'N/A' }}
+                    </p>
+                    <p class="text-xs text-(--ui-text-muted)">
+                      Max uses: {{ generatedInviteMaxUses ?? 'Unlimited' }}
+                    </p>
+                  </div>
+
+                  <p class="text-sm text-(--ui-text-muted)">
+                    Share this code with anyone you want to add as an organizer. They can use it at the accept invite page.
+                  </p>
+
+                  <div class="flex justify-end gap-2">
+                    <UButton
+                      variant="ghost"
+                      @click="resetInviteForm"
+                    >
+                      Generate Another
+                    </UButton>
+                    <UButton @click="isInviteModalOpen = false">
+                      Done
+                    </UButton>
+                  </div>
+                </div>
+              </div>
+            </UCard>
+          </template>
+        </UModal>
       </div>
     </template>
   </UDashboardPanel>
 </template>
+

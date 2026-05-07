@@ -32,8 +32,9 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             throw new ArgumentNullException(nameof(userId));
         }
 
+        var code = req.Code?.Trim().ToUpperInvariant();
         var invite = await sql.Queryable<ActivityOrganizerInvite>()
-            .Where(i => i.Code == req.Code)
+            .Where(i => i.Code == code)
             .FirstAsync(ct);
 
         if (invite is null)
@@ -66,8 +67,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .AnyAsync(u => u.InviteId == invite.Id && u.UserId == userId.Value, ct);
         if (alreadyUsed)
         {
-            AddError(r => r.Code, "You have already used this invite code.");
-            await Send.ErrorsAsync(cancellation: ct);
+            await Send.OkAsync(
+                new Response { ActivityId = invite.ActivityId, Type = invite.Type },
+                ct
+            );
             return;
         }
 
@@ -82,8 +85,10 @@ public class Endpoint(ISqlSugarClient sql) : Endpoint<Request, Response>
             .AnyAsync(o => o.ActivityId == invite.ActivityId && o.UserId == userId.Value, ct);
         if (alreadyOrganizer)
         {
-            AddError(r => r.Code, "You are already an organizer for this activity.");
-            await Send.ErrorsAsync(cancellation: ct);
+            await Send.OkAsync(
+                new Response { ActivityId = invite.ActivityId, Type = invite.Type },
+                ct
+            );
             return;
         }
 

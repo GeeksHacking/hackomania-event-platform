@@ -1,14 +1,18 @@
 type ValidationErrorValue = string[] | string
-type ValidationErrorBag = Record<string, ValidationErrorValue>
+interface ValidationErrorBag extends Record<string, ValidationErrorValue> {}
 
-type ApiErrorPayload = {
+interface ApiErrorPayload {
   message?: unknown
+  Message?: unknown
   reason?: unknown
+  Reason?: unknown
   title?: unknown
+  Title?: unknown
   errors?: unknown
+  Errors?: unknown
 }
 
-type ApiErrorLike = {
+interface ApiErrorLike {
   message?: unknown
   data?: ApiErrorPayload
   response?: {
@@ -51,8 +55,8 @@ export function getApiErrorPayload(error: unknown): ApiErrorPayload | undefined 
 
 export function getApiValidationErrors(error: unknown): ValidationErrorBag {
   const payload = getApiErrorPayload(error)
-  if (payload?.errors)
-    return normalizeValidationErrors(payload.errors)
+  if (payload?.errors || payload?.Errors)
+    return normalizeValidationErrors(payload.errors ?? payload.Errors)
 
   if (error && typeof error === 'object') {
     const candidate = error as ApiErrorLike
@@ -63,20 +67,20 @@ export function getApiValidationErrors(error: unknown): ValidationErrorBag {
 }
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object') {
-    const candidate = error as ApiErrorLike
-    if (typeof candidate.message === 'string' && candidate.message.trim())
-      return candidate.message
-  }
-
   const payload = getApiErrorPayload(error)
   if (payload) {
     if (typeof payload.message === 'string' && payload.message.trim())
       return payload.message
+    if (typeof payload.Message === 'string' && payload.Message.trim())
+      return payload.Message
     if (typeof payload.reason === 'string' && payload.reason.trim())
       return payload.reason
+    if (typeof payload.Reason === 'string' && payload.Reason.trim())
+      return payload.Reason
     if (typeof payload.title === 'string' && payload.title.trim())
       return payload.title
+    if (typeof payload.Title === 'string' && payload.Title.trim())
+      return payload.Title
 
     const firstFieldError = Object.values(getApiValidationErrors(error)).flatMap(value =>
       Array.isArray(value) ? value : [value],
@@ -84,6 +88,12 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 
     if (typeof firstFieldError === 'string' && firstFieldError.trim())
       return firstFieldError
+  }
+
+  if (error && typeof error === 'object') {
+    const candidate = error as ApiErrorLike
+    if (typeof candidate.message === 'string' && candidate.message.trim())
+      return candidate.message
   }
 
   return fallback
